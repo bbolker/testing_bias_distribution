@@ -8,7 +8,6 @@ library(ggplot2); theme_set(theme_bw())
 library(viridis)
 library(bbmle)
 library(RTMB)
-## FIXME: assume different head/working directory?
 source("covid19testing_funs.R")
 ```
 
@@ -35,10 +34,11 @@ Now let's consider that in general we test people in (approximate) order of thei
 
 Let's use a Beta distribution with mean equal to prevalence $i$ as the distribution of 'probability infected'. (An alternative that might be more analytically tractable is the [Kumaraswamy distribution](https://en.wikipedia.org/wiki/Kumaraswamy_distribution).)  As the dispersion $\gamma=1/(a+b)$ goes to infinity we end up with point masses $1-i$ on 0 and $i$ on 1; as it goes to 0 we end up with a point mass on $i$. If we always test 'from the top down' (i.e. calculate the mean value of the top fraction $t = T/N$ of the population distribution), these two extreme cases correspond to perfect testing (cases=$\min(T,I)$) and random testing (cases=$\textrm{Binomial}(i,T)$).
 
-If $B$ is the Beta distribution with mean $i$ and dispersion $\gamma$, $\Phi_B$ is the CDF, and $Q$ is the inverse CDF (i.e., the quantile function) then our expected proportion positive from testing a fraction $T$ is 
+If $B$ is the Beta distribution with mean $i$ and dispersion $\gamma$, $\Phi_B$ is the CDF, and $Q$ is the inverse CDF (i.e., the quantile function) then our expected proportion positive from testing a fraction $t=T/N$ is 
 	
 $$
-\frac{\left(\int_{Q(1-t)}^1 B(y,\phi) y \, dy\right)}{1-\Phi_B(Q(1-t))}
+\frac{\left(\int_{Q(1-t)}^1 B(y,\phi) y \, dy\right)}{1-\Phi_B(Q(1-t))} = 
+\frac{\left(\int_{Q(1-t)}^1 B(y,\phi) y \, dy\right)}{t}
 $$
 
 i.e. the mean of the upper tail of the infection-probability distribution.
@@ -294,7 +294,7 @@ tmbprof2 <- function(obj, pars, conf.level = 0.95, ...) {
 ```
 
 ```{r rtmb-prof, cache = TRUE}
-prof <- tmbprof2(ff, c("plogis_phi", "logit_i_0", "r"), ystep = 0.01)
+prof <- tmbprof2(ff, c("logit_i_0", "r", "plogis_phi"), ystep = 0.01)
 ```
 
 ```{r rtmb-prof-plot}
@@ -304,10 +304,27 @@ ggplot(prof, aes(.focal, value)) +
 ```
 
 ```{r rtmb-ci}
-knitr::kable(attr(prof, "ci"))
+true_vec <- unlist(sapply(pars, unname))
+citab <- (attr(prof, "ci")
+    |> mutate(est = fit$par[.data$var],
+              true = true_vec[.data$var],
+              .before = lower)
+    |> mutate(across(upper, ~ replace_na(., Inf)))
+)
+    
+knitr::kable(citab)
 ```
 
-(compare against true values? coverage on multiple sims? compare against naive estimates, uncorrecting for testing bias?
+```{r ci-plot}
+ggplot(citab, aes(est, var)) +
+    geom_pointrange(aes(xmin=lower, xmax = upper)) +
+    geom_point(aes(x=true), colour = "red", size = 4) +
+    facet_wrap(~var, scale = "free", ncol = 1) +
+    labs(y = "", x = "")
+
+```
+
+(run multiple sims for RMSE/coverage/bias/etc.? compare against naive estimates, uncorrecting for testing bias?
 
 - The next simulation is for understanding better what we're really modeling here. The simulation should be a more mechanistic description of the infection and testing process: not sure how this actually worked. There must be some infection process (e.g. an SIR model ...) and some process by which people get assigned a probability of being chosen for testing, which we can match up with the mathematical description above. The testing process is also mechanistic; after testing people get removed from the testable pool.
 
