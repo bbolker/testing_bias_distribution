@@ -30,8 +30,6 @@ Now let's consider that in general we test people in (approximate) order of thei
 
 ## Machinery
 
-## SZ: I suggest that the dispersion should always set to $\gamma \in (0,+\infty)$ instead of $\phi$, which was later used as "testing focus" and constrant between $(0,1)$. These two parameter are "equvialent" under transformation but cannot be numerically swiched/equal.
-
 Let's use a Beta distribution with mean equal to prevalence $i$ as the distribution of 'probability infected'. (An alternative that might be more analytically tractable is the [Kumaraswamy distribution](https://en.wikipedia.org/wiki/Kumaraswamy_distribution).)  As the dispersion $\gamma=1/(a+b)$ goes to infinity we end up with point masses $1-i$ on 0 and $i$ on 1; as it goes to 0 we end up with a point mass on $i$. If we always test 'from the top down' (i.e. calculate the mean value of the top fraction $t = T/N$ of the population distribution), these two extreme cases correspond to perfect testing (cases=$\min(T,I)$) and random testing (cases=$\textrm{Binomial}(i,T)$).
 
 If $B$ is the Beta distribution with mean $i$ and dispersion $\gamma$, $\Phi_B$ is the CDF, and $Q$ is the inverse CDF (i.e., the quantile function) then our expected proportion positive from testing a fraction $t=T/N$ is 
@@ -111,7 +109,22 @@ $$
 The probability of testing is 0 below the threshold and 1 above it; thus this distribution should be a Bernoulli with weight $1-t$ on zero and $t$ on 1.
 Thus the numerator is the value we've already computed for the numerator of the proportion-positive value ($\int_{1-t}^1 x \cdot \textrm{Beta(x)}\,dx$), *minus* the product of the testing and infection means ($= ti$, using the usual identity $E[(A-\bar A)(B-\bar B)] = E[AB] - \bar A \bar B$). The variance of testing probability is ($(1-t)\cdot 0^2 + t \cdot 1^2 = t$); the variance of infection probability is the variance of the Beta distribution.
 
-**FIXME**: SZ suggests I got phi calculation wrong here. (Backwards?)
+```{r num_corr, cache=TRUE, echo = FALSE}
+## numerical test of 'interesting' case
+num_cor <- function(i, t, phi, n = 1e5) {
+    gamma <- -log(1-phi)
+    a <- i/gamma; b <- (1-i)/gamma
+    lwr <- qbeta(t, a, b, lower.tail = FALSE)
+    x <- rbeta(n, a, b)
+    y <- as.numeric(x>lwr)
+    cc <- cor.test(x,y)
+    data.frame(cor = cc$estimate, lwr=cc$conf.int[1], upr = cc$conf.int[2])
+}
+phivec <- seq(0.1, 0.95, by = 0.05)
+set.seed(101)
+numcor <- (purrr::map_dfr(phivec, \(p) num_cor(i=0.1, t=0.01, phi=p))
+    |> mutate(phi=phivec, .before = 1))
+```
 
 ```{r phi_corr}
 inf_test_corr <- function(i, t, phi) {
@@ -131,13 +144,15 @@ cordf <- data.frame(i = rep(c(0.25, 0.1), c(nn, 2*nn)),
 cordf$cor <- with(cordf, inf_test_corr(i,t,phi))
 cordf$cat <- with(cordf, sprintf("i = %1.2f, t = %1.2f", i, t))
 cordf$cat <- factor(cordf$cat, levels = unique(cordf$cat))
-ggplot(cordf, aes(phi, cor, colour = cat)) + geom_line()
+ggplot(cordf, aes(phi, cor, colour = cat)) + geom_line() +
+    geom_pointrange(data = numcor, aes(y=cor, ymin = lwr, ymax = upr),
+                    colour = "blue", size = 0.1)
+
 ```
 
 - ?? Is it true that correlation *decreases* with large $\phi$ when testing and prevalence are low ... ?? (Seems too large an effect to be due to numeric problems)
-- SZ: current investigation indicates that the "decrease" is caused by the non-ideal bimodal shape of Beta when $\phi$ is large, when $t$ is small, as $t$ increase, the test positivity decrease rapidly. But I doubt currently if this is decrease is determined by monotocity(1st order derivative) of the beta distribution curve or together with concave (2nd order derivative) or even more complicated behaviour. 
-- ?? Is there a simple expression for cor as a function of $\phi$ or *vice versa*?
-- SZ: I will work on this a little bit and see.
+- SZ: current investigation indicates that the "decrease" is caused by the bimodality of Beta when $\phi$ is large, when $t$ is small, as $t$ increase, the test positivity decrease rapidly. But I doubt currently if this is decrease is determined by monotocity (1st order derivative) of the beta distribution curve or together with concave (2nd order derivative) or even more complicated behaviour. 
+- ?? Is there a simple expression for cor as a function of $\phi$ or *vice versa*? (probably not but ??)
 
 ## Numerical examples
 
@@ -297,12 +312,6 @@ tmbprof2 <- function(obj, pars, conf.level = 0.95, ...) {
 prof <- tmbprof2(ff, c("logit_i_0", "r", "plogis_phi"), ystep = 0.01)
 ```
 
-```{r rtmb-prof-plot}
-ggplot(prof, aes(.focal, value)) +
-    geom_line() + facet_wrap(~var, scale = "free") +
-    geom_hline(yintercept = 1.96, lty = 2)
-```
-
 ```{r rtmb-ci}
 true_vec <- unlist(sapply(pars, unname))
 citab <- (attr(prof, "ci")
@@ -311,7 +320,17 @@ citab <- (attr(prof, "ci")
               .before = lower)
     |> mutate(across(upper, ~ replace_na(., Inf)))
 )
-    
+```
+
+```{r rtmb-prof-plot}
+ggplot(prof, aes(.focal, value)) +
+    geom_line() + facet_wrap(~var, scale = "free_x") +
+    geom_hline(yintercept = 1.96, lty = 2) +
+    geom_vline(data = citab, aes(xintercept = true), lty = 2, colour = "red") +
+    theme(panel.spacing = grid::unit(0, "lines"))
+```
+
+```{r}
 knitr::kable(citab)
 ```
 
