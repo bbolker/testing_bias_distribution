@@ -25,13 +25,15 @@ In a complete agent-based model (or a model based on a complex compartmental str
 There are two extreme scenarios that are easy to reason about.
 
 * if testing is random, the proportion of positive tests should be the same as the prevalence (or incidence - I'm not being precise about whether we are measuring a flow or a stock, but I don't think it makes a difference), regardless of either. Increasing the number of tests when the prevalence is constant leads to a proportional increase in the number of cases. The proportion of positive tests is $i$ and the number of cases (i.e., positive tests) is $iT$. (I'm using $i$, $t$ for proportion of the population infected or tested and $I$, $T$ as the number infected or tested: $I=iN$, $T=tN$.) If the prevalence is increasing exponentially with rate $r_1$ and testing is increasing at rate $r_2$, the number of cases increases at rate $r_1 + r_2$ (and doubling time $\log(2)/(r1+r2)$).
-* if testing is perfectly focused on infected people, then tests are 100% positive until we run out of infected people (i.e. proportion of pop tested > prevalence). The proportion of positive tests is $\max(1,i/t)$ and the number of cases is $\max(T,I)$.
+* if testing is perfectly focused on infected people, then tests are 100% positive until we run out of infected people (i.e. proportion of pop tested > prevalence). The proportion of positive tests is $\min(1,i/t)$ and the number of cases is $\min(T,I)$.
 
 Now let's consider that in general we test people in (approximate) order of their probability of infection (ignoring tests skipped because of constraints). We can think about a distribution in the population of probability of infection (higher for known contacts of infected people, travellers from high-risk areas, etc.), and a distribution in the probability of testing (which ideally lines up with the risk). We could think about having two distributions, but these can't really be separated (FIXME: explain better!).
 
 ## Machinery
 
-Let's use a Beta distribution with mean equal to prevalence $i$ as the distribution of 'probability infected'. (An alternative that might be more analytically tractable is the [Kumaraswamy distribution](https://en.wikipedia.org/wiki/Kumaraswamy_distribution).)  As the dispersion $\phi=1/(a+b)$ goes to infinity we end up with point masses $1-i$ on 0 and $i$ on 1; as it goes to 0 we end up with a point mass on $i$. If we always test 'from the top down' (i.e. calculate the mean value of the top fraction $t = T/N$ of the population distribution), these two extreme cases correspond to perfect testing (cases=$\min(T,I)$) and random testing (cases=$\textrm{Binomial}(i,T)$).
+## SZ: I suggest that the dispersion should always set to $\gamma \in (0,+\infty)$ instead of $\phi$, which was later used as "testing focus" and constrant between $(0,1)$. These two parameter are "equvialent" under transformation but cannot be numerically swiched/equal.
+
+Let's use a Beta distribution with mean equal to prevalence $i$ as the distribution of 'probability infected'. (An alternative that might be more analytically tractable is the [Kumaraswamy distribution](https://en.wikipedia.org/wiki/Kumaraswamy_distribution).)  As the dispersion $\gamma=1/(a+b)$ goes to infinity we end up with point masses $1-i$ on 0 and $i$ on 1; as it goes to 0 we end up with a point mass on $i$. If we always test 'from the top down' (i.e. calculate the mean value of the top fraction $t = T/N$ of the population distribution), these two extreme cases correspond to perfect testing (cases=$\min(T,I)$) and random testing (cases=$\textrm{Binomial}(i,T)$).
 
 If $B$ is the Beta distribution with mean $i$ and dispersion $\gamma$, $\Phi_B$ is the CDF, and $Q$ is the inverse CDF (i.e., the quantile function) then our expected proportion positive from testing a fraction $T$ is 
 	
@@ -65,14 +67,15 @@ Since we set the mean $a/(a+b)$ of the distribution $B(x,a,b)$ to $i$, we have $
 
 Can we do a little bit more here since we're integrating this from $Q(a,b)$ to 1 ... ?
 
-In order to make the dispersion parameter a little more interpretable we will transform the parameter $\gamma$ from $(0,\infty)$  to a value $\phi=-\log(1-\gamma)$ (i.e. $\gamma=1-\exp(-\phi)$), so that 0 corresponds to random testing and 1 corresponds to perfectly focused testing.
+In order to make the dispersion parameter a little more interpretable we will transform the parameter $\gamma$ from $(0,\infty)$  to a value $\phi = 1-\exp(-\gamma) \in (0,1) (i.e. \gamma=-\log(1-\phi))$ (previously: $\phi=-\log(1-\gamma)$ (i.e. $\gamma=1-\exp(-\phi)$)), so that 0 corresponds to random testing and 1 corresponds to perfectly focused testing.
 
 If we wanted to get more realistic/detailed we could relax the assumption of a Beta distribution and instead characterize the distribution of probability infected as a mixture of types (general population, symptomatic, travel history, etc.), with the constraint of a mean of $i$ \ldots
 
 ## Graphical example
 
 ```{r fig1-calcs, echo = FALSE}
-## a = i/phi, b = (1-i)/phi, so if we want a = 1, b=3 with i = 0.25, phi =  0.25
+## SZ: gamma = -log(1-phi)
+## SZ: a = i/gamma, b = (1-i)/gamma, so if we want a = 1, b=3 with i = 0.25, gamma =  0.25, phi = 0.2211992
 incid <- 0.1
 testprop <- 0.2
 lwr <- qbeta(0.75, 1, 3)
@@ -80,7 +83,7 @@ qq <- integrate(\(x) dbeta(x, 1, 3)*x, lwr, 1)$value
 ```
 
 Suppose the population incidence is 25% and we test 25% of the population.
-Our $\phi$ parameter is 0.25 (shape parameters of the Beta are {1, 3}).
+Our $\phi$ parameter is 0.2211992 (dispersion of the Beta are 0.25 and shape parameters of the Beta are {1, 3}).
 The lower bound of the upper 25% tail is `r round(lwr, 3)`;
 the integral of $x$ under that portion of the curve is 
 `r round(qq, 3)`, so the test positivity is `round(qq/0.25)`.
@@ -101,7 +104,7 @@ We need
 
 $$
 \newcommand{\var}{\textrm{Var}}
-\frac{E[(\textrm{tested} - \overline{\textrm{tested}})\cdot 
+\frac{E[(\textrm{tested} - \overline{\textrm{tested}})\cdot -
 (\textrm{infected} - \overline{\textrm{infected}})]}{\sqrt{\var(\textrm{tested})} \cdot \var(\textrm{infected})}
 $$
 
@@ -112,8 +115,9 @@ Thus the numerator is the value we've already computed for the numerator of the 
 
 ```{r phi_corr}
 inf_test_corr <- function(i, t, phi) {
-    a <- i/phi; b <- (1-i)/phi
-    lwr <- qbeta(t, a, b, lower.tail = FALSE) ## hope we don't need robust version in covid19testing_funs.R
+    gamma <- -log(1-phi)
+    a <- i/gamma; b <- (1-i)/gamma
+    lwr <- qbeta(t, a, b, lower.tail = FALSE)  ## hope we don't need robust version in covid19testing_funs.R
     num <- pbeta(lwr,a+1,b,lower.tail=FALSE)*(a/(a+b))-t*i
     var_test <- t*(1-t)
     var_inf <- a*b/((a+b)^2*(a+b+1)) ## Wikipedia
@@ -131,7 +135,9 @@ ggplot(cordf, aes(phi, cor, colour = cat)) + geom_line()
 ```
 
 - ?? Is it true that correlation *decreases* with large $\phi$ when testing and prevalence are low ... ?? (Seems too large an effect to be due to numeric problems)
+- SZ: current investigation indicates that the "decrease" is caused by the non-ideal bimodal shape of Beta when $\phi$ is large, when $t$ is small, as $t$ increase, the test positivity decrease rapidly. But I doubt currently if this is decrease is determined by monotocity(1st order derivative) of the beta distribution curve or together with concave (2nd order derivative) or even more complicated behaviour. 
 - ?? Is there a simple expression for cor as a function of $\phi$ or *vice versa*?
+- SZ: I will work on this a little bit and see.
 
 ## Numerical examples
 
