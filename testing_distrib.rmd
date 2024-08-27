@@ -33,7 +33,7 @@ Now let's consider that in general we test people in (approximate) order of thei
 
 Let's use a Beta distribution with mean equal to prevalence $i$ as the distribution of 'probability infected'. (An alternative that might be more analytically tractable is the [Kumaraswamy distribution](https://en.wikipedia.org/wiki/Kumaraswamy_distribution).)  As the dispersion $\phi=1/(a+b)$ goes to infinity we end up with point masses $1-i$ on 0 and $i$ on 1; as it goes to 0 we end up with a point mass on $i$. If we always test 'from the top down' (i.e. calculate the mean value of the top fraction $t = T/N$ of the population distribution), these two extreme cases correspond to perfect testing (cases=$\min(T,I)$) and random testing (cases=$\textrm{Binomial}(i,T)$).
 
-	If $B$ is the Beta distribution with mean $i$ and dispersion $\gamma$, $\Phi_B$ is the CDF, and $Q$ is the inverse CDF (i.e., the quantile function) then our expected proportion positive from testing a fraction $T$ is 
+If $B$ is the Beta distribution with mean $i$ and dispersion $\gamma$, $\Phi_B$ is the CDF, and $Q$ is the inverse CDF (i.e., the quantile function) then our expected proportion positive from testing a fraction $T$ is 
 	
 $$
 \frac{\left(\int_{Q(1-t)}^1 B(y,\phi) y \, dy\right)}{1-\Phi_B(Q(1-t))}
@@ -77,7 +77,6 @@ incid <- 0.1
 testprop <- 0.2
 lwr <- qbeta(0.75, 1, 3)
 qq <- integrate(\(x) dbeta(x, 1, 3)*x, lwr, 1)$value
-qq/0.25
 ```
 
 Suppose the population incidence is 25% and we test 25% of the population.
@@ -107,7 +106,9 @@ $$
 $$
 
 The probability of testing is 0 below the threshold and 1 above it; thus this distribution should be a Bernoulli with weight $1-t$ on zero and $t$ on 1.
-Thus the numerator is the value we've already computed for the numerator of the proportion-positive value ($\int_{1-t}^1 x \textrm{Beta(x)}\,dx$), *minus* the product of the testing and infection means ($= ti$, using the usual identity $E[(A-\bar A)(B-\bar B)] = E[AB] - \bar A \bar B$). The variance of testing probability is ($(1-t)\cdot 0^2 + t \cdot 1^2 = t$); the variance of infection probability is the variance of the Beta distribution.
+Thus the numerator is the value we've already computed for the numerator of the proportion-positive value ($\int_{1-t}^1 x \cdot \textrm{Beta(x)}\,dx$), *minus* the product of the testing and infection means ($= ti$, using the usual identity $E[(A-\bar A)(B-\bar B)] = E[AB] - \bar A \bar B$). The variance of testing probability is ($(1-t)\cdot 0^2 + t \cdot 1^2 = t$); the variance of infection probability is the variance of the Beta distribution.
+
+**FIXME**: SZ suggests I got phi calculation wrong here. (Backwards?)
 
 ```{r phi_corr}
 inf_test_corr <- function(i, t, phi) {
@@ -156,14 +157,15 @@ abline(v=0.01,lty=2)
 
 ```{r plots2}
 dd <- (expand.grid(time=1:25,phi=c(0.001,0.2,0.5,0.8,0.999))
-  %>% as_tibble()
-  %>% mutate(inc=0.001*exp(log(2)/3*time),
-             tests=1e-4*exp(log(2)/4*time),
-             pos_prop=prop_pos_test(inc,tests,phi),
-             cases=pos_prop*tests)
-  ## issues with pivot_longer? use gather() instead
-  ## "Error: `spec` must have `.name` and `.value` columns"
-  %>% gather("var","value",inc,tests,pos_prop,cases)
+    %>% as_tibble()
+    %>% mutate(inc=0.001*exp(log(2)/3*time),
+               tests=1e-4*exp(log(2)/4*time),
+               pos_prop=prop_pos_test(inc,tests,phi),
+               cases=pos_prop*tests)
+    ## issues with pivot_longer? use gather() instead
+    ## "Error: `spec` must have `.name` and `.value` columns"
+    ## FIXME: figure out what's going on here?
+    %>% gather("var","value",inc,tests,pos_prop,cases)
 )
 print(ggplot(dd,aes(time,value,col=phi,group=phi))
   + geom_line()
@@ -224,11 +226,11 @@ mle_est0 <- coef(mle_out)
 ```
 
 
-```{r pp,cache=TRUE}
+```{r pp,cache=TRUE, warning = FALSE}
 pp <- profile(mle_out)
 ```
 
-```{r orig-profile-pic}
+```{r orig-profile-pic, warning = FALSE}
 ggdd <- as.data.frame(pp)
 ggplot(ggdd,aes(focal,abs(z))) + geom_point() + geom_line() +
   facet_wrap(~param,scale="free_x")+
@@ -265,23 +267,41 @@ fit <- with(ff, nlminb(pars, fn, gr))
 
 ## run tmbprofile on a selected set of parameters, combine results,
 ## scale to delta-deviance (signed? sqrt?)
-tmbprof2 <- function(obj, pars, ...) {
+## is returning CI as an attribute really the best way to do this?
+## allow tracing by variable? parallel computation?
+tmbprof2 <- function(obj, pars, conf.level = 0.95, ...) {
     pfun <- function(p) {
         tt <- TMB::tmbprofile(obj, p, ..., trace = FALSE)
+        ci <- confint(tt, level = conf.level)
         tt$value <- sqrt(2*(tt$value - min(tt$value, na.rm=TRUE)))
         names(tt) <- c(".focal", "value")
-        data.frame(var = p, tt)
+        list(df = data.frame(var = p, tt), ci = data.frame(var = p, ci))
     }
     res <- lapply(pars, pfun)
-    res <- do.call(rbind, res)
-    res$var <- factor(res$var, levels = pars)
-    res
+    res_df <- do.call(rbind, lapply(res, \(x) x$df)) |>
+        transform(var = factor(var, levels = pars))
+    res_ci <- do.call(rbind, lapply(res, \(x) x$ci))
+    rownames(res_ci) <- NULL
+    attr(res_df, "ci") <- res_ci
+    res_df
 }
+```
+
+```{r rtmb-prof, cache = TRUE}
 prof <- tmbprof2(ff, c("plogis_phi", "logit_i_0", "r"), ystep = 0.01)
+```
+
+```{r rtmb-prof-plot}
 ggplot(prof, aes(.focal, value)) +
     geom_line() + facet_wrap(~var, scale = "free") +
     geom_hline(yintercept = 1.96, lty = 2)
 ```
+
+```{r rtmb-ci}
+knitr::kable(attr(prof, "ci"))
+```
+
+(compare against true values? coverage on multiple sims? compare against naive estimates, uncorrecting for testing bias?
 
 - The next simulation is for understanding better what we're really modeling here. The simulation should be a more mechanistic description of the infection and testing process: not sure how this actually worked. There must be some infection process (e.g. an SIR model ...) and some process by which people get assigned a probability of being chosen for testing, which we can match up with the mathematical description above. The testing process is also mechanistic; after testing people get removed from the testable pool.
 
@@ -293,8 +313,6 @@ Give every individual two (correlated) numbers which correspond to infection ris
 Test asymptomatic (susceptible) people at one rate and symptomatic (infectious) people at another rate?
 
 A fraction of the incidence moves into a "testing pool"; people in the testing pool are tested at a constant rate. Every person gets a number sampled from our beta distribution when they become infected, which governs their chance of being selected
-
-
 
 ### Kumaraswamy distribution
 
@@ -320,4 +338,4 @@ so reparameterizing in terms of mean/dispersion might be hard (and the integral 
 
 ### brain dump/misc
 
-How does this relate to other ways that people are thinking about testing vs incidence? e.g. graphs in https://docs.google.com/spreadsheets/d/1ecQ0t1Sn2maR2b9sUacA3RSIUTHFlT-V1XiNnOFiBpw/edit#gid=2019730603 
+How does this relate to other ways that people are thinking about testing vs incidence? e.g. Noam Ross's graphs in https://docs.google.com/spreadsheets/d/1ecQ0t1Sn2maR2b9sUacA3RSIUTHFlT-V1XiNnOFiBpw/edit#gid=2019730603 
