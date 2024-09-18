@@ -9,6 +9,7 @@ library(viridis)
 library(bbmle)
 library(RTMB)
 source("covid19testing_funs.R")
+options(bitmapType='cairo')
 ```
 
 ## Introduction
@@ -153,6 +154,30 @@ ggplot(cordf, aes(phi, cor, colour = cat)) + geom_line() +
 - ?? Is it true that correlation *decreases* with large $\phi$ when testing and prevalence are low ... ?? (Seems too large an effect to be due to numeric problems)
 - SZ: current investigation indicates that the "decrease" is caused by the bimodality of Beta when $\phi$ is large, when $t$ is small, as $t$ increase, the test positivity decrease rapidly. But I doubt currently if this is decrease is determined by monotocity (1st order derivative) of the beta distribution curve or together with concave (2nd order derivative) or even more complicated behaviour. 
 - ?? Is there a simple expression for cor as a function of $\phi$ or *vice versa*? (probably not but ??)
+
+Graphical example of decrease in correlation from $\phi=0.75$ to $\phi=0.9$ with $t=0.05$, $i=0.2$:
+
+```{r corr_example}
+draw_example <- function(i, t, phi, fill = "red", add = FALSE,
+                         alpha = 1, ...) {
+    gamma <- -log(1-phi)
+    a <- i/gamma; b <- (1-i)/gamma
+    par(las=1, yaxs = "i",xaxs = "i")
+    lwr <- qbeta(t, a, b, lower.tail = FALSE)
+    cc <- curve(dbeta(x, a, b), from =0, to = 1, xlab = "prob(infected)",
+                ylab = "prob density", ..., add = add)
+    cc2 <- curve(dbeta(x, a, b), from = lwr, to = 0.999, add = TRUE)
+    polygon(c(cc2$x, rev(cc2$x)),
+            c(rep(0, length(cc2$x)), rev(cc2$y)),
+            col = adjustcolor(fill, alpha = alpha))
+}
+
+draw_example(i=0.2, t=0.05, phi = 0.75, ylim = c(0, 7))
+draw_example(i=0.2, t=0.05, phi = 0.9, ylim = c(0, 7), add = TRUE, col = "blue",
+             fill = "blue", alpha = 0.5)
+```
+
+Could the change in the *variance* of the Beta distribution be driving these effects? (See if covariance is a monotonic function of $\phi$?)
 
 ## Numerical examples
 
