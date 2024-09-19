@@ -8,7 +8,7 @@ num_cor <- function(i, t, phi, n = 1e5) {
     x <- rbeta(n, a, b)
     y <- as.numeric(x>lwr)
     cc <- cor.test(x,y)
-    data.frame(gam=gamma, cor = cc$estimate, thresh=lwr)
+    data.frame(gam=gamma, cor = cc$estimate, test=sum(x*y)/sum(y), thresh=lwr)
 }
 phivec <- seq(0.1, 0.95, by = 0.05)
 set.seed(101)
