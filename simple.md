@@ -1,0 +1,1 @@
+We should explore a very simple world where we specify prevalence of two pathogens that share a duplex test and show patterns of how changes in prevalence in pathogen A affect positivity totals and proportions in pathogen B.
