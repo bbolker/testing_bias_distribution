@@ -19,6 +19,7 @@ $$
 \left[(1-\exp (-\beta_0)) (1-PA-P_B) + (1 -\exp (-\beta_0 + \beta_A))
 p_A + (1-\exp(-\beta_0 + \beta_B)) P_B \right]
 }
+$$
 
 Next steps:
 
