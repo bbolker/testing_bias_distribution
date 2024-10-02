@@ -14,10 +14,11 @@ increases hazard by $\beta_A$ or $\beta_B$.
 So the fraction of the population testing positive for $A$ is
 
 $P_A (1-\exp (-(P_0 + P_A)))$ and the test positivity rate for $A$ is
+
 $$
 \frac{P_A (1 - \exp(-(\beta_0 + \beta_A)))}{
-\left[(1-\exp (-\beta_0)) (1-PA-P_B) + (1 -\exp (-\beta_0 + \beta_A))
-p_A + (1-\exp(-\beta_0 + \beta_B)) P_B \right]
+\left[ (1-\exp(-\beta_0)) (1-P_A-P_B) + (1 -\exp(-\beta_0 + \beta_A))
+p_A + (1-\exp( -\beta_0 + \beta_B)) P_B \right]
 }
 $$
 
