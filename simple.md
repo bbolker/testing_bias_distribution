@@ -9,7 +9,7 @@ two diseases,
 $P_A$ and $P_B$.
 
 The baseline hazard for testing is $\beta_0$ (i.e, prob (testing/
-uninfected) is $1 - \exp (-\beta_0)$). Being infected with disease $A$ or \beta
+uninfected) is $1-\exp(-\beta_{0})$ ). Being infected with disease $A$ or \beta
 increases hazard by $\beta_A$ or $\beta_B$.
 So the fraction of the population testing positive for $A$ is
 
