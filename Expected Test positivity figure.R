@@ -9,10 +9,6 @@ dd <- (expand.grid(test_prop=c(0.001,0.0012,0.0015,0.002,0.005,0.01,0.05,0.1,0.2
                    inc=c(0.001,0.005,0.01,0.02,0.05,0.10,0.25,0.5))
        %>% as_tibble()
        %>% mutate(pos_prop=prop_pos_test_new(inc,test_prop,phi,method="log"))
-       # ## issues with pivot_longer? use gather() instead
-       # ## "Error: `spec` must have `.name` and `.value` columns"
-       # ## FIXME: figure out what's going on here?
-       # %>% gather("var","value",inc,test,phi,pos_prop)
 )
 # dd
 
