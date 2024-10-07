@@ -31,7 +31,7 @@ Sources += betaParams.md simple.md README.md
 
 autopipeR = defined
 
-Sources += $(wildcard *.R)
+## Sources += $(wildcard *.R)
 
 ## Not working yet 2024 Sep 19 (Thu)
 corrCheck.Rout: corrCheck.R
