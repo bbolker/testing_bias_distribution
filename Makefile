@@ -6,6 +6,10 @@ Ignore = target.mk
 
 ######################################################################
 
+## log-diff_cdf-log_simp.png
+## log-diff_simp-log_simp.png
+## Test_positivity_vs_test_proportion_phi_inc.png
+
 ######################################################################
 
 Ignore += docs *.html
@@ -24,7 +28,7 @@ docs/%.html: %.html
 
 ######################################################################
 
-Sources += betaParams.md simple.md README.md
+Sources += betaParams.md simple.md README.md notes.md
 
 ######################################################################
 
