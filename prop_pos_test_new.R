@@ -1,7 +1,5 @@
-library(tidyverse)
-library(ggplot2); theme_set(theme_bw())
-library(viridis)
-library(bbmle)
+
+## This script had four library calls at top. None of them are necessary for this particular script, and together they take far longer to run than the script did.
 
 ## brute-force beta quantile (inverse CDF) function
 ## params as in qbeta()
@@ -66,6 +64,7 @@ prop_pos_test1 <- function(i,t,phi,
   ### "cdf" (pbeta version)
   ### "simp" (simplified explicit version)
   ### "log" (test: log trick for exponential in "simp")
+  ## BMB: consider using a switch() statement here:
   val <- if (method=="int") {
     fn <- function(x) x*dbeta(x,a,b)
     integrate(fn, lower=lwr, upper=1)$value
@@ -77,6 +76,9 @@ prop_pos_test1 <- function(i,t,phi,
     a/(a+b)*(t+(exp(a*log(lwr)+b*log(1-lwr)))/(beta(a,b)*a))
   }
   if (debug) cat("val: ",lwr,"\n")
-  return(val/pbeta(lwr,a,b,lower.tail=FALSE))
+  ## return(val/pbeta(lwr,a,b,lower.tail=FALSE))
+  return(val/(1-t))
 }
 prop_pos_test_new <- Vectorize(prop_pos_test1,c("i","t","phi"))
+
+prop_pos_test_new(i=0.8, t= 0.0012, phi = c(0.01, 0.99))
