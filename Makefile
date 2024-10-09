@@ -37,10 +37,15 @@ Sources += betaParams.md simple.md README.md notes.md
 
 autopipeR = defined
 
-## Sources += $(wildcard *.R)
+Sources += $(wildcard *.R)
 
 ## Not working yet 2024 Sep 19 (Thu)
 corrCheck.Rout: corrCheck.R
+
+Expected_Test_positivity_figure.Rout: Expected_Test_positivity_figure.R
+
+prop_pos_test_new.Rout: prop_pos_test_new.R
+	$(wrapR)
 
 ######################################################################
 

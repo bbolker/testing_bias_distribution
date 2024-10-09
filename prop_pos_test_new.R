@@ -1,7 +1,5 @@
-library(tidyverse)
-library(ggplot2); theme_set(theme_bw())
-library(viridis)
-library(bbmle)
+
+## This script had four library calls at top. None of them are necessary for this particular script, and together they take far longer to run than the script did.
 
 ## brute-force beta quantile (inverse CDF) function
 ## params as in qbeta()
