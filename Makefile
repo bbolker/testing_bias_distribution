@@ -12,6 +12,7 @@ Ignore = target.mk
 
 ######################################################################
 
+
 Ignore += docs *.html
 Sources += $(wildcard *.rmd *.qmd *.md)
 
