@@ -128,7 +128,7 @@ prop_pos_test2 <- function(i,t,phi,
                 simp = a/(a+b)*(t+(lwr^a*(1-lwr)^b)/(beta(a,b)*a)),
                 log = a/(a+b)*(t+(exp(a*log(lwr)+b*log(1-lwr)))/(beta(a,b)*a))
                 )
-  if (debug) cat("val: ",lwr,"\n")
+  if (debug) cat("val: ",val,"\n")
   return(val/t)  ## CHECK denominator!
 }
 prop_pos_test_new <- Vectorize(prop_pos_test2,c("i","t","phi"))
