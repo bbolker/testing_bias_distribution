@@ -42,10 +42,9 @@ Sources += $(wildcard *.R)
 ## Not working yet 2024 Sep 19 (Thu)
 corrCheck.Rout: corrCheck.R
 
-Expected_Test_positivity_figure.Rout: Expected_Test_positivity_figure.R
+Expected_Test_positivity_figure.Rout: Expected_Test_positivity_figure.R testing_funs.R
 
-prop_pos_test_new.Rout: prop_pos_test_new.R
-	$(wrapR)
+testing_distrib.html: testing_distrib.rmd testing_funs.R
 
 ######################################################################
 
