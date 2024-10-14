@@ -132,5 +132,5 @@ val_log(0.3,0.97,0.001)
 ## using both simp and log simp could somehow catch the difference
 ## However, for phi=0.99 very extreme case, even log(qbeta) gets solid zero
 
-## Still unsolved now, why very extreme case have positivity=i from log_simp
+## For very extreme case have positivity=i from log_simp
 ## cdf method will give "solid" zero for that case (log=-Inf)
