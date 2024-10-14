@@ -24,4 +24,4 @@ Also, some lwr(qbeta) with output "1" are not -Inf in log_space (e.g. inc=0.3,ph
 Ongoing: Why? 
 Conjecture: qbeta=1 means no one are actually being tested, so the expression of expected positivity fails here
 
-Ongoing: If the log_simp catch the real value better than cdf(pbeta)?? 
+Ongoing: If the log_simp catch the real value better than cdf(pbeta)?? What happend in the yellow area
