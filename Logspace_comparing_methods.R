@@ -132,5 +132,68 @@ val_log(0.3,0.97,0.001)
 ## using both simp and log simp could somehow catch the difference
 ## However, for phi=0.99 very extreme case, even log(qbeta) gets solid zero
 
-## Still unsolved now, why very extreme case have positivity=i from log_simp
+## For very extreme case have positivity=i from log_simp
 ## cdf method will give "solid" zero for that case (log=-Inf)
+
+
+
+
+
+
+
+########## incident/testing positivity ratio
+## highlight overflow case casued by lwr=1
+HL_fn <- function(prop_pos,i,t,phi){
+  phi<- -log(1-phi)
+  a <- i/phi; 
+  b <- (1-i)/phi
+  lwr <- qbeta(t,a,b,lower.tail=FALSE)
+  if (log(lwr)==0){
+    return(NaN)
+  }
+  return(i/prop_pos)
+}
+HL_fn <- Vectorize(HL_fn,c("prop_pos","i","t","phi"))
+
+dd_ratio <- (expand.grid(test_prop=c(0.001,0.0012,0.0015,0.002,0.005,0.01,0.05,0.1,0.25),
+                   phi=seq(from=0.01,to=0.99,by=0.01),
+                   inc=seq(from=0.01,to=0.99,by=0.01))
+       %>% as_tibble()
+       %>% mutate(pos_prop_log=prop_pos_test_new(inc,test_prop,phi,method="log"))
+       %>% mutate(ratio=HL_fn(pos_prop_log,inc,test_prop,phi))
+       )
+
+print(ggplot(dd_ratio,aes(phi,inc,fill=ratio,group=test_prop))
+      + geom_tile()
+      + facet_wrap(~test_prop,scale="free",labeller = label_both)
+      #+ scale_y_log10()
+      + scale_fill_viridis_c()
+      + ggtitle("inc/pos_prop ratio, group by test_prop")
+)
+
+##### Focus on more reasonable intervals
+dd_ratio_focus <- (expand.grid(test_prop=c(0.001,0.0012,0.0015,0.002,0.005,0.01,0.05,0.1,0.25),
+                         phi=seq(from=0.001,to=0.999,by=0.001),
+                         inc=seq(from=0.001,to=0.25,by=0.001))
+             %>% as_tibble()
+             %>% mutate(pos_prop_log=prop_pos_test_new(inc,test_prop,phi,method="log"))
+             %>% mutate(ratio=HL_fn(pos_prop_log,inc,test_prop,phi))
+)
+
+print(ggplot(dd_ratio_focus,aes(phi,inc,fill=log(ratio),group=test_prop))
+      + geom_tile()
+      + facet_wrap(~test_prop,scale="free",labeller = label_both)
+      #+ scale_y_log10()
+      + scale_fill_viridis_c()
+      + ggtitle("inc/pos_prop ratio, group by test_prop")
+)
+inc_slice<-subset(dd_ratio_focus,dd_ratio_focus$inc==0.01 | dd_ratio_focus$inc==0.05 | dd_ratio_focus$inc==0.10)
+which(dd_ratio_focus$inc==0.01)
+print(ggplot(inc_slice,aes(phi,ratio,color=log(test_prop),group=inc))
+      + geom_point(size=0.5)
+      + facet_wrap(~inc,scale="free",labeller = label_both)
+      #+ scale_y_log10()
+      + scale_colour_viridis_c()
+      + ggtitle("inc/pos_prop ratio, slice at inc=0.05 group by test_prop")
+)
+
