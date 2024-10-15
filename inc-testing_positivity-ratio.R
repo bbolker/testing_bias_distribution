@@ -61,7 +61,6 @@ inc_slice<-(expand.grid(test_prop=c(0.001,0.002,0.005,0.010,0.020,0.050,0.1,0.2,
             %>% mutate(pos_prop_log=prop_pos_test_new(inc,test_prop,phi,method="log"))
             %>% mutate(ratio=HL_fn(pos_prop_log,inc,test_prop,phi))
 )
-print(inc_slice[which(inc_slice$test_prop==.5 & inc_slice$inc==0.001),],n=250)
 
 print(ggplot(inc_slice,aes(phi,ratio,color=log(test_prop),group=inc))
       + geom_point(size=0.5)
@@ -70,6 +69,46 @@ print(ggplot(inc_slice,aes(phi,ratio,color=log(test_prop),group=inc))
       + scale_colour_viridis_c()
       + ggtitle("inc/pos_prop ratio, slice at different incidence")
 )
+
+###### Investigation: what happens to the decrease on yellow curves?
+print(inc_slice[which(inc_slice$test_prop==.5 & inc_slice$inc==0.001),],n=1000)
+### pos_prob start to increase suddenly
+
+t1 <- inc_slice[which(inc_slice$test_prop==.5 & inc_slice$inc==0.001),]
+
+ii1 <- as.numeric(t1[500,3])
+phi1 <- as.numeric(t1[500,2])
+aa1 <- ii1/phi1
+bb1 <- (1-ii1)/phi1
+
+
+ii2 <- as.numeric(t1[900,3])
+phi2 <- as.numeric(t1[900,2])
+aa2 <- ii2/phi2
+bb2 <- (1-ii2)/phi2
+
+plot(seq(0.001,0.999,0.001),dbeta(seq(0.001,0.999,0.001),aa1,bb1),type="l")
+points(seq(0.001,0.999,0.001),dbeta(seq(0.001,0.999,0.001),aa2,bb2),type="l",col="red")
+
+###### Investigation: what happens to the decrease on large test_prop with large inc?
+print(inc_slice[which(inc_slice$test_prop==0.001 & inc_slice$inc==0.5),],n=1000)
+### Overflow
+### FIXME???
+t2 <- inc_slice[which(inc_slice$test_prop==0.001 & inc_slice$inc==0.5),]
+
+prop_pos_test_new(t2[934,3], t2[934,1], t2[934,2], debug=T)
+
+prop_pos_test_new(t2[935,3], t2[935,1], t2[935,2], debug=T)
+prop_pos_test_new(t2[935,3], t2[935,1], t2[935,2], method="cdf",debug=T)
+
+prop_pos_test_new(t2[936,3], t2[936,1], t2[936,2], debug=T)
+prop_pos_test_new(t2[936,3], t2[936,1], t2[936,2], method="cdf",debug=T)
+
+prop_pos_test_new(t2[940,3], t2[940,1], t2[940,2], debug=T)
+prop_pos_test_new(t2[940,3], t2[940,1], t2[940,2], method="cdf",debug=T)
+
+## cdf method even worse
+## A "good" example of log-simp is slightly better?
 
 ##### Slice by different phi
 phi_slice <- (expand.grid(test_prop=c(0.001,0.0012,0.0015,0.002,0.005,0.01,0.05,0.1,0.25),
