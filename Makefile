@@ -6,6 +6,12 @@ Ignore = target.mk
 
 ######################################################################
 
+## log-diff_cdf-log_simp.png
+## log-diff_simp-log_simp.png
+## Test_positivity_vs_test_proportion_phi_inc.png
+
+######################################################################
+
 Ignore += docs *.html
 Sources += $(wildcard *.rmd *.qmd *.md)
 
@@ -22,7 +28,7 @@ docs/%.html: %.html
 
 ######################################################################
 
-Sources += betaParams.md
+Sources += betaParams.md simple.md README.md notes.md
 
 ######################################################################
 
@@ -35,6 +41,10 @@ Sources += $(wildcard *.R)
 
 ## Not working yet 2024 Sep 19 (Thu)
 corrCheck.Rout: corrCheck.R
+
+Expected_Test_positivity_figure.Rout: Expected_Test_positivity_figure.R testing_funs.R
+
+testing_distrib.html: testing_distrib.rmd testing_funs.R
 
 ######################################################################
 

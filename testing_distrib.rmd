@@ -8,7 +8,7 @@ library(ggplot2); theme_set(theme_bw())
 library(viridis)
 library(bbmle)
 library(RTMB)
-source("covid19testing_funs.R")
+source("testing_funs.R")
 options(bitmapType='cairo')
 ```
 
