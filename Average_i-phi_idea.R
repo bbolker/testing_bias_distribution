@@ -97,4 +97,64 @@ I_tseq[56]
 
 ### If knowing phi, we area able to figure out inc
 
+######## Time series:
+## Idea: take 2-3 days as a whole, test_prop1=day1 test_prop2=day1+day2, test_prop3=day1+day2+day3
+## data: tp1,tp2,tp3, pp1,pp2,pp3
+## Input: test_prop1= tp1, test_prop2= tp1+tp2, test_prop3=tp1+tp2+tp3
+## pos_prop1=pp1, pos_prop2= (tp1*pp1+tp2*pp2)/(tp1+tp2), test_prop3=(tp1*pp1+tp2*pp2+tp3*pp3)/(tp1+tp2+tp3)
+## trying to figure out i (and phi) 
+
+## Need to think more carefully of the assumption
+#### What is the impact of time theories/aggragation
+
+target_fn3 <- function(inc,phi,test_obs,prop_obs){
+  inc_val <- inc
+  phi_val <- phi
+  
+  test_prop1 <- test_obs[1]
+  test_prop2 <- test_obs[1]+test_obs[2]
+  test_prop3 <- test_obs[1]+test_obs[2]+test_obs[3]
+  
+  pos_prop1 <- prop_obs[1]
+  pos_prop2 <- (prop_obs[1]*test_obs[1]+prop_obs[2]*test_obs[2])/test_prop2
+  pos_prop3 <- (prop_obs[1]*test_obs[1]+prop_obs[2]*test_obs[2]+prop_obs[3]*test_obs[3])/test_prop3
+  
+  ## LSS
+  prop_pred1 <- prop_pos_test_new(inc_val,test_prop1,phi_val,method="log")
+  prop_pred2 <- prop_pos_test_new(inc_val,test_prop2,phi_val,method="log")
+  prop_pred3 <- prop_pos_test_new(inc_val,test_prop3,phi_val,method="log")
+  
+  LSS <- (prop_pred1-pos_prop1)^2+(prop_pred2-pos_prop2)^2+(prop_pred3-pos_prop3)^2
+  return(LSS)
+}
+
+
+time <- 15
+test_obs=c(test_seq[time],test_seq[time+1],test_seq[time+2])
+prob_obs=c(prop_seq[time],prop_seq[time+1],prop_seq[time+2])
+
+
+dd2 <- (expand.grid(phi=seq(from=0.001,to=0.5,by=0.001),
+                   inc=seq(from=0.001,to=0.1,by=0.001))
+       %>% as_tibble()
+       %>% mutate(LSS=target_fn3(inc,phi,test_obs=test_obs,prop_obs=prob_obs))
+)
+
+print(ggplot(dd2,aes(phi,inc,fill=log(LSS)))
+      + geom_tile()
+      #+ scale_y_log10()
+      + scale_fill_viridis_c(expand=c(0,0))
+      + ggtitle("LSS of phi and inc")
+)
+
+dd2[which.min(dd2$LSS),]
+
+print(dd2[which(dd2$phi==0.2),],n=100)
+
+I_tseq[time]
+I_tseq[time+1]
+I_tseq[time+2]
+
+
+## not working.
 

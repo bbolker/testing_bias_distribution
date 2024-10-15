@@ -107,7 +107,7 @@ prop_pos_test_new(t2[936,3], t2[936,1], t2[936,2], method="cdf",debug=T)
 prop_pos_test_new(t2[940,3], t2[940,1], t2[940,2], debug=T)
 prop_pos_test_new(t2[940,3], t2[940,1], t2[940,2], method="cdf",debug=T)
 
-## cdf method even worse
+## cdf method is even worse, values are further away from what they should be
 ## A "good" example of log-simp is slightly better?
 
 ##### Slice by different phi
