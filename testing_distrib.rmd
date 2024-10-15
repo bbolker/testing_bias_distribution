@@ -259,9 +259,7 @@ dd$c <- with(c(as.list(true_pars), dd),
                     prob=prop_pos_test(i_0*exp(r*tau), t, phi)
                     )
              )
-mle_out<- mle2(c~dbinom(prob=prop_pos_test(plogis(logit_i_0)*exp(r*tau),
-                                           t, exp(log_phi),
-                                 debug=FALSE, phiscale = "unconstrained"),
+mle_out<- mle2(c~dbinom(prob=prop_pos_test_new(plogis(logit_i_0)*exp(r*tau), t, exp(log_phi),debug=FALSE, phiscale = "unconstrained"),
               size=t*N),
               start=list(logit_i_0=qlogis(true_pars["i_0"]),
                          r=true_pars["r"], log_phi=log(true_pars["phi"]) ),

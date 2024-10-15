@@ -32,7 +32,7 @@ Qbeta2 <- function(p,shape1,shape2,lower.tail=FALSE) {
 ##' @param numint use numerical integration?
 ##' @param qfun beta quantile function to use
 ##' @param plot.it illustrate?
-##' @param phiscale ??
+##' @param phiscale ?? # this means if we would like to re-scale gamma in (0,+Inf) to phi in (0,1)
 ## FIXME: remove vestigial (qfun, numint) options
 ## FIXME: test phi=0; add special case if necessary (and maybe phi=1?)
 prop_pos_test0 <- function(i,t,phi,
@@ -126,7 +126,7 @@ prop_pos_test2 <- function(i,t,phi,
                 },
                 cdf = pbeta(lwr,a+1,b,lower.tail=FALSE)*(a/(a+b)),
                 simp = a/(a+b)*(t+(lwr^a*(1-lwr)^b)/(beta(a,b)*a)),
-                log = a/(a+b)*(t+(exp(a*log(lwr)+b*log(1-lwr)))/(beta(a,b)*a))
+                log = a/(a+b)*(t+(exp(a*log(lwr)+b*log(1-lwr)-log(beta(a,b)*a))))
                 )
   if (debug) cat("val: ",val,"\n")
   return(val/t)  ## CHECK denominator!

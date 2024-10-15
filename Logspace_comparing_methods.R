@@ -26,7 +26,7 @@ for (i in c(1:length(b))) {
   log_simp_p[i] <- (a/(a+b[i])*(t+(exp(a*log(lwr)+b[i]*log(1-lwr)))/(beta(a,b[i])*a)))/t
 }
 
-# plot(b,def_p)
+# plot(b,cdf_p)
 # points(b,int_p,col="blue",pch=6)
 # points(b,simp_p,col="red",pch=3)
 # points(b,log_simp_p,col="green",pch=3)
@@ -106,9 +106,9 @@ print(ggplot(dd,aes(phi,inc,fill=diff_simp_log,group=test_prop))
 )
 
 #### need to investigate more: what happens to a phi=0.99 case  
-prop_pos_test_new(0.3,0.001,0.97,method = "cdf",debug = T)
-prop_pos_test_new(0.3,0.001,0.97,method = "log",debug = T)
-prop_pos_test_new(0.3,0.001,0.97,method = "simp",debug = T)
+prop_pos_test_new(0.5,0.001,0.97,method = "cdf",debug = T)
+prop_pos_test_new(0.5,0.001,0.97,method = "log",debug = T)
+prop_pos_test_new(0.5,0.001,0.97,method = "simp",debug = T)
 
 val_log <- function(i,phi,t) {
   phi_0 <- phi
