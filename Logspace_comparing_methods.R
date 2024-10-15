@@ -106,9 +106,9 @@ print(ggplot(dd,aes(phi,inc,fill=diff_simp_log,group=test_prop))
 )
 
 #### need to investigate more: what happens to a phi=0.99 case  
-prop_pos_test_new(0.3,0.001,0.97,method = "cdf",debug = T)
-prop_pos_test_new(0.3,0.001,0.97,method = "log",debug = T)
-prop_pos_test_new(0.3,0.001,0.97,method = "simp",debug = T)
+prop_pos_test_new(0.8,0.001,0.97,method = "cdf",debug = T)
+prop_pos_test_new(0.8,0.001,0.97,method = "log",debug = T)
+prop_pos_test_new(0.8,0.001,0.97,method = "simp",debug = T)
 
 val_log <- function(i,phi,t) {
   phi_0 <- phi
@@ -123,9 +123,11 @@ val_log <- function(i,phi,t) {
   return(c(qb,log_qb,log_simp,log_cdf))
 }
 
-val_log(0.3,0.99,0.001)
-val_log(0.3,0.98,0.001)
-val_log(0.3,0.97,0.001)
+val_log(0.8,0.99,0.001)
+val_log(0.8,0.98,0.001)
+val_log(0.8,0.97,0.001)
+
+exp(val_log(0.8,0.97,0.001)[4])
 
 ####### Numerical observation
 ## even lwr output is "1", log(qbeta) could still have difference
