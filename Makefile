@@ -46,6 +46,10 @@ Expected_Test_positivity_figure.Rout: Expected_Test_positivity_figure.R testing_
 
 testing_distrib.html: testing_distrib.rmd testing_funs.R
 
+##### 2024 Oct 16 (Wed)
+
+Logspace_comparing_methods.Rout: Logspace_comparing_methods.R
+
 ######################################################################
 
 ### Makestuff
