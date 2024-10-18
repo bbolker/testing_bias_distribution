@@ -52,6 +52,12 @@ Logspace_comparing_methods.Rout: Logspace_comparing_methods.R
 
 ######################################################################
 
+### Odds ratios
+
+Sources += or.md
+
+######################################################################
+
 ### Makestuff
 
 Sources += Makefile
