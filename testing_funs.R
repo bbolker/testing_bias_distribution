@@ -126,7 +126,8 @@ prop_pos_test2 <- function(i,t,phi,
                 },
                 cdf = pbeta(lwr,a+1,b,lower.tail=FALSE)*(a/(a+b)),
                 simp = a/(a+b)*(t+(lwr^a*(1-lwr)^b)/(beta(a,b)*a)),
-                log = a/(a+b)*(t+(exp(a*log(lwr)+b*log(1-lwr)-log(beta(a,b)*a))))
+                log = a/(a+b)*(t+(exp(a*log(lwr)+b*log(1-lwr)-log(beta(a,b)*a)))),
+                est = (1+lwr*b)/(b+1)*t
                 )
   if (debug) cat("val: ",val,"\n")
   return(val/t)  ## CHECK denominator!
