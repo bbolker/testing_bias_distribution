@@ -17,3 +17,14 @@ Related projects. It's not super-clear we have any of sufficient interest, but J
 - `simple.md`: basic notes on multiplex testing and cross-effects of diseases on each others' positivity/number of positive tests
 - `testing_funs.R`: basic machinery for computing expected positivity based on the Beta model
 - `testing_distrib.rmd`: exploration of properties of `testing_funs.R`
+- `Logspace_comparing_methods.R`: the file used to generate the pictures for log-space comparing.
+- `Qbeta_Issues.R`: this is created regarding the Qbeta & qbeta issues.
+- `Single_variable_SIR.R`: a numerical simulation of simple version SIR trajectory.
+- `inc_testing_positivity-ratio.R`: As discussed, this file is used to generate figures for ratio of inc/test_positivity_proportion under different combination of inc, phi and testing_proportion.
+- `Average_i-phi_idea.R`: Unsuccessful experiments. I'll try something else but please ignore this for now.
+
+### In Pix
+- `ratio_inc-pos_prop.png`: heat map of whole parameter space for inc and phi, grouped by different testing proportion. Color is the log-ratio. For the lwr=1 area, the result is replaced by NaN since the they are clearly wrong and also for better illustration of the heatmap color.
+- `ratio_focus_inc_pos_prop.png`: zoomed version to a more reasonable inc range (0,0.25)
+- `ratio_phi_slice.png`: Slice of the heatmap for different phi (color), grouped by test proportions. Y-axis is ratio, X-axis is inc. For better illustration of changing in phi.
+ratio_inc_slice.png: Slice of the heatmap for different inc (group), colored by test proportions. Y-axis is ratio, X-axis is phi. For better illustration of changing in inc.
