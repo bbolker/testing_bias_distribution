@@ -4,6 +4,7 @@ library(viridis)
 library(bbmle)
 library(DPQ)
 library(deSolve)
+library(Rmpfr)
 source("testing_funs.R")
 
 ### Numeric Check for explicit soln of p(t)
@@ -114,7 +115,7 @@ val_log <- function(i,phi,t) {
   phi_0 <- phi
   phi <- -log(1-phi)
   a <- i/phi; b <- (1-i)/phi
-  qb<-qbeta(t,a,b, lower.tail = FALSE)
+  qb <-qbeta(t,a,b, lower.tail = FALSE)
   log_qb <- log(qb)
   simp<-a/(a+b)*(t+(exp(a*log(qb)+b*log(1-qb)))/(beta(a,b)*a))
   log_simp <- log(simp)
@@ -123,9 +124,11 @@ val_log <- function(i,phi,t) {
   return(c(qb,log_qb,log_simp,log_cdf))
 }
 
-val_log(0.8,0.99,0.001)
-val_log(0.8,0.98,0.001)
-val_log(0.8,0.97,0.001)
+prop_pos_test_new(0.5,0.001,0.87,method = "log",debug = T)
+
+val_log(0.5,0.93,0.001)
+val_log(0.5,0.94,0.001)
+val_log(0.5,0.95,0.001)
 
 exp(val_log(0.8,0.97,0.001)[4])
 
@@ -136,3 +139,23 @@ exp(val_log(0.8,0.97,0.001)[4])
 
 ## very extreme case have positivity=i，since the log(1-qb)=-Inf
 ## cdf method will give "solid" zero for that case (log=-Inf)
+
+dd_est <- (expand.grid(test_prop=c(0.05),#,0.0012,0.0015,0.002,0.005,0.01,0.05,0.1,0.25),
+                   phi=seq(from=0.001,to=0.999,by=0.001),
+                   inc=seq(from=0.001,to=0.999,by=0.001))
+       %>% as_tibble()
+       #%>% mutate(pos_prop_int=prop_pos_test_new(inc,test_prop,phi,method="int"))
+       %>% mutate(pos_prop_est=prop_pos_test_new(inc,test_prop,phi,method="est"))
+       %>% mutate(pos_prop_log=prop_pos_test_new(inc,test_prop,phi,method="log"))
+       #%>% mutate(diff_cdf_log=sign(pos_prop_cdf-pos_prop_log))
+       %>% mutate(diff_est_log=abs_log_sub(pos_prop_est,pos_prop_log))
+       )
+
+
+print(ggplot(dd_est,aes(phi,inc,fill=diff_est_log,group=test_prop))
+      + geom_tile()
+      + facet_wrap(~test_prop,scale="free",labeller = label_both)
+      #+ scale_y_log10()
+      + scale_fill_viridis_c(expand=c(0,0))
+      + ggtitle("log-space diff between est and log_simp")
+)
