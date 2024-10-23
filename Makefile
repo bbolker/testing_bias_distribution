@@ -56,6 +56,8 @@ Logspace_comparing_methods.Rout: Logspace_comparing_methods.R
 
 Sources += or.md
 
+## or.mac.out: or.mac or.md
+
 ######################################################################
 
 ### Makestuff
@@ -74,6 +76,7 @@ makestuff/%.stamp:
 -include makestuff/os.mk
 
 -include makestuff/pipeR.mk
+-include makestuff/max.mk
 
 -include makestuff/git.mk
 -include makestuff/gitbranch.mk
