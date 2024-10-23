@@ -1,0 +1,6 @@
+T : (1-P)*b/(b+1) + P*r*b/(r*b+1);
+bT : solve(T=To, b);
+b0 : fullratsimp(rhs(bT[1]));
+fullratsimp(at(b0, [r=1]));
+
+

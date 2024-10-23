@@ -54,7 +54,7 @@ Logspace_comparing_methods.Rout: Logspace_comparing_methods.R
 
 ### Odds ratios
 
-Sources += or.md
+Sources += or.md $(wildcard *.mac)
 
 ## or.mac.out: or.mac or.md
 
