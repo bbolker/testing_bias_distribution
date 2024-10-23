@@ -49,6 +49,7 @@ testing_distrib.html: testing_distrib.rmd testing_funs.R
 ##### 2024 Oct 16 (Wed)
 
 Logspace_comparing_methods.Rout: Logspace_comparing_methods.R
+inc-testing_positivity-ratio.Rout: inc-testing_positivity-ratio.R
 
 ######################################################################
 
