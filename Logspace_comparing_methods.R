@@ -140,9 +140,9 @@ exp(val_log(0.8,0.97,0.001)[4])
 ## very extreme case have positivity=i，since the log(1-qb)=-Inf
 ## cdf method will give "solid" zero for that case (log=-Inf)
 
-dd_est <- (expand.grid(test_prop=c(0.001,0.0012,0.0015,0.002,0.005,0.01,0.05,0.1,0.25),
-                   phi=seq(from=0.01,to=0.99,by=0.01),
-                   inc=seq(from=0.01,to=0.99,by=0.01))
+dd_est <- (expand.grid(test_prop=c(0.05),#,0.0012,0.0015,0.002,0.005,0.01,0.05,0.1,0.25),
+                   phi=seq(from=0.001,to=0.999,by=0.001),
+                   inc=seq(from=0.001,to=0.999,by=0.001))
        %>% as_tibble()
        #%>% mutate(pos_prop_int=prop_pos_test_new(inc,test_prop,phi,method="int"))
        %>% mutate(pos_prop_est=prop_pos_test_new(inc,test_prop,phi,method="est"))
@@ -150,7 +150,6 @@ dd_est <- (expand.grid(test_prop=c(0.001,0.0012,0.0015,0.002,0.005,0.01,0.05,0.1
        #%>% mutate(diff_cdf_log=sign(pos_prop_cdf-pos_prop_log))
        %>% mutate(diff_est_log=abs_log_sub(pos_prop_est,pos_prop_log))
        )
-dd_est
 
 
 print(ggplot(dd_est,aes(phi,inc,fill=diff_est_log,group=test_prop))
