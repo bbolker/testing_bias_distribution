@@ -58,6 +58,7 @@ inc-testing_positivity-ratio.Rout: inc-testing_positivity-ratio.R
 Sources += or.md $(wildcard *.mac)
 
 ## or.mac.out: or.mac or.md
+## or_mac.html: or_mac.rmd
 
 ######################################################################
 
