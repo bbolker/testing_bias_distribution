@@ -160,38 +160,38 @@ print(ggplot(dd_est,aes(phi,inc,fill=diff_est_log,group=test_prop))
       + ggtitle("log-space diff between est and log_simp")
 )
 
+which(dd_est$inc==0.85)
 
-
-slice_inc <- subset(dd_est, dd_est$inc==0.750)
+slice_inc <- subset(dd_est, dd_est$inc==0.85)
 slice_inc[which(is.nan(slice_inc$diff_est_log)),]
-print(slice_inc,n=1000)
-slice_inc 
+# print(slice_inc,n=1000)
+# slice_inc 
 
 dtF <- rbind(
-  data.frame(phi=slice_inc$phi, y=slice_inc$pos_prop_est, class="est_method", gp = "pos_prop"),
   data.frame(phi=slice_inc$phi, y=slice_inc$pos_prop_log, class="logsimp_method", gp="pos_prop"),
+  data.frame(phi=slice_inc$phi, y=slice_inc$pos_prop_est, class="est_method", gp = "pos_prop"),
   data.frame(phi=slice_inc$phi, y=slice_inc$diff_est_log, class="log_diff", gp="log_diff"))
 
 
-print(ggplot(data = dtF, mapping = aes(x = phi, y = y)) +
-      facet_grid(gp~., scale = "free_y") +
-      geom_point(data=dtF[dtF$gp=="pos_prop",], aes(color=class),size=0.6) +
-      geom_point(data=dtF[dtF$gp=="log_diff",], aes(color=class),size =0.6)
+print(ggplot(data = dtF, mapping = aes(x = phi, y = y)) 
+      +facet_grid(gp~., scale = "free_y")
+      +geom_point(data=dtF[dtF$gp=="log_diff",], aes(color=class),size =0.6)
+      +geom_point(data=dtF[dtF$gp=="pos_prop",], aes(color=class),size=0.4)
 )
 
 
-val <- function(i,phi,t) {
-  phi_0 <- phi
-  phi <- -log(1-phi)
-  a <- i/phi; b <- (1-i)/phi
-  lwr <-qbeta(t,a,b, lower.tail = FALSE)
-  log_lwr <- log(lwr)
-  log_val = a/(a+b)*(t+(exp(a*log(lwr)+b*log(1-lwr)-log(beta(a,b)*a))))/t
-  est_val = (b+1-(1-lwr)*a*b)/(b+1-(1-lwr)*(a-1)*b)
-  est_num = (b+1-(1-lwr)*a*b)
-  est_denom = (b+1-(1-lwr)*(a-1)*b)
-  return(c(lwr,log_lwr,log_val,est_val,est_num,est_denom))
-}
-
-ind<- 528
-val(as.numeric(slice_inc[ind,3]),as.numeric(slice_inc[ind,2]),as.numeric(slice_inc[ind,1]))
+# val <- function(i,phi,t) {
+#   phi_0 <- phi
+#   phi <- -log(1-phi)
+#   a <- i/phi; b <- (1-i)/phi
+#   lwr <-qbeta(t,a,b, lower.tail = FALSE)
+#   log_lwr <- log(lwr)
+#   log_val = a/(a+b)*(t+(exp(a*log(lwr)+b*log(1-lwr)-log(beta(a,b)*a))))/t
+#   est_val = (b+1-(1-lwr)*a*b)/(b+1-(1-lwr)*(a-1)*b)
+#   est_num = (b+1-(1-lwr)*a*b)
+#   est_denom = (b+1-(1-lwr)*(a-1)*b)
+#   return(c(lwr,log_lwr,log_val,est_val,est_num,est_denom))
+# }
+# 
+# ind<- 528
+# val(as.numeric(slice_inc[ind,3]),as.numeric(slice_inc[ind,2]),as.numeric(slice_inc[ind,1]))
