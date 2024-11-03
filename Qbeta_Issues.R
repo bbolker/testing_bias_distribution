@@ -5,54 +5,31 @@ library(bbmle)
 library(DPQ)
 library(deSolve)
 source("testing_funs.R")
+
 ### Testing Qbeta2 vs qbeta
-
-abs_log_sub <- function(x,y,zeroHL=-Inf){
-  sgn <- sign(log(x)-log(y))
-  ## Exclude failing case: possible reason, Qbeta gives 1 and Pbeta generate infinity
-  ##### FIXIT??? 
-  if (is.infinite(sgn)){
-    out <- NaN
-  } else if(is.nan(sgn)){
-    out <- NaN
-  } else {
-    if (sgn>0) {
-      out <- logspace.sub(log(x),log(y))
-    } else if (sgn==0) {
-      out <- logspace.sub(log(x),log(y))
-      if (out==-Inf){
-        out <- zeroHL
-      }
-      # Highlight very close to (0) results
-    } else {
-      out <- logspace.sub(log(y),log(x))
-    }
-  }
-  return(out)
-}
-abs_log_sub <- Vectorize(abs_log_sub,c("x","y"))
-
 dd <- (expand.grid(test_prop=c(0.001,0.0012,0.0015,0.002,0.005,0.01,0.05,0.1,0.25),
                    phi=seq(from=0.01,to=0.99,by=0.01),
                    inc=seq(from=0.01,to=0.99,by=0.01))
        %>% as_tibble()
-       %>% mutate(pos_prop_qlog=prop_pos_test_new(inc,test_prop,phi,method="log",qfun=qbeta))
-       %>% mutate(pos_prop_Qlog=prop_pos_test_new(inc,test_prop,phi,method="log"))
+       %>% mutate(pos_prop_qlog=prop_pos_test_new(inc,test_prop,phi,method="est",qfun=qbeta))
+       %>% mutate(pos_prop_Qlog=prop_pos_test_new(inc,test_prop,phi,method="est"))
        %>% mutate(diff_Qq_dif=abs_log_sub(pos_prop_qlog,pos_prop_Qlog))
        )
 
 #which(dd$diff_Qq_dif!=-Inf)
 
-print(ggplot(dd,aes(phi,inc,fill=diff_Qq_dif,group=test_prop))
-      + geom_tile()
-      + facet_wrap(~test_prop,scale="free",labeller = label_both)
-      #+ scale_y_log10()
-      + scale_fill_viridis_c(expand=c(0,0))
-      + ggtitle("log-space diff between qbeta+log and Qbeta2+log")
+fig_logdiff_Qbeta_qbeta <- (
+  ggplot(dd,aes(phi,inc,fill=diff_Qq_dif,group=test_prop))
+  + geom_raster()
+  + facet_wrap(~test_prop,scale="free",labeller = label_both)
+  #+ scale_y_log10()
+  + scale_fill_viridis_c(expand=c(0,0))
+  + ggtitle("log-space diff between qbeta+est and Qbeta2+est")
 )
+ggsave("log-diff_Qbeta-qbeta.png",plot=fig_logdiff_Qbeta_qbeta, path = "./pix", width=3200,height=1800,units="px")
 
 print(ggplot(dd,aes(phi,inc,fill=pos_prop_qlog,group=test_prop))
-      + geom_tile()
+      + geom_raster()
       + facet_wrap(~test_prop,scale="free",labeller = label_both)
       #+ scale_y_log10()
       + scale_fill_viridis_c(expand=c(0,0))
@@ -60,7 +37,7 @@ print(ggplot(dd,aes(phi,inc,fill=pos_prop_qlog,group=test_prop))
 )
 
 print(ggplot(dd,aes(phi,inc,fill=pos_prop_Qlog,group=test_prop))
-      + geom_tile()
+      + geom_raster()
       + facet_wrap(~test_prop,scale="free",labeller = label_both)
       #+ scale_y_log10()
       + scale_fill_viridis_c(expand=c(0,0))

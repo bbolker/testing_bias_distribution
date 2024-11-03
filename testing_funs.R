@@ -141,3 +141,30 @@ prop_pos_test2 <- function(i,t,phi,
 prop_pos_test_new <- Vectorize(prop_pos_test2,c("i","t","phi"))
 
 ## prop_pos_test_new(i=0.8, t= 0.0012, phi = c(0.01, 0.99))
+
+
+### logarithm space difference
+abs_log_sub <- function(x,y,zeroHL=-Inf){
+  sgn <- sign(log(x)-log(y))
+  ## Exclude failing case: possible reason, Qbeta gives 1 and Pbeta generate infinity
+  ##### FIXIT??? 
+  if (is.infinite(sgn)){
+    out <- NaN
+  } else if(is.nan(sgn)){
+    out <- NaN
+  } else {
+    if (sgn>0) {
+      out <- logspace.sub(log(x),log(y))
+    } else if (sgn==0) {
+      out <- logspace.sub(log(x),log(y))
+      if (out==-Inf){
+        out <- zeroHL
+      }
+      # Highlight very close to (0) results
+    } else {
+      out <- logspace.sub(log(y),log(x))
+    }
+  }
+  return(out)
+}
+abs_log_sub <- Vectorize(abs_log_sub,c("x","y"))
