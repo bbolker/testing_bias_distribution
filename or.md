@@ -7,4 +7,3 @@ I am going to use P, T, and V for prevalence, proportion tested, and test positi
 
 If we know b and r, we can calculate proportion tested as 
 
-T = (1-P)*
