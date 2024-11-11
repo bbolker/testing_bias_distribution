@@ -1,5 +1,8 @@
 ---
 title: "models for testing"
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r pkgs,message=FALSE,echo=FALSE}
@@ -14,61 +17,123 @@ options(bitmapType='cairo')
 
 ## Introduction
 
-How should we think about the connection between numbers of (1) infected people in the population (2) tests done (3) cases reported?
+How should we think about the connection between numbers of (1) infected
+people in the population (2) tests done (3) cases reported?
 
-Most generally/mechanistically, on any day we have some number of people who are on day $\tau$ of their infectious period. On a given day, an infectious ($I$) person may be subclinical (asymptomatic or so mildly symptomatic that they don't report symptoms); mild; severe (hospitalized); or very severe (ICU/ventilator). The progression among these stages will be different for different people (although in general they will progress toward greater severity). The more severe the symptoms, the more likely someone is to be tested.
+Most generally/mechanistically, on any day we have some number of people
+who are on day $\tau$ of their infectious period. On a given day, an
+infectious ($I$) person may be subclinical (asymptomatic or so mildly
+symptomatic that they don't report symptoms); mild; severe
+(hospitalized); or very severe (ICU/ventilator). The progression among
+these stages will be different for different people (although in general
+they will progress toward greater severity). The more severe the
+symptoms, the more likely someone is to be tested.
 
-Testing will also depend on how they got infected, e.g. imported cases and close contacts are more likely to be tested. (An asymptomatic, community-infected person will basically never be tested.)
+Testing will also depend on how they got infected, e.g. imported cases
+and close contacts are more likely to be tested. (An asymptomatic,
+community-infected person will basically never be tested.)
 
-In a complete agent-based model (or a model based on a complex compartmental structure), we could keep track of people moving through all of these categories and assign them probabilities of being tested. In a sufficiently realistic model we could even take into account detailed testing criteria and phenomena such as limited testing resources (so that, e.g., low-risk, mild cases would never be tested).
+In a complete agent-based model (or a model based on a complex
+compartmental structure), we could keep track of people moving through
+all of these categories and assign them probabilities of being tested.
+In a sufficiently realistic model we could even take into account
+detailed testing criteria and phenomena such as limited testing
+resources (so that, e.g., low-risk, mild cases would never be tested).
 
 There are two extreme scenarios that are easy to reason about.
 
-* if testing is random, the proportion of positive tests should be the same as the prevalence (or incidence - I'm not being precise about whether we are measuring a flow or a stock, but I don't think it makes a difference), regardless of either. Increasing the number of tests when the prevalence is constant leads to a proportional increase in the number of cases. The proportion of positive tests is $i$ and the number of cases (i.e., positive tests) is $iT$. (I'm using $i$, $t$ for proportion of the population infected or tested and $I$, $T$ as the number infected or tested: $I=iN$, $T=tN$.) If the prevalence is increasing exponentially with rate $r_1$ and testing is increasing at rate $r_2$, the number of cases increases at rate $r_1 + r_2$ (and doubling time $\log(2)/(r1+r2)$).
-* if testing is perfectly focused on infected people, then tests are 100% positive until we run out of infected people (i.e. proportion of pop tested > prevalence). The proportion of positive tests is $\min(1,i/t)$ and the number of cases is $\min(T,I)$.
+-   if testing is random, the proportion of positive tests should be the
+    same as the prevalence (or incidence - I'm not being precise about
+    whether we are measuring a flow or a stock, but I don't think it
+    makes a difference), regardless of either. Increasing the number of
+    tests when the prevalence is constant leads to a proportional
+    increase in the number of cases. The proportion of positive tests is
+    $i$ and the number of cases (i.e., positive tests) is $iT$. (I'm
+    using $i$, $t$ for proportion of the population infected or tested
+    and $I$, $T$ as the number infected or tested: $I=iN$, $T=tN$.) If
+    the prevalence is increasing exponentially with rate $r_1$ and
+    testing is increasing at rate $r_2$, the number of cases increases
+    at rate $r_1 + r_2$ (and doubling time $\log(2)/(r1+r2)$).
+-   if testing is perfectly focused on infected people, then tests are
+    100% positive until we run out of infected people (i.e. proportion
+    of pop tested \> prevalence). The proportion of positive tests is
+    $\min(1,i/t)$ and the number of cases is $\min(T,I)$.
 
-Now let's consider that in general we test people in (approximate) order of their probability of infection (ignoring tests skipped because of constraints). We can think about a distribution in the population of probability of infection (higher for known contacts of infected people, travellers from high-risk areas, etc.), and a distribution in the probability of testing (which ideally lines up with the risk). We could think about having two distributions, but these can't really be separated (FIXME: explain better!).
+Now let's consider that in general we test people in (approximate) order
+of their probability of infection (ignoring tests skipped because of
+constraints). We can think about a distribution in the population of
+probability of infection (higher for known contacts of infected people,
+travellers from high-risk areas, etc.), and a distribution in the
+probability of testing (which ideally lines up with the risk). We could
+think about having two distributions, but these can't really be
+separated (FIXME: explain better!).
 
 ## Machinery
 
-Let's use a Beta distribution with mean equal to prevalence $i$ as the distribution of 'probability infected'. (An alternative that might be more analytically tractable is the [Kumaraswamy distribution](https://en.wikipedia.org/wiki/Kumaraswamy_distribution).)  As the dispersion $\gamma=1/(a+b)$ goes to infinity we end up with point masses $1-i$ on 0 and $i$ on 1; as it goes to 0 we end up with a point mass on $i$. If we always test 'from the top down' (i.e. calculate the mean value of the top fraction $t = T/N$ of the population distribution), these two extreme cases correspond to perfect testing (cases=$\min(T,I)$) and random testing (cases=$\textrm{Binomial}(i,T)$).
+Let's use a Beta distribution with mean equal to prevalence $i$ as the
+distribution of 'probability infected'. (An alternative that might be
+more analytically tractable is the [Kumaraswamy
+distribution](https://en.wikipedia.org/wiki/Kumaraswamy_distribution).)
+As the dispersion $\gamma=1/(a+b)$ goes to infinity we end up with point
+masses $1-i$ on 0 and $i$ on 1; as it goes to 0 we end up with a point
+mass on $i$. If we always test 'from the top down' (i.e. calculate the
+mean value of the top fraction $t = T/N$ of the population
+distribution), these two extreme cases correspond to perfect testing
+(cases=$\min(T,I)$) and random testing (cases=$\textrm{Binomial}(i,T)$).
 
-If $B$ is the Beta distribution with mean $i$ and dispersion $\gamma$, $\Phi_B$ is the CDF, and $Q$ is the inverse CDF (i.e., the quantile function) then our expected proportion positive from testing a fraction $t=T/N$ is 
-	
+If $B$ is the Beta distribution with mean $i$ and dispersion $\gamma$,
+$\Phi_B$ is the CDF, and $Q$ is the inverse CDF (i.e., the quantile
+function) then our expected proportion positive from testing a fraction
+$t=T/N$ is
+
 $$
 \frac{\left(\int_{Q(1-t)}^1 B(y,\phi) y \, dy\right)}{1-\Phi_B(Q(1-t))} = 
 \frac{\left(\int_{Q(1-t)}^1 B(y,\phi) y \, dy\right)}{t}
 $$
 
-i.e. the mean of the upper tail of the infection-probability distribution.
+i.e. the mean of the upper tail of the infection-probability
+distribution.
 
-We can get a little bit farther analytically.
-Given that $B(x,a,b) \propto x^{a-1} (1-x)^{b-1}$, the mean is $a/(a+b)=i \to a \phi =i \to a = i/\phi, b=(a+b)-a = 1/\phi - i/\phi = (1-i)/\phi$. We can show that $B(x,a,b) \cdot x = a/(a+b) B(x,a+1,b)$, so we should be able to do the integral directly by computing the appropriate CDF (or complementary CDF) of the Beta distribution.
+We can get a little bit farther analytically. Given that
+$B(x,a,b) \propto x^{a-1} (1-x)^{b-1}$, the mean is
+$a/(a+b)=i \to a \phi =i \to a = i/\phi, b=(a+b)-a = 1/\phi - i/\phi = (1-i)/\phi$.
+We can show that $B(x,a,b) \cdot x = a/(a+b) B(x,a+1,b)$, so we should
+be able to do the integral directly by computing the appropriate CDF (or
+complementary CDF) of the Beta distribution.
 
-$B(x,a,b) =\frac{1}{\mathcal{B}(a,b)} x^{a-1} (1-x)^{b-1}$, where $\mathcal{B}(a,b)$ is the beta function, which satisfies 
-$$\mathcal{B}(a,b) = \frac{\Gamma(a)\Gamma(b)}{\Gamma(a+b)}\,.$$
-It follows that 
-$$
+$B(x,a,b) =\frac{1}{\mathcal{B}(a,b)} x^{a-1} (1-x)^{b-1}$, where
+$\mathcal{B}(a,b)$ is the beta function, which satisfies
+$$\mathcal{B}(a,b) = \frac{\Gamma(a)\Gamma(b)}{\Gamma(a+b)}\,.$$ It
+follows that $$
 \begin{aligned}
 B(x,a,b)x = \frac{1}{\mathcal{B}(a,b)} x^{a} (1-x)^{b-1} &= \frac{\mathcal{B}(a+1,b)}{\mathcal{B}(a,b)}\times \frac{1}{\mathcal{B}(a+1,b)} x^{a} (1-x)^{b-1}\\
 &=\frac{\mathcal{B}(a+1,b)}{\mathcal{B}(a,b)} B(x,a+1,b)\,,
 \end{aligned}
-$$
-which, using the identity $\Gamma(z+1) = z\Gamma(z)$, simplifies to
+$$ which, using the identity $\Gamma(z+1) = z\Gamma(z)$, simplifies to
 $$
 \begin{aligned}
 B(x,a,b)x
 &=\frac{\Gamma(a+1)\Gamma(b)}{\Gamma(a+b+1)}\frac{\Gamma(a)\Gamma(b)}{\Gamma(a+b)} B(x,a+1,b)\\
 &= \frac{a\Gamma(a)\Gamma(b)}{(a+b)\Gamma(a+b)}\frac{\Gamma(a+b)}{\Gamma(a)\Gamma(b)} B(x,a+1,b) = \frac{a}{a+b}B(x,a+1,b)\,.
 \end{aligned}
-$$
-Since we set the mean $a/(a+b)$ of the distribution $B(x,a,b)$ to $i$, we have $B(x,a,b)x = iB(x,a+1,b)$.
+$$ Since we set the mean $a/(a+b)$ of the distribution $B(x,a,b)$ to
+$i$, we have $B(x,a,b)x = iB(x,a+1,b)$.
 
-Can we do a little bit more here since we're integrating this from $Q(a,b)$ to 1 ... ?
+Can we do a little bit more here since we're integrating this from
+$Q(a,b)$ to 1 ... ?
 
-In order to make the dispersion parameter a little more interpretable we will transform the parameter $\gamma$ from $(0,\infty)$  to a value $\phi = 1-\exp(-\gamma) \in (0,1) (i.e. \gamma=-\log(1-\phi))$ (previously: $\phi=-\log(1-\gamma)$ (i.e. $\gamma=1-\exp(-\phi)$)), so that 0 corresponds to random testing and 1 corresponds to perfectly focused testing.
+In order to make the dispersion parameter a little more interpretable we
+will transform the parameter $\gamma$ from $(0,\infty)$ to a value
+$\phi = 1-\exp(-\gamma) \in (0,1) (i.e. \gamma=-\log(1-\phi))$
+(previously: $\phi=-\log(1-\gamma)$ (i.e. $\gamma=1-\exp(-\phi)$)), so
+that 0 corresponds to random testing and 1 corresponds to perfectly
+focused testing.
 
-If we wanted to get more realistic/detailed we could relax the assumption of a Beta distribution and instead characterize the distribution of probability infected as a mixture of types (general population, symptomatic, travel history, etc.), with the constraint of a mean of $i$ \ldots
+If we wanted to get more realistic/detailed we could relax the
+assumption of a Beta distribution and instead characterize the
+distribution of probability infected as a mixture of types (general
+population, symptomatic, travel history, etc.), with the constraint of a
+mean of $i$ \ldots
 
 ## Graphical example
 
@@ -81,12 +146,12 @@ lwr <- qbeta(0.75, 1, 3)
 qq <- integrate(\(x) dbeta(x, 1, 3)*x, lwr, 1)$value
 ```
 
-Suppose the population incidence is 25% and we test 25% of the population.
-Our $\phi$ parameter is 0.2211992 (dispersion of the Beta are 0.25 and shape parameters of the Beta are {1, 3}).
-The lower bound of the upper 25% tail is `r round(lwr, 3)`;
-the integral of $x$ under that portion of the curve is 
-`r round(qq, 3)`, so the test positivity is `round(qq/0.25)`.
-
+Suppose the population incidence is 25% and we test 25% of the
+population. Our $\phi$ parameter is 0.2211992 (dispersion of the Beta
+are 0.25 and shape parameters of the Beta are {1, 3}). The lower bound
+of the upper 25% tail is `r round(lwr, 3)`; the integral of $x$ under
+that portion of the curve is `r round(qq, 3)`, so the test positivity is
+`round(qq/0.25)`.
 
 ```{r fig1, echo = FALSE}
 par(las=1, yaxs = "i",xaxs = "i")
@@ -97,7 +162,8 @@ polygon(c(cc2$x, rev(cc2$x)), c(rep(0, length(cc2$x)), rev(cc2$y)), col = "gray"
 
 ## Correlation
 
-What is the relationship between $\phi$ and the correlation between testing and infection?
+What is the relationship between $\phi$ and the correlation between
+testing and infection?
 
 We need
 
@@ -107,8 +173,16 @@ $$
 (\textrm{infected} - \overline{\textrm{infected}})]}{\sqrt{\var(\textrm{tested})} \cdot \var(\textrm{infected})}
 $$
 
-The probability of testing is 0 below the threshold and 1 above it; thus this distribution should be a Bernoulli with weight $1-t$ on zero and $t$ on 1.
-Thus the numerator is the value we've already computed for the numerator of the proportion-positive value ($\int_{1-t}^1 x \cdot \textrm{Beta(x)}\,dx$), *minus* the product of the testing and infection means ($= ti$, using the usual identity $E[(A-\bar A)(B-\bar B)] = E[AB] - \bar A \bar B$). The variance of testing probability is ($(1-t)\cdot 0^2 + t \cdot 1^2 = t$); the variance of infection probability is the variance of the Beta distribution.
+The probability of testing is 0 below the threshold and 1 above it; thus
+this distribution should be a Bernoulli with weight $1-t$ on zero and
+$t$ on 1. Thus the numerator is the value we've already computed for the
+numerator of the proportion-positive value
+($\int_{1-t}^1 x \cdot \textrm{Beta(x)}\,dx$), *minus* the product of
+the testing and infection means ($= ti$, using the usual identity
+$E[(A-\bar A)(B-\bar B)] = E[AB] - \bar A \bar B$). The variance of
+testing probability is ($(1-t)\cdot 0^2 + t \cdot 1^2 = t$); the
+variance of infection probability is the variance of the Beta
+distribution.
 
 ```{r num_corr, cache=TRUE, echo = FALSE}
 ## numerical test of 'interesting' case
@@ -151,11 +225,20 @@ ggplot(cordf, aes(phi, cor, colour = cat)) + geom_line() +
 
 ```
 
-- ?? Is it true that correlation *decreases* with large $\phi$ when testing and prevalence are low ... ?? (Seems too large an effect to be due to numeric problems)
-- SZ: current investigation indicates that the "decrease" is caused by the bimodality of Beta when $\phi$ is large, when $t$ is small, as $t$ increase, the test positivity decrease rapidly. But I doubt currently if this is decrease is determined by monotocity (1st order derivative) of the beta distribution curve or together with concave (2nd order derivative) or even more complicated behaviour. 
-- ?? Is there a simple expression for cor as a function of $\phi$ or *vice versa*? (probably not but ??)
+-   ?? Is it true that correlation *decreases* with large $\phi$ when
+    testing and prevalence are low ... ?? (Seems too large an effect to
+    be due to numeric problems)
+-   SZ: current investigation indicates that the "decrease" is caused by
+    the bimodality of Beta when $\phi$ is large, when $t$ is small, as
+    $t$ increase, the test positivity decrease rapidly. But I doubt
+    currently if this is decrease is determined by monotocity (1st order
+    derivative) of the beta distribution curve or together with concave
+    (2nd order derivative) or even more complicated behaviour.
+-   ?? Is there a simple expression for cor as a function of $\phi$ or
+    *vice versa*? (probably not but ??)
 
-Graphical example of decrease in correlation from $\phi=0.75$ to $\phi=0.9$ with $t=0.05$, $i=0.2$:
+Graphical example of decrease in correlation from $\phi=0.75$ to
+$\phi=0.9$ with $t=0.05$, $i=0.2$:
 
 ```{r corr_example}
 draw_example <- function(i, t, phi, fill = "red", add = FALSE,
@@ -177,7 +260,8 @@ draw_example(i=0.2, t=0.05, phi = 0.9, ylim = c(0, 7), add = TRUE, col = "blue",
              fill = "blue", alpha = 0.5)
 ```
 
-Could the change in the *variance* of the Beta distribution be driving these effects? (See if covariance is a monotonic function of $\phi$?)
+Could the change in the *variance* of the Beta distribution be driving
+these effects? (See if covariance is a monotonic function of $\phi$?)
 
 ## Numerical examples
 
@@ -191,7 +275,9 @@ curve(prop_pos_test(i=0.01,t=0.001,x),from=0.001,to=0.999,
 abline(h=0.01,lty=2)
 ```
 
-What happens as we test more people than are actually infected in the population?
+What happens as we test more people than are actually infected in the
+population?
+
 ```{r plots1}
 par(las=1,bty="l")
 curve(prop_pos_test(t=x,i=0.01,phi=0.5),
@@ -221,26 +307,42 @@ print(ggplot(dd,aes(time,value,col=phi,group=phi))
 )
 ```
 
-**FIXME:** direct labels? drop incidence and testing, include as reference-slope lines?
+**FIXME:** direct labels? drop incidence and testing, include as
+reference-slope lines?
 
 ## Estimation
 
 When is $\phi$ identifiable?
 
-- can we make a combined model with hospitalizations/deaths?
-- if we assume that prevalence is increasing exponentially (and we know the rates of testing) can we estimate $\phi$?
-- what other comparisons are possible?
-- there is *some* information in the model because change in $i$ over time is constrained by the dynamical parameters ...
-- can we set a sensible prior on $\phi$ and integrate over the possibilities?
+-   can we make a combined model with hospitalizations/deaths?
+-   if we assume that prevalence is increasing exponentially (and we
+    know the rates of testing) can we estimate $\phi$?
+-   what other comparisons are possible?
+-   there is *some* information in the model because change in $i$ over
+    time is constrained by the dynamical parameters ...
+-   can we set a sensible prior on $\phi$ and integrate over the
+    possibilities?
 
 ## To do
 
 ### Simulations
 
-- The first thing to do is the minimal identifiability test: if we simulate data directly using `prop_pos_test`, then add some noise (e.g. binomial testing outcomes), and then we try to take the observed testing data (total tests and positive tests) and get an MLE of both phi and the parameters of the exponential growth of prevalence (initial value and growth rate), can we do it?  If $t$ is the fraction of the population tested and $N$ is the population size and $f(\tau)=\textrm{prop\_pos}(i(\tau),t(\tau),\phi)$ is the fraction positive, then we want to simulate $c(\tau) \sim \textrm{Binomial}(f,tN)$, the number of confirmed positive cases at time $\tau$. Not worrying about sensitivity/specificity yet (tests are perfect).
+-   The first thing to do is the minimal identifiability test: if we
+    simulate data directly using `prop_pos_test`, then add some noise
+    (e.g. binomial testing outcomes), and then we try to take the
+    observed testing data (total tests and positive tests) and get an
+    MLE of both phi and the parameters of the exponential growth of
+    prevalence (initial value and growth rate), can we do it? If $t$ is
+    the fraction of the population tested and $N$ is the population size
+    and $f(\tau)=\textrm{prop\_pos}(i(\tau),t(\tau),\phi)$ is the
+    fraction positive, then we want to simulate
+    $c(\tau) \sim \textrm{Binomial}(f,tN)$, the number of confirmed
+    positive cases at time $\tau$. Not worrying about
+    sensitivity/specificity yet (tests are perfect).
 
-MLE: want to estimate $i_0$, $r$ (growth rate of prevalence), and $\phi$. We know $t(\tau)$ and $c(\tau)$ (no time lags yet!)
-   
+MLE: want to estimate $i_0$, $r$ (growth rate of prevalence), and
+$\phi$. We know $t(\tau)$ and $c(\tau)$ (no time lags yet!)
+
 ```{r testsim}
 ## t (test vector) and c (confirmation vector) are defined; tau is a time vector
 set.seed(101)
@@ -268,7 +370,6 @@ mle_out<- mle2(c~dbinom(prob=prop_pos_test_new(plogis(logit_i_0)*exp(r*tau), t, 
 )
 mle_est0 <- coef(mle_out)
 ```
-
 
 ## RTMB version
 
@@ -343,22 +444,38 @@ ggplot(citab, aes(est, var)) +
 
 ```
 
-(run multiple sims for RMSE/coverage/bias/etc.? compare against naive estimates, uncorrecting for testing bias?
+(run multiple sims for RMSE/coverage/bias/etc.? compare against naive
+estimates, uncorrecting for testing bias?
 
-- The next simulation is for understanding better what we're really modeling here. The simulation should be a more mechanistic description of the infection and testing process: not sure how this actually worked. There must be some infection process (e.g. an SIR model ...) and some process by which people get assigned a probability of being chosen for testing, which we can match up with the mathematical description above. The testing process is also mechanistic; after testing people get removed from the testable pool.
+-   The next simulation is for understanding better what we're really
+    modeling here. The simulation should be a more mechanistic
+    description of the infection and testing process: not sure how this
+    actually worked. There must be some infection process (e.g. an SIR
+    model ...) and some process by which people get assigned a
+    probability of being chosen for testing, which we can match up with
+    the mathematical description above. The testing process is also
+    mechanistic; after testing people get removed from the testable
+    pool.
 
-How do we model a testing policy?
-How do we make the testing policy match up with our distribution? 
+How do we model a testing policy? How do we make the testing policy
+match up with our distribution?
 
-Give every individual two (correlated) numbers which correspond to infection risk and testing risk? Increase testing risk at onset of symptoms?
+Give every individual two (correlated) numbers which correspond to
+infection risk and testing risk? Increase testing risk at onset of
+symptoms?
 
-Test asymptomatic (susceptible) people at one rate and symptomatic (infectious) people at another rate?
+Test asymptomatic (susceptible) people at one rate and symptomatic
+(infectious) people at another rate?
 
-A fraction of the incidence moves into a "testing pool"; people in the testing pool are tested at a constant rate. Every person gets a number sampled from our beta distribution when they become infected, which governs their chance of being selected
+A fraction of the incidence moves into a "testing pool"; people in the
+testing pool are tested at a constant rate. Every person gets a number
+sampled from our beta distribution when they become infected, which
+governs their chance of being selected
 
 ### Kumaraswamy distribution
 
-Is the inverse CDF for the Kumaraswamy distribution tractable?  Seems that way:
+Is the inverse CDF for the Kumaraswamy distribution tractable? Seems
+that way:
 
 $$
 \begin{split}
@@ -368,16 +485,22 @@ x = (1- (1-q)^{1/b})^{1/a}
 \end{split}
 $$
 
-(this could be important if we want to embed this machinery in Stan/JAGS/etc. where `pbeta()`/`qbeta()` may not exist and/or be sufficiently robust ...)
+(this could be important if we want to embed this machinery in
+Stan/JAGS/etc. where `pbeta()`/`qbeta()` may not exist and/or be
+sufficiently robust ...)
 
-Unfortunately the tradeoff is that the expression for the mean is complicated:
+Unfortunately the tradeoff is that the expression for the mean is
+complicated:
 
 $$
 \frac{b\Gamma\left(1+ \frac{1}{a}\right) \Gamma(b)}{\Gamma\left(1+\frac{1}{a}+b\right)}
 $$
 
-so reparameterizing in terms of mean/dispersion might be hard (and the integral trick with the Beta also might not work \ldots)
+so reparameterizing in terms of mean/dispersion might be hard (and the
+integral trick with the Beta also might not work \ldots)
 
 ### brain dump/misc
 
-How does this relate to other ways that people are thinking about testing vs incidence? e.g. Noam Ross's graphs in https://docs.google.com/spreadsheets/d/1ecQ0t1Sn2maR2b9sUacA3RSIUTHFlT-V1XiNnOFiBpw/edit#gid=2019730603 
+How does this relate to other ways that people are thinking about
+testing vs incidence? e.g. Noam Ross's graphs in
+<https://docs.google.com/spreadsheets/d/1ecQ0t1Sn2maR2b9sUacA3RSIUTHFlT-V1XiNnOFiBpw/edit#gid=2019730603>
