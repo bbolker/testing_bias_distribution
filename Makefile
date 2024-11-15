@@ -62,6 +62,26 @@ Sources += or.md $(wildcard *.mac)
 
 ######################################################################
 
+## Canada data repo
+
+rvdss_canada.update: | rvdss_canada
+	cd $| && git pull
+rvdss_canada:
+	git clone https://github.com/dajmcdon/rvdss-canada $@
+
+Ignore += detections.csv
+## Can't easily be processed together bc pdm09 stuff changes (maybe other stuff as well)
+detections.csv: rvdss_canada/data
+	cat $</data/season*/respiratory_detections.csv > $@
+
+detections.Rout: detections.R $(wildcard rvdss_canada/data/season*/respiratory_detections.csv)
+	$(pipeR)
+
+lastYear.Rout: lastYear.R rvdss_canada/data/*_*_2024/respiratory_detections.csv
+	$(pipeR)
+
+######################################################################
+
 ### Makestuff
 
 Sources += Makefile
