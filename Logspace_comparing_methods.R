@@ -85,26 +85,43 @@ dd <- (expand.grid(test_prop=c(0.001,0.0012,0.0015,0.002,0.005,0.01,0.05,0.1,0.2
        %>% mutate(pos_prop_cdf=prop_pos_test_new(inc,test_prop,phi,method="cdf"))
        %>% mutate(pos_prop_simp=prop_pos_test_new(inc,test_prop,phi,method="simp"))
        %>% mutate(pos_prop_log=prop_pos_test_new(inc,test_prop,phi,method="log"))
+       %>% mutate(pos_prop_est=prop_pos_test_new(inc,test_prop,phi,method="est"))
        #%>% mutate(diff_cdf_log=sign(pos_prop_cdf-pos_prop_log))
        %>% mutate(diff_cdf_log=abs_log_sub(pos_prop_cdf,pos_prop_log,zeroHL=-45))
        %>% mutate(diff_simp_log=abs_log_sub(pos_prop_simp,pos_prop_log,zeroHL=-40))
+       %>% mutate(diff_est_log=abs_log_sub(pos_prop_log,pos_prop_est))
        )
 
-print(ggplot(dd,aes(phi,inc,fill=diff_cdf_log,group=test_prop))
-      + geom_tile()
-      + facet_wrap(~test_prop,scale="free",labeller = label_both)
-      #+ scale_y_log10()
-      + scale_fill_viridis_c(expand=c(0,0))
-      + ggtitle("log-space diff between cdf and log_simp")
+fig_logdiff_cdf_log <- (
+  ggplot(dd,aes(phi,inc,fill=diff_cdf_log,group=test_prop))
+  + geom_raster()
+  + facet_wrap(~test_prop,scale="free",labeller = label_both)
+  # + scale_y_log10()
+  + scale_fill_viridis_c(expand=c(0,0))
+  + ggtitle("log-space diff between cdf and log_simp")
 )
+ggsave("log-diff_cdf-log_simp.png",plot=fig_logdiff_cdf_log, path = "./pix", width=3200,height=1800,units="px")
 
-print(ggplot(dd,aes(phi,inc,fill=diff_simp_log,group=test_prop))
-      + geom_tile()
-      + facet_wrap(~test_prop,scale="free",labeller = label_both)
-      #+ scale_y_log10()
-      + scale_fill_viridis_c(expand=c(0,0))
-      + ggtitle("log-space diff between simp and log_simp")
+
+fig_logdiff_simp_log <-(
+  ggplot(dd,aes(phi,inc,fill=diff_simp_log,group=test_prop))
+  + geom_raster()
+  + facet_wrap(~test_prop,scale="free",labeller = label_both)
+  # + scale_y_log10()
+  + scale_fill_viridis_c(expand=c(0,0))
+  + ggtitle("log-space diff between simp and log_simp")
 )
+ggsave("log-diff_simp-log.png",plot=fig_logdiff_simp_log, path = "./pix", width=3200,height=1800,units="px")
+
+fig_logdiff_est_log <-(
+  ggplot(dd,aes(phi,inc,fill=diff_est_log,group=test_prop))
+  + geom_raster()
+  + facet_wrap(~test_prop,scale="free",labeller = label_both)
+  # + scale_y_log10()
+  + scale_fill_viridis_c(expand=c(0,0))
+  + ggtitle("log-space diff between est and log_simp")
+)
+ggsave("log-diff_est-log.png",plot=fig_logdiff_est_log, path = "./pix", width=3200,height=1800,units="px")
 
 #### need to investigate more: what happens to a phi=0.99 case  
 prop_pos_test_new(0.5,0.001,0.97,method = "cdf",debug = T)
@@ -141,8 +158,8 @@ exp(val_log(0.8,0.97,0.001)[4])
 ## cdf method will give "solid" zero for that case (log=-Inf)
 
 dd_est <- (expand.grid(test_prop=c(0.05),#,0.0012,0.0015,0.002,0.005,0.01,0.05,0.1,0.25),
-                   phi=seq(from=0.001,to=0.999,by=0.001),
-                   inc=seq(from=0.001,to=0.999,by=0.001))
+                   phi=seq(from=0.001,to=0.999,by=0.002),
+                   inc=seq(from=0.001,to=0.999,by=0.002))
        %>% as_tibble()
        #%>% mutate(pos_prop_int=prop_pos_test_new(inc,test_prop,phi,method="int"))
        %>% mutate(pos_prop_est=prop_pos_test_new(inc,test_prop,phi,method="est"))
@@ -152,46 +169,50 @@ dd_est <- (expand.grid(test_prop=c(0.05),#,0.0012,0.0015,0.002,0.005,0.01,0.05,0
        )
 
 
-print(ggplot(dd_est,aes(phi,inc,fill=diff_est_log,group=test_prop))
-      + geom_tile()
-      + facet_wrap(~test_prop,scale="free",labeller = label_both)
-      #+ scale_y_log10()
-      + scale_fill_viridis_c(expand=c(0,0))
-      + ggtitle("log-space diff between est and log_simp")
+fig_HR_logdiff_est_log<-(
+  ggplot(dd_est,aes(phi,inc,fill=diff_est_log,group=test_prop))
+  + geom_raster()
+  + facet_wrap(~test_prop,scale="free",labeller = label_both)
+  # + scale_y_log10()
+  + scale_fill_viridis_c(expand=c(0,0))
+  + ggtitle("log-space diff between est and log_simp")
 )
+ggsave("NEW-log-diff_est-log.png",plot=fig_HR_logdiff_est_log, path = "./pix", width=3200,height=1800,units="px")
 
+which(dd_est$inc==0.851)
 
-
-slice_inc <- subset(dd_est, dd_est$inc==0.750)
+slice_inc <- subset(dd_est, dd_est$inc==0.851)
 slice_inc[which(is.nan(slice_inc$diff_est_log)),]
-print(slice_inc,n=1000)
-slice_inc 
+# print(slice_inc,n=1000)
+# slice_inc 
 
 dtF <- rbind(
-  data.frame(phi=slice_inc$phi, y=slice_inc$pos_prop_est, class="est_method", gp = "pos_prop"),
   data.frame(phi=slice_inc$phi, y=slice_inc$pos_prop_log, class="logsimp_method", gp="pos_prop"),
+  data.frame(phi=slice_inc$phi, y=slice_inc$pos_prop_est, class="est_method", gp = "pos_prop"),
   data.frame(phi=slice_inc$phi, y=slice_inc$diff_est_log, class="log_diff", gp="log_diff"))
 
 
-print(ggplot(data = dtF, mapping = aes(x = phi, y = y)) +
-      facet_grid(gp~., scale = "free_y") +
-      geom_point(data=dtF[dtF$gp=="pos_prop",], aes(color=class),size=0.6) +
-      geom_point(data=dtF[dtF$gp=="log_diff",], aes(color=class),size =0.6)
+fig_slice_logdiff_est_log <- (
+  ggplot(data = dtF, mapping = aes(x = phi, y = y)) 
+  +facet_grid(gp~., scale = "free_y")
+  +geom_point(data=dtF[dtF$gp=="log_diff",], aes(color=class),size =0.6)
+  +geom_point(data=dtF[dtF$gp=="pos_prop",], aes(color=class),size=0.4)
 )
+ggsave("slice_log_diff_est-logsimp.png",plot=fig_slice_logdiff_est_log, path = "./pix", width=3200,height=1800,units="px")
 
 
-val <- function(i,phi,t) {
-  phi_0 <- phi
-  phi <- -log(1-phi)
-  a <- i/phi; b <- (1-i)/phi
-  lwr <-qbeta(t,a,b, lower.tail = FALSE)
-  log_lwr <- log(lwr)
-  log_val = a/(a+b)*(t+(exp(a*log(lwr)+b*log(1-lwr)-log(beta(a,b)*a))))/t
-  est_val = (b+1-(1-lwr)*a*b)/(b+1-(1-lwr)*(a-1)*b)
-  est_num = (b+1-(1-lwr)*a*b)
-  est_denom = (b+1-(1-lwr)*(a-1)*b)
-  return(c(lwr,log_lwr,log_val,est_val,est_num,est_denom))
-}
-
-ind<- 528
-val(as.numeric(slice_inc[ind,3]),as.numeric(slice_inc[ind,2]),as.numeric(slice_inc[ind,1]))
+# val <- function(i,phi,t) {
+#   phi_0 <- phi
+#   phi <- -log(1-phi)
+#   a <- i/phi; b <- (1-i)/phi
+#   lwr <-qbeta(t,a,b, lower.tail = FALSE)
+#   log_lwr <- log(lwr)
+#   log_val = a/(a+b)*(t+(exp(a*log(lwr)+b*log(1-lwr)-log(beta(a,b)*a))))/t
+#   est_val = (b+1-(1-lwr)*a*b)/(b+1-(1-lwr)*(a-1)*b)
+#   est_num = (b+1-(1-lwr)*a*b)
+#   est_denom = (b+1-(1-lwr)*(a-1)*b)
+#   return(c(lwr,log_lwr,log_val,est_val,est_num,est_denom))
+# }
+# 
+# ind<- 528
+# val(as.numeric(slice_inc[ind,3]),as.numeric(slice_inc[ind,2]),as.numeric(slice_inc[ind,1]))

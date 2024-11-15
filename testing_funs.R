@@ -127,7 +127,13 @@ prop_pos_test2 <- function(i,t,phi,
                 cdf = pbeta(lwr,a+1,b,lower.tail=FALSE)*(a/(a+b)),
                 simp = a/(a+b)*(t+(lwr^a*(1-lwr)^b)/(beta(a,b)*a)),
                 log = a/(a+b)*(t+(exp(a*log(lwr)+b*log(1-lwr)-log(beta(a,b)*a)))),
-                est = t*(b+1-(1-lwr)*a*b)/(b+1-(1-lwr)*(a-1)*b)
+                est = {
+                  if (1-lwr > 1e-5) {
+                    a/(a+b)*(t+(exp(a*log(lwr)+b*log(1-lwr)-log(beta(a,b)*a))))
+                  } else {
+                    t*(b+1-(1-lwr)*a*b)/(b+1-(1-lwr)*(a-1)*b)
+                  }
+                }
                 )
   if (debug) cat("val: ",val,"\n")
   return(val/t)  ## CHECK denominator!
@@ -135,3 +141,30 @@ prop_pos_test2 <- function(i,t,phi,
 prop_pos_test_new <- Vectorize(prop_pos_test2,c("i","t","phi"))
 
 ## prop_pos_test_new(i=0.8, t= 0.0012, phi = c(0.01, 0.99))
+
+
+### logarithm space difference
+abs_log_sub <- function(x,y,zeroHL=-Inf){
+  sgn <- sign(log(x)-log(y))
+  ## Exclude failing case: possible reason, Qbeta gives 1 and Pbeta generate infinity
+  ##### FIXIT??? 
+  if (is.infinite(sgn)){
+    out <- NaN
+  } else if(is.nan(sgn)){
+    out <- NaN
+  } else {
+    if (sgn>0) {
+      out <- logspace.sub(log(x),log(y))
+    } else if (sgn==0) {
+      out <- logspace.sub(log(x),log(y))
+      if (out==-Inf){
+        out <- zeroHL
+      }
+      # Highlight very close to (0) results
+    } else {
+      out <- logspace.sub(log(y),log(x))
+    }
+  }
+  return(out)
+}
+abs_log_sub <- Vectorize(abs_log_sub,c("x","y"))
