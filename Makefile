@@ -64,6 +64,7 @@ Sources += or.md $(wildcard *.mac)
 
 ## Canada data repo
 
+Ignore += rvdss_canada
 rvdss_canada.update: | rvdss_canada
 	cd $| && git pull
 rvdss_canada:
