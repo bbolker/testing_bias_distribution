@@ -62,12 +62,13 @@ prev_slice<-(expand.grid(test_prop=c(0.001,0.002,0.005,0.010,0.020,0.050,0.1,0.2
             %>% mutate(ratio=prev/pos_prop_est)
 )
 
+brkvec <- c(10^(-3:-1), 0.75) 
 fig_ratio_prev_slice <- (
-  ggplot(prev_slice,aes(phi,ratio,color=log(test_prop),group=prev))
-  + geom_point(size=0.5)
+  ggplot(prev_slice,aes(phi,ratio,color=test_prop,group=prev))
+  + geom_point(size=0.4)
   + facet_wrap(~prev,scale="free",labeller = label_both)
   # + scale_y_log10()
-  + scale_colour_viridis_c()
+  + scale_colour_viridis_c(trans="log10", breaks = brkvec)
   + ggtitle("prev/pos_prop ratio vs phi, colored by test proportion, grouped by prevalence")
 )
 # print(fig_ratio_prev_slice)
