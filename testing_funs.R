@@ -128,9 +128,11 @@ prop_pos_test2 <- function(i,t,phi,
                 simp = a/(a+b)*(t+(lwr^a*(1-lwr)^b)/(beta(a,b)*a)),
                 log = a/(a+b)*(t+(exp(a*log(lwr)+b*log(1-lwr)-log(beta(a,b)*a)))),
                 est = {
-                  if (1-lwr > 1e-5) {
+                  if (1-lwr >= 1e-5) {
+                    if (debug) cat("logsimp","\n")
                     a/(a+b)*(t+(exp(a*log(lwr)+b*log(1-lwr)-log(beta(a,b)*a))))
                   } else {
+                    if (debug) cat("est","\n")
                     t*(b+1-(1-lwr)*a*b)/(b+1-(1-lwr)*(a-1)*b)
                   }
                 }
@@ -168,3 +170,5 @@ abs_log_sub <- function(x,y,zeroHL=-Inf){
   return(out)
 }
 abs_log_sub <- Vectorize(abs_log_sub,c("x","y"))
+
+## For hazard ratio idea

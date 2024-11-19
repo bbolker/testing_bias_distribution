@@ -4,7 +4,7 @@ title: "simple/null modeling of multiplex testing"
 
 We should explore a very simple world where we specify prevalence of two pathogens that share a duplex test and show patterns of how changes in prevalence in pathogen A affect positivity totals and proportions in pathogen B.
 
-Suppose we have prevalences/incidences for two diseases, $P_A$ and $P_B$.
+Suppose we have prevalence/incidences for two diseases, $P_A$ and $P_B$.
 
 The baseline hazard for testing is $\beta_0$ (i.e, prob (testing/
 uninfected) is $1-\exp(-\beta_{0})$ ). Being infected with disease $A$ or \beta

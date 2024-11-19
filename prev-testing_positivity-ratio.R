@@ -62,25 +62,26 @@ prev_slice<-(expand.grid(test_prop=c(0.001,0.002,0.005,0.010,0.020,0.050,0.1,0.2
             %>% mutate(ratio=prev/pos_prop_est)
 )
 
+brkvec <- c(10^(-3:-1), 0.75) 
 fig_ratio_prev_slice <- (
-  ggplot(prev_slice,aes(phi,ratio,color=log(test_prop),group=prev))
-  + geom_point(size=0.5)
+  ggplot(prev_slice,aes(phi,ratio,color=test_prop,group=prev))
+  + geom_point(size=0.4)
   + facet_wrap(~prev,scale="free",labeller = label_both)
   # + scale_y_log10()
-  + scale_colour_viridis_c()
+  + scale_colour_viridis_c(trans="log10", breaks = brkvec)
   + ggtitle("prev/pos_prop ratio vs phi, colored by test proportion, grouped by prevalence")
 )
 # print(fig_ratio_prev_slice)
 ggsave("prev-pos_prop-ratio_prev_slice.png",plot=fig_ratio_prev_slice, path = "./pix", width=3200,height=1800,units="px")
 
 ###### Investigation: what happens to the decrease on yellow curves?
-print(prev_slice[which(prev_slice$test_prop==.5 & prev_slice$prev==0.001),],n=1000)
+#print(prev_slice[which(prev_slice$test_prop==.5 & prev_slice$prev==0.001),],n=1000)
 ### pos_prob start to increase suddenly
-
+prev_slice[1,]
 t1 <- prev_slice[which(prev_slice$test_prop==.5 & prev_slice$prev==0.001),]
 
-ii1 <- as.numeric(t1[500,3])
-phi1 <- as.numeric(t1[500,2])
+ii1 <- as.numeric(t1[100,3])
+phi1 <- as.numeric(t1[100,2])
 aa1 <- ii1/phi1
 bb1 <- (1-ii1)/phi1
 
@@ -132,3 +133,19 @@ fig_ratio_test_prop_slice <- (
   + ggtitle("prev/pos_prop ratio vs test proportion, colored by phi, grouped by prevalence")
 )
 ggsave("prev-pos_prop-ratio_test_prop_slice.png",plot=fig_ratio_test_prop_slice, path = "./pix", width=3200,height=1800,units="px")
+
+##### Why there is a sudden drop?
+sub <- subset(test_prop_slice,test_prop_slice$prev==0.001 & test_prop_slice$phi==0.99)
+ggplot(sub,aes(test_prop,pos_prop_est,color=phi,group=prev))+
+  geom_point(size=0.5)+
+  scale_colour_viridis_c()+
+  ylim(0,0.1)+
+  ggtitle("pos_prop vs test proportion, colored by phi, grouped by prevalence")
+print(sub[500:700,],n=200)
+sub[570:573,]
+
+prop_pos_test_new(0.001,0.571,0.99,method="est",debug = T)
+
+prop_pos_test_new(0.001,0.572,0.99,method="est",debug = T)
+
+### Another numerical issue
