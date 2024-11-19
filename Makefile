@@ -62,24 +62,88 @@ Sources += or.md $(wildcard *.mac)
 
 ######################################################################
 
-## Canada data repo
+## Canada data repo; developing now for MD talk. Need to clean up at some point
 
 Ignore += rvdss_canada
 rvdss_canada.update: | rvdss_canada
 	cd $| && git pull
 rvdss_canada:
 	git clone https://github.com/dajmcdon/rvdss-canada $@
+rvdss_canada/data: | rvdss_canada ;
 
 Ignore += detections.csv
 ## Can't easily be processed together bc pdm09 stuff changes (maybe other stuff as well)
 detections.csv: rvdss_canada/data
 	cat $</data/season*/respiratory_detections.csv > $@
 
+## Just summarizing right now
+## We have 12 years of two major things plus hcov; only 1.5 years of sars afaict
 detections.Rout: detections.R $(wildcard rvdss_canada/data/season*/respiratory_detections.csv)
 	$(pipeR)
 
+## Playing around only (2024 flu year is over) 
 lastYear.Rout: lastYear.R rvdss_canada/data/*_*_2024/respiratory_detections.csv
 	$(pipeR)
+
+lastYear.plots.Rout: firstplot.R lastYear.rds
+	$(pipeR)
+
+## For years with sarscov2 (flu years 2023 and 2024; 2025 has a different name)
+## 2023.fourpath.Rout: fourpath.R
+## Getting very hacky! Some years don't have the flu total...
+impmakeR += fourpath
+%.fourpath.Rout: fourpath.R rvdss_canada/data/*_*_%/respiratory_detections.csv
+	$(pipeR)
+
+impmakeR += twopath
+## 2014.twopath.Rout: twopath.R
+%.twopath.Rout: twopath.R rvdss_canada/data/*_*_%/respiratory_detections.csv
+	$(pipeR)
+
+impmakeR += firstplot
+## 2024.fourpath.firstplot.Rout: firstplot.R
+## 2023.fourpath.firstplot.Rout: firstplot.R
+## 2014.twopath.firstplot.Rout: firstplot.R twopath.R
+%.firstplot.Rout: firstplot.R %.rda
+	$(pipeR)
+
+impmakeR += secondplot
+## 2024.fourpath.secondplot.Rout: secondplot.R
+## 2023.fourpath.secondplot.Rout: secondplot.R
+## 2014.twopath.secondplot.Rout: secondplot.R twopath.R
+%.secondplot.Rout: secondplot.R %.rda
+	$(pipeR)
+
+rvdssYears = 2014 2015 2016 2017 2018 2019 2020 2021 2022 2023 2024
+rvdssBrin = $(rvdssYears:%=%.twopath.firstplot.Rout.pdf)
+rvdssBrin.pdf: $(rvdssBrin)
+	$(pdfcat)
+
+brin.Rout: brin.R 2014.twopath.R
+
+######################################################################
+
+## Some implicit curves of positivity vs. test proportion
+## First attempt
+orCurves.Rout: orCurves.R
+
+## Now modularized a bit
+## Original grid (two prevalences, three shapes)
+orGrid.Rout: orGrid.R
+
+## Try to converge on a point
+## orConv.Rout: orConv.R
+
+## orConv.compPlots.Rout: compPlots.R orConv.R
+## orGrid.compPlots.Rout: compPlots.R 
+%.compPlots.Rout: compPlots.R %.rds
+	$(pipeR)
+
+######################################################################
+
+## Beta illustrations
+
+betaIllus.Rout: betaIllus.R
 
 ######################################################################
 
@@ -100,6 +164,7 @@ makestuff/%.stamp:
 
 -include makestuff/pipeR.mk
 -include makestuff/max.mk
+-include makestuff/pdfpages.mk
 
 -include makestuff/git.mk
 -include makestuff/gitbranch.mk
