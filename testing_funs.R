@@ -172,3 +172,24 @@ abs_log_sub <- function(x,y,zeroHL=-Inf){
 abs_log_sub <- Vectorize(abs_log_sub,c("x","y"))
 
 ## For hazard ratio idea
+Phi_convert_HR <- function(phi){
+  Phi <- exp(-phi)
+  return(Phi)
+}
+
+phi_convert_HR <- function(Phi){
+  phi <- -log(Phi)
+  return(phi)
+}
+
+Bfun_HR <- function(V,test_prop,Phi){
+  B <- (1-test_prop)/(1-V*(1-Phi))
+  return(B)
+}
+Bfun_HR <- Vectorize(Bfun_HR,c("V","test_prop","Phi"))
+
+Pfun_HR <- function(V,test_prop,Phi){
+  P <- V/test_prop*(1-(1-test_prop)/(1-V+V*Phi)*Phi)
+  return(P)
+}
+Pfun_HR <- Vectorize(Pfun_HR,c("V","test_prop","Phi"))
