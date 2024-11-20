@@ -120,9 +120,9 @@ We would like to use time series of $T$ and $P$ as observed from data and trying
 
 ### Model
 
-Then the probability/risk of an uninfected individual being tested is governed by the baseline hazard $b$: $$ T_B=r(b)=1-e^{-b} $$ And the probability/risk of an infected individual being tested is governed by the baseline hazard $b$ and the offset $\phi$: $$ T_V=r(b+\phi)=1-e^{-(b+\phi)} $$
+Then the probability/risk of an uninfected individual being tested is governed by the baseline hazard $b$: $$ T_B=r(b)=1-e^{-b} $$And the probability/risk of an infected individual being tested is governed by the baseline hazard $b$ and the offset $\phi$: $$ T_V=r(b+\phi)=1-e^{-(b+\phi)} $$
 
-For simplicity we denote $B=e^{-b}$ and $\Phi=e^{-\phi}$, then we have $$ T_B=1-B $$$$ T_V=1-B\Phi$$ Then at any time, the testing proportion $T$, also as the probability of a random individual being tested, can be expressed as: $$ T=T_B (1-V)+T_V V=(1-V)(1-B)+V(1-B\Phi)$$ This gives us $B$ (thus $b=-log(B)$ as the baseline hazard) $$B(V,T,\Phi)=\frac{1-T}{1-V(1-\Phi)}$$
+For simplicity we denote $B=e^{-b}$ and $\Phi=e^{-\phi}$, then we have $$ T_B=1-B $$$$ T_V=1-B\Phi$$Then at any time, the testing proportion $T$, also as the probability of a random individual being tested, can be expressed as: $$ T=T_B (1-V)+T_V V=(1-V)(1-B)+V(1-B\Phi)$$This gives us $B$ (thus $b=-log(B)$ as the baseline hazard) $$B(V,T,\Phi)=\frac{1-T}{1-V(1-\Phi)}$$
 
 ### problem: need constraint on $B\leq 1$ for combination of $T,V,\Phi$
 
