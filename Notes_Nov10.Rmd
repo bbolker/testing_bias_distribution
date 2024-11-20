@@ -124,7 +124,9 @@ Then the probability/risk of an uninfected individual being tested is governed b
 
 For simplicity we denote $B=e^{-b}$ and $\Phi=e^{-\phi}$, then we have $$ T_B=1-B $$$$ T_V=1-B\Phi$$ Then at any time, the testing proportion $T$, also as the probability of a random individual being tested, can be expressed as: $$ T=T_B (1-V)+T_V V=(1-V)(1-B)+V(1-B\Phi)$$ This gives us $B$ (thus $b=-log(B)$ as the baseline hazard) $$B(V,T,\Phi)=\frac{1-T}{1-V(1-\Phi)}$$
 
-### problem: no constraint on $B<1$ for any combination of $T,V,\Phi$
+### problem: need constraint on $B\leq 1$ for combination of $T,V,\Phi$
+
+For $B\leq 1$, $\Phi$ have a constraint $\Phi \geq 1-T/V$. - If $T \geq V$, all feasible value of $\Phi \in [0,1]$ works - If $T < V$ (which is more possible in reality), we must have $\Phi \geq 1-T/V$ as a lower bound $\Leftrightarrow \phi$ has a upper bound.
 
 Consider we can observe testing positivity $P$ and testing proportion $T$ from data. Try to interpret previous function for $B$ (thus $b$) as a function depend on $T$, $V$, $\Phi$.
 
@@ -145,6 +147,14 @@ Consider we can observe testing positivity $P$ and testing proportion $T$ from d
 Current simplify idea is assume $\phi$ is a constant for a certain period of time and in future it could be a function of $t$.
 
 The testing positivity $P$ can be expressed as: $$ P = \frac{V T_V}{T}=\frac{V(1-B\Phi)}{T}=\frac{V}{T}(1-\frac{(1-T)\Phi}{1-V+V\Phi})$$
+
+[`HR_Test_positivity_figure.R`](HR_Test_positivity_figure.R): Generate figures for test positivity curves as a function of $\Phi=e^{-\phi}$ ($\phi$ is the hazard offset of infection), testing proportion and prevalence using Hazard Ratio idea.
+
+-   [`./pix/HR_test_positivity_vs_phi-test_prop.png`](./pix/HR_test_positivity_vs_phi-test_prop.png): group by different test proportion
+
+-   [`./pix/HR_test_positivity_vs_test_proportion-phi.png`](./pix/HR_test_positivity_vs_test_proportion-phi.png): group by different $\phi$ value
+
+-   [`./pix/HR_heatmap.png`](./pix/HR_heatmap.png): Heat map used to show the boundary condition of $\Phi \geq 1-T/V$.
 
 ## Odds Ratio (TO DO)
 

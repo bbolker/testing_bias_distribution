@@ -182,14 +182,24 @@ phi_convert_HR <- function(Phi){
   return(phi)
 }
 
-Bfun_HR <- function(V,test_prop,Phi){
-  B <- (1-test_prop)/(1-V*(1-Phi))
-  return(B)
+Bfun_HR <- function(V,test_prop,Phi,debug=F){
+    if (Phi<1-test_prop/V) {
+      if (debug==T) cat("Error: Phi=",Phi,"does not satisfy the feasible condition for T=",test_prop," and V=",V,"\n")
+      return(NaN)
+    } else {
+      B <- (1-test_prop)/(1-V*(1-Phi))
+      return(B)
+    }
 }
 Bfun_HR <- Vectorize(Bfun_HR,c("V","test_prop","Phi"))
 
-Pfun_HR <- function(V,test_prop,Phi){
-  P <- V/test_prop*(1-(1-test_prop)/(1-V+V*Phi)*Phi)
-  return(P)
+Pfun_HR <- function(V,test_prop,Phi,debug=F){
+  if (Phi<1-test_prop/V) {
+    if (debug==T) cat("Error: Phi=",Phi,"does not satisfy the feasible condition for T=",test_prop," and V=",V,"\n")
+    return(NaN)
+  } else {
+    P <- V/test_prop*(1-(1-test_prop)/(1-V+V*Phi)*Phi)
+    return(P)
+  }
 }
 Pfun_HR <- Vectorize(Pfun_HR,c("V","test_prop","Phi"))
