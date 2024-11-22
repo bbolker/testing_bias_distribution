@@ -59,7 +59,7 @@ We currently have four methods of calculating expected testing positivity(pos_pr
 -   est: Hybrid method of log and first order estimation based on cdf formula
 
     -   For $1-lwr=1-Q(1-t)>=1e^{-5}$ use log method
-    -   For $1-lwr=Q(1-t)<1e^{-5}$ use first order estimation $$
+    -   For $1-lwr=1-Q(1-t)<1e^{-5}$ use first order estimation $$
         \bar{p} \approx \frac{b+1-(1-Q(1-t))ab}{b+1-(1-Q(1-t))(1-a)b}
         $$
 
