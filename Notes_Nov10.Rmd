@@ -89,7 +89,7 @@ Still, in this "grey/yellow area", where numerical overflow leads to $Q(1-t)=1$ 
 -   Anoter way "est": use log_simp when $Q(1-t)$ is away from $1$ (away from "grey area") and use first order estimation of "cdf" formula when it is close to 1
 
     -   Current boundary is set to $1-Q(1-t)=1e^{-5}$ (TO DO? better analysis). where the the estimation and log_simp are close enough, but before the log_simp starting to break down
-    -   ???Also a boundary for $Q(1-t)=1e^{-5}$ to avoid similar problem of $Q(1-t)=0$ makes overflow to
+    -   ???Also a boundary for $Q(1-t)=1e^{-5}$ to avoid similar problem of $Q(1-t)=0$ makes overflow too
 
 -   [`./pix/log-diff_est-log.png`](./pix/log-diff_est-log.png): "est" vs "log_simp" for whole parameter space:
 
