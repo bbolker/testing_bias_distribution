@@ -3,8 +3,8 @@ title: "Notes_Nov10"
 author: "Richard Zhao"
 date: "2024-11-18"
 output:
-  md_document:
-    variant: markdown_github
+  html_document:
+    keep_md: true
 ---
 
 ```{r setup, include=FALSE}

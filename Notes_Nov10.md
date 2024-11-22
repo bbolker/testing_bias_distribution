@@ -1,288 +1,170 @@
+---
+title: "Notes_Nov10"
+author: "Richard Zhao"
+date: "2024-11-18"
+output:
+  html_document:
+    keep_md: true
+---
+
+
+
 # 2024 Nov 10 (Sun)
 
 Notes grouped by project:
 
 ## Beta Distribution
 
-[`testing_distrib.rmd`](testing_distrib.rmd) is the general explanation
-of motivation of the project. With methodology of beta distribution idea
-and some preliminary simulation.
+[`testing_distrib.rmd`](testing_distrib.rmd) is the general explanation of motivation of the project. With methodology of beta distribution idea and some preliminary simulation.
 
-[`Expected_Test_positivity_figure.R`](Expected_Test_positivity_figure.R):
-Generate figures for expected test positivity curves as a function of
-*ϕ* (shape parameter for beta distribution as “test focus”), testing
-proportion and prevalence.
+[`Expected_Test_positivity_figure.R`](Expected_Test_positivity_figure.R): Generate figures for expected test positivity curves as a function of $\phi$ (shape parameter for beta distribution as "test focus"), testing proportion and prevalence.
 
--   [`./pix/test_positivity_vs_phi-test_prop.png`](./pix/test_positivity_vs_phi-test_prop.png):
-    group by different test proportion
+-   [`./pix/test_positivity_vs_phi-test_prop.png`](./pix/test_positivity_vs_phi-test_prop.png): group by different test proportion
 
--   [`./pix/test_positivity_vs_test_proportion-phi.png`](./pix/test_positivity_vs_test_proportion-phi.png):
-    group by different *ϕ* value
+-   [`./pix/test_positivity_vs_test_proportion-phi.png`](./pix/test_positivity_vs_test_proportion-phi.png): group by different $\phi$ value
 
-    -   @bbolker ’s new color scaling applied
+    -   @bbolker 's new color scaling applied
 
 ### Ratio of prevalence and test positivity(pos_prop)
 
-Part of motivation for the project is find relationship into
-relationship between prevalence(prev) and test positivity(pos_prop)
+Part of motivation for the project is find relationship into relationship between prevalence(prev) and test positivity(pos_prop)
 
-[`inc-testing_positivity-ratio.R`](inc-testing_positivity-ratio.R): Try
-to dig further with the ratio of prev/pos_prop under different *ϕ* and
-test proportion(test_prop).
+[`inc-testing_positivity-ratio.R`](inc-testing_positivity-ratio.R): Try to dig further with the ratio of prev/pos_prop under different $\phi$ and test proportion(test_prop).
 
--   [`./pix/prev-pos_prop-ratio_prev_slice.png`](./pix/prev-pos_prop-ratio_prev_slice.png):prev/pos_prop
-    ratio as a function of *ϕ*, prev and test_prop, x-axis is *ϕ*,
-    grouped by different prev, and colored by test_proportion.
+-   [`./pix/prev-pos_prop-ratio_prev_slice.png`](./pix/prev-pos_prop-ratio_prev_slice.png):prev/pos_prop ratio as a function of $\phi$, prev and test_prop, x-axis is $\phi$, grouped by different prev, and colored by test_proportion.
 
--   [`./pix/prev-pos_prop-ratio_test_prop_slice.png`](./pix/prev-pos_prop-ratio_test_prop_slice.png):prev/pos_prop
-    ratio as a function of *ϕ*, prev and test_prop, x-axis is test
-    proportion, grouped by different prev, and colored by *ϕ*.
+-   [`./pix/prev-pos_prop-ratio_test_prop_slice.png`](./pix/prev-pos_prop-ratio_test_prop_slice.png):prev/pos_prop ratio as a function of $\phi$, prev and test_prop, x-axis is test proportion, grouped by different prev, and colored by $\phi$.
 
-    -   (TO DO) what happened at the jump/cusp?? Another over flow issue
-        for *Q*(1−*t*) is too close to 0!!!!
+    -   (TO DO) what happened at the jump/cusp?? Another over flow issue for $Q(1-t)$ is too close to $0$!!!!
 
 ### Methods of calculate expected testing positivity
 
-We currently have four methods of calculating expected testing
-positivity(pos_prop) *p̄* for beta distribution based on formula
-discussed in Machinery of `testing_distrib.rmd`:
+We currently have four methods of calculating expected testing positivity(pos_prop) $\bar{p}$ for beta distribution based on formula discussed in Machinery of `testing_distrib.rmd`:
 
--   int: Integrating the beta function ourselves
-    $$
-    \bar{p}=\frac{\left(\int\_{Q(1-t)}^1 B(y,\phi) y \\ dy\right)}{1-\Phi_B(Q(1-t))} = 
-    \frac{\left(\int\_{Q(1-t)}^1 B(y,\phi) y \\ dy\right)}{t}
+-   int: Integrating the beta function ourselves $$
+    \bar{p}=\frac{\left(\int_{Q(1-t)}^1 B(y,\phi) y \, dy\right)}{1-\Phi_B(Q(1-t))} = 
+    \frac{\left(\int_{Q(1-t)}^1 B(y,\phi) y \, dy\right)}{t}
     $$
 
--   cdf: Using cdf of beta distribution (pbeta function from base R)
-    $$
-    \bar{p}=\frac{CDF\_{\beta}(Q(1-t),a+1,b)}{t}
-    $$
-    where *a*, *b* are shape parameter after parameterization by
-    prevalence *i* and *ϕ*. *t* is test proportion.
+-   cdf: Using cdf of beta distribution (pbeta function from base R) $$
+    \bar{p}=\frac{CDF_{\beta}(Q(1-t),a+1,b)}{t}
+    $$ where $a,b$ are shape parameter after parameterization by prevalence $i$ and $\phi$. $t$ is test proportion.
 
--   simp/log: Richard’s formula / log version formula (equivalent but
-    log version is slightly better for numerical calculation) as an
-    explicit mathematical simplification of cdf method
-    $$
+-   simp/log: Richard's formula / log version formula (equivalent but log version is slightly better for numerical calculation) as an explicit mathematical simplification of cdf method $$
     \bar{p}=i(1+\frac{Q(1-t)^a(1-Q(1-t))^b}{t a\mathbb{B}(a,b)})
-    $$
-    where 𝔹(*a*,*b*) is the complete beta function.
+    $$ where $\mathbb{B}(a,b)$ is the complete beta function.
 
--   est: Hybrid method of log and first order estimation based on cdf
-    formula
+-   est: Hybrid method of log and first order estimation based on cdf formula
 
-    -   For 1 − *l**w**r* = 1 − *Q*(1−*t*) \>  = 1*e*<sup>−5</sup> use
-        log method
-    -   For 1 − *l**w**r* = *Q*(1−*t*) \< 1*e*<sup>−5</sup> use first
-        order estimation
-        $$
+    -   For $1-lwr=1-Q(1-t)>=1e^{-5}$ use log method
+    -   For $1-lwr=Q(1-t)<1e^{-5}$ use first order estimation $$
         \bar{p} \approx \frac{b+1-(1-Q(1-t))ab}{b+1-(1-Q(1-t))(1-a)b}
         $$
 
 All formula is write as function prop_pos_test_new on `testing_funs.R`.
 
-[`Logspace_comparing_methods.R`](Logspace_comparing_methods.R):
-Comparing numerical result of methods on log space. Log-space Difference
-(heat-map color) are function of prevalence (y-axis), *ϕ*(x-axis) and
-testing proportion-test_prop(group). For now, the differences are
-magnitude/absolute value, signs are considered due to log-space
-calculation, but temporarily ignored.
+[`Logspace_comparing_methods.R`](Logspace_comparing_methods.R): Comparing numerical result of methods on log space. Log-space Difference (heat-map color) are function of prevalence (y-axis), $\phi$(x-axis) and testing proportion-test_prop(group). For now, the differences are magnitude/absolute value, signs are considered due to log-space calculation, but temporarily ignored.
 
-Difference of *l**o**g*(*x*) − *l**o**g*(*y*) = 0 cases is highlighted
-by manually assign some value (45 in
-[`./pix/log-diff_cdf-log_simp.png`](./pix/log-diff_cdf-log_simp.png) or
-40 in
-[`./pix/log-diff_simp-log_simp.png`](./pix/log-diff_simp-log_simp.png)).
-These difference by definition is -Inf but could leads to confusion with
-the “real gray area” (NaN, caused by numerical flow of methods) in
-heat-map.
+Difference of $log(x)-log(y)=0$ cases is highlighted by manually assign some value ($45$ in [`./pix/log-diff_cdf-log_simp.png`](./pix/log-diff_cdf-log_simp.png) or $40$ in [`./pix/log-diff_simp-log_simp.png`](./pix/log-diff_simp-log_simp.png)). These difference by definition is -Inf but could leads to confusion with the "real gray area" (NaN, caused by numerical flow of methods) in heat-map.
 
-[`betaParams.md`](betaParams.md): (TO DO?) @dushoff ’s suggestion to
-consider other parameterization of beta distribution shape parameter.
+[`betaParams.md`](betaParams.md): (TO DO?) @dushoff 's suggestion to consider other parameterization of beta distribution shape parameter.
 
 ### Numerical issues
 
 #### qbeta overflow
 
-The “gray area” for extreme values (prevalence, *ϕ* → 1 leads to NaN
-and/or Inf values when calculating expected testing positivity
-(prop_pos). This is due to *Q*(1−*t*) which is calculated by qbeta has
-numerical overflow and incorrectly gives 1 for such extreme parameter
-values. These ranges shrink as test_prop increases.
+The "gray area" for extreme values (prevalence, $\phi \rightarrow 1$ leads to NaN and/or Inf values when calculating expected testing positivity (prop_pos). This is due to $Q(1-t)$ which is calculated by qbeta has numerical overflow and incorrectly gives $1$ for such extreme parameter values. These ranges shrink as test_prop increases.
 
--   [`./pix/log-diff_cdf-log_simp.png`](./pix/log-diff_cdf-log_simp.png)
-    :“cdf” vs “log_simp”:
--   [`./pix/log-diff_simp-log.png`](./pix/log-diff_simp-log.png) :“simp”
-    vs “log_simp”
+-   [`./pix/log-diff_cdf-log_simp.png`](./pix/log-diff_cdf-log_simp.png) :"cdf" vs "log_simp":
+-   [`./pix/log-diff_simp-log.png`](./pix/log-diff_simp-log.png) :"simp" vs "log_simp"
 
-After fixing the denominator issue (qbeta appears in denominator, now is
-replaced by testing proportion), the “grey area” is away, since we no
-longer have zero denominator due to overflow. This shows difference
-between cdf and log simp method. (simp and log_simp seems merged). Now
-the previously “grey area” are not NaN values and all in yellow((-10,0)
-level log difference) in
-[`./pix/log-diff_simp-log.png`](./pix/log-diff_simp-log.png).
+After fixing the denominator issue (qbeta appears in denominator, now is replaced by testing proportion), the "grey area" is away, since we no longer have zero denominator due to overflow. This shows difference between cdf and log simp method. (simp and log_simp seems merged). Now the previously "grey area" are not NaN values and all in yellow((-10,0) level log difference) in [`./pix/log-diff_simp-log.png`](./pix/log-diff_simp-log.png).
 
-Still, in this “grey/yellow area”, where numerical overflow leads to
-*Q*(1−*t*) = 1 incorrectly, logsimp method gives *p̄* = *i* incorrectly.
-Near “grey/yellow area”, log_simp might also generate numerical value
- \> 1 for *p̄*. log_simp method works well when away from the “grey
-area”.
+Still, in this "grey/yellow area", where numerical overflow leads to $Q(1-t)=1$ incorrectly, logsimp method gives $\bar{p}=i$ incorrectly. Near "grey/yellow area", log_simp might also generate numerical value $>1$ for $\bar{p}$. log_simp method works well when away from the "grey area".
 
--   (TO DO?) one way to “resolve” this is increase numerical accuracy of
-    qbeta function in R. qbeta use a newton-like methods and limit the
-    maximum iteration to 1000. Idea: we could try to recreate the
-    algorithm in r level (available on Github) and then maybe try C
-    level.
+-   (TO DO?) one way to "resolve" this is increase numerical accuracy of qbeta function in R. qbeta use a newton-like methods and limit the maximum iteration to 1000. Idea: we could try to recreate the algorithm in r level (available on Github) and then maybe try C level.
 
--   Anoter way “est”: use log_simp when *Q*(1−*t*) is away from 1 (away
-    from “grey area”) and use first order estimation of “cdf” formula
-    when it is close to 1
+-   Anoter way "est": use log_simp when $Q(1-t)$ is away from $1$ (away from "grey area") and use first order estimation of "cdf" formula when it is close to 1
 
-    -   Current boundary is set to 1 − *Q*(1−*t*) = 1*e*<sup>−5</sup>
-        (TO DO? better analysis). where the the estimation and log_simp
-        are close enough, but before the log_simp starting to break down
-    -   ???Also a boundary for *Q*(1−*t*) = 1*e*<sup>−5</sup> to avoid
-        similar problem of *Q*(1−*t*) = 0 makes overflow to
+    -   Current boundary is set to $1-Q(1-t)=1e^{-5}$ (TO DO? better analysis). where the the estimation and log_simp are close enough, but before the log_simp starting to break down
+    -   ???Also a boundary for $Q(1-t)=1e^{-5}$ to avoid similar problem of $Q(1-t)=0$ makes overflow to
 
--   [`./pix/log-diff_est-log.png`](./pix/log-diff_est-log.png): “est” vs
-    “log_simp” for whole parameter space:
+-   [`./pix/log-diff_est-log.png`](./pix/log-diff_est-log.png): "est" vs "log_simp" for whole parameter space:
 
--   [`./pix/OLD-log-diff_est-log.png`](./pix/OLD-log-diff_est-log.png):
-    Comparison directly between log_simp and first order estimation,
-    focused on a certain test proportion.
+-   [`./pix/OLD-log-diff_est-log.png`](./pix/OLD-log-diff_est-log.png): Comparison directly between log_simp and first order estimation, focused on a certain test proportion.
 
--   [`./pix/New-log-diff_est-log.png`](./pix/New-log-diff_est-log.png):
-    . This is comparison between hybrid “est” method and log_simp, grey
-    area (log(0)) is where *Q* \>  = 1<sup>*e*</sup>−5 and both method
-    use log_simp formula. This is to show the boundary 1*e*<sup>−5</sup>
-    is reasonable
+-   [`./pix/New-log-diff_est-log.png`](./pix/New-log-diff_est-log.png): . This is comparison between hybrid "est" method and log_simp, grey area (log(0)) is where $Q>=1^e{-5}$ and both method use log_simp formula. This is to show the boundary $1e^{-5}$ is reasonable
 
--   [`./pix/slice_log_diff_est-logsimp.png`](./pix/slice_log_diff_est-logsimp.png):
-    A more specific slice at *ϕ* = 0.851. The overflow problem of
-    log_simp method is more obvious.
+-   [`./pix/slice_log_diff_est-logsimp.png`](./pix/slice_log_diff_est-logsimp.png): A more specific slice at $\phi=0.851$. The overflow problem of log_simp method is more obvious.
 
 #### Qbeta vs qbeta
 
-@bbolker previously have some other issue for qbeta some times generate
-error, so a Qbeta function is created in `testing_funs.R` to avoid
-error.
+@bbolker previously have some other issue for qbeta some times generate error, so a Qbeta function is created in `testing_funs.R` to avoid error.
 
-[`Qbeta_Issues.R`](Qbeta_Issues.R) is trying to see if qbeta will
-causing us such problems, thus if Qbeta is necessary.
+[`Qbeta_Issues.R`](Qbeta_Issues.R) is trying to see if qbeta will causing us such problems, thus if Qbeta is necessary.
 
--   [`./pix/log-diff_Qbeta-qbeta.png`](./pix/log-diff_Qbeta-qbeta.png):
-    qbeta and Qbeta agree with each other on every point
--   [`./pix/qbeta_logsimp.png`](./pix/qbeta_logsimp.png): qbeta works
-    fine with log_simp method
+-   [`./pix/log-diff_Qbeta-qbeta.png`](./pix/log-diff_Qbeta-qbeta.png): qbeta and Qbeta agree with each other on every point
+-   [`./pix/qbeta_logsimp.png`](./pix/qbeta_logsimp.png): qbeta works fine with log_simp method
 
 ## Hazard Ratio
 
 ### Assumptions and notations
 
-Assuming at any time *t*, every individual in population have the same
-baseline cumulative hazard *b* of being tested, which is irrelevant to
-being infected or not.
+Assuming at any time $t$, every individual in population have the same baseline cumulative hazard $b$ of being tested, which is irrelevant to being infected or not.
 
--   (??) if *b* corresponding to the behavior factors should be a
-    variable *b*(*t*) of *t*?
+-   (??) if $b$ corresponding to the behavior factors should be a variable $b(t)$ of $t$?
 
-Assuming infection provides a (constant) hazard offset *ϕ* for being
-tested.
+Assuming infection provides a (constant) hazard offset $\phi$ for being tested.
 
 ### Target
 
-We would like to use time series of *T* and *P* as observed from data
-and trying to inference *Y* and *ϕ* with a statistical framework.
+We would like to use time series of $T$ and $P$ as observed from data and trying to inference $Y$ and $\phi$ with a statistical framework.
 
 ### Model
 
-Then the probability/risk of an uninfected individual being tested is
-governed by the baseline hazard *b*:
-*T*<sub>*B*</sub> = *r*(*b*) = 1 − *e*<sup>−*b*</sup>
-And the probability/risk of an infected individual being tested is
-governed by the baseline hazard *b* and the offset *ϕ*:
-*T*<sub>*Y*</sub> = *r*(*b*+*ϕ*) = 1 − *e*<sup>−(*b*+*ϕ*)</sup>
+Then the probability/risk of an uninfected individual being tested is governed by the baseline hazard $b$: $$ T_B=r(b)=1-e^{-b} $$And the probability/risk of an infected individual being tested is governed by the baseline hazard $b$ and the offset $\phi$: $$ T_Y=r(b+\phi)=1-e^{-(b+\phi)} $$
 
-For simplicity we denote *B* = *e*<sup>−*b*</sup> and
-*Φ* = *e*<sup>−*ϕ*</sup>, then we have
-*T*<sub>*B*</sub> = 1 − *B*
-*T*<sub>*Y*</sub> = 1 − *B**Φ*
-Then at any time, the testing proportion *T*, also as the probability of
-a random individual being tested, can be expressed as:
-*T* = *T*<sub>*B*</sub>(1−*Y*) + *T*<sub>*Y*</sub>*Y* = (1−*Y*)(1−*B*) + *Y*(1−*B**Φ*)
-This gives us *B* (thus *b* =  − *l**o**g*(*B*) as the baseline hazard)
-$$B(Y,T,\Phi)=\frac{1-T}{1-Y(1-\Phi)}$$
+For simplicity we denote $B=e^{-b}$ and $\Phi=e^{-\phi}$, then we have $$ T_B=1-B $$$$ T_Y=1-B\Phi$$Then at any time, the testing proportion $T$, also as the probability of a random individual being tested, can be expressed as: $$ T=T_B (1-Y)+T_Y Y=(1-Y)(1-B)+Y(1-B\Phi)$$This gives us $B$ (thus $b=-log(B)$ as the baseline hazard) $$B(Y,T,\Phi)=\frac{1-T}{1-Y(1-\Phi)}$$
 
-### problem: need constraint on *B* ≤ 1 for combination of *T*, *Y*, *Φ*
+### problem: need constraint on $B\leq 1$ for combination of $T,Y,\Phi$
 
-For *B* ≤ 1, *Φ* have a constraint *Φ* ≥ 1 − *T*/*Y*. - If *T* ≥ *Y*,
-all feasible value of *Φ* ∈ \[0,1\] works - If *T* \< *Y* (which is more
-possible in reality), we must have *Φ* ≥ 1 − *T*/*Y* as a lower bound
- ⇔ *ϕ* has a upper bound.
+For $B\leq 1$, $\Phi$ have a constraint $\Phi \geq 1-T/Y$. - If $T \geq Y$, all feasible value of $\Phi \in [0,1]$ works - If $T < Y$ (which is more possible in reality), we must have $\Phi \geq 1-T/Y$ as a lower bound $\Leftrightarrow \phi$ has a upper bound.
 
-Consider we can observe testing positivity *P* and testing proportion
-*T* from data. Try to interpret previous function for *B* (thus *b*) as
-a function depend on *T*, *Y*, *Φ*.
+Consider we can observe testing positivity $P$ and testing proportion $T$ from data. Try to interpret previous function for $B$ (thus $b$) as a function depend on $T$, $Y$, $\Phi$.
 
-**(To be discussed)** *B* can be seen as the behavioral(???) factor
-reflect public and administrative reaction to the endemic. They
-partially observe *Y*, and the testing probability is also limited by
-testing availability reflected by *T*. While *Φ* (thus *ϕ*) is more
-about medical/biological factor of the infection and testing strategy,
-like the severity/clarity of the symptoms and if the test focus on high
-risk people.
+**(To be discussed)** $B$ can be seen as the behavioral(???) factor reflect public and administrative reaction to the endemic. They partially observe $Y$, and the testing probability is also limited by testing availability reflected by $T$. While $\Phi$ (thus $\phi$) is more about medical/biological factor of the infection and testing strategy, like the severity/clarity of the symptoms and if the test focus on high risk people.
 
-**(To be discussed)** Interpretation of *B*(*T*,*Y*,*Φ*):
+**(To be discussed)** Interpretation of $B(T,Y,\Phi)$:
 
--   *T* ↑  ⇒ *B* ↓  ⇒ *T*<sub>*B*</sub> = 1 − *B*↑ & *T*<sub>*Y*</sub> = 1 − *B**Φ*↑:
-    more testing available, more people get tested in general.
+-   $T \uparrow \Rightarrow B \downarrow \Rightarrow T_B=1-B \uparrow \ \& \ T_Y=1-B\Phi \uparrow$: more testing available, more people get tested in general.
 
--   (???)
-    *Y* ↑  ⇒ *B* ↑  ⇒ *T*<sub>*B*</sub> = 1 − *B*↓ & *T*<sub>*Y*</sub> = 1 − *B**Φ*↓:
-    what does this catch?
+-   (???) $Y \uparrow \Rightarrow B \uparrow \Rightarrow T_B=1-B \downarrow \ \& \ T_Y=1-B\Phi \downarrow$: what does this catch?
 
--   *ϕ* ↑  ⇒ *Φ* = *e*<sup>−*ϕ*</sup> ↓  ⇒ *B*↑ due to decrease
-    denominator:
+-   $\phi \uparrow \Rightarrow \Phi=e^{-\phi} \downarrow \Rightarrow B \uparrow$ due to decrease denominator:
 
-    -   *T*<sub>*B*</sub> = 1 − *B*↓: the symptom of the disease is more
-        clear/severe or the test is targeting more on high risk
-        population, thus uninfected people is less likely of being
-        tested
+    -   $T_B=1-B \downarrow$: the symptom of the disease is more clear/severe or the test is targeting more on high risk population, thus uninfected people is less likely of being tested
 
-    -   $T_Y=1-B\Phi ??=1-\frac{(1-T)\Phi}{1-Y(1-\Phi)}$: infected
-        people are more likely to get tested (Not necessary???)
+    -   $T_Y=1-B\Phi ??=1-\frac{(1-T)\Phi}{1-Y(1-\Phi)}$: infected people are more likely to get tested (Not necessary???)
 
-Current simplify idea is assume *ϕ* is a constant for a certain period
-of time and in future it could be a function of *t*.
+Current simplify idea is assume $\phi$ is a constant for a certain period of time and in future it could be a function of $t$.
 
-The testing positivity *P* can be expressed as:
-$$ P = \frac{Y T_Y}{T}=\frac{Y(1-B\Phi)}{T}=\frac{Y}{T}(1-\frac{(1-T)\Phi}{1-Y+Y\Phi})$$
+The testing positivity $P$ can be expressed as: $$ P = \frac{Y T_Y}{T}=\frac{Y(1-B\Phi)}{T}=\frac{Y}{T}(1-\frac{(1-T)\Phi}{1-Y+Y\Phi})$$
 
-[`HR_Test_positivity_figure.R`](HR_Test_positivity_figure.R): Generate
-figures for test positivity curves as a function of
-*Φ* = *e*<sup>−*ϕ*</sup> (*ϕ* is the hazard offset of infection),
-testing proportion and prevalence using Hazard Ratio idea.
+[`HR_Test_positivity_figure.R`](HR_Test_positivity_figure.R): Generate figures for test positivity curves as a function of $\Phi=e^{-\phi}$ ($\phi$ is the hazard offset of infection), testing proportion and prevalence using Hazard Ratio idea.
 
--   [`./pix/HR_test_positivity_vs_phi-test_prop.png`](./pix/HR_test_positivity_vs_phi-test_prop.png):
-    group by different test proportion
+-   [`./pix/HR_test_positivity_vs_phi-test_prop.png`](./pix/HR_test_positivity_vs_phi-test_prop.png): group by different test proportion
 
--   [`./pix/HR_test_positivity_vs_test_proportion-phi.png`](./pix/HR_test_positivity_vs_test_proportion-phi.png):
-    group by different *ϕ* value
+-   [`./pix/HR_test_positivity_vs_test_proportion-phi.png`](./pix/HR_test_positivity_vs_test_proportion-phi.png): group by different $\phi$ value
 
--   [`./pix/HR_heatmap.png`](./pix/HR_heatmap.png): Heat map used to
-    show the boundary condition of *Φ* ≥ 1 − *T*/*Y*.
+-   [`./pix/HR_heatmap.png`](./pix/HR_heatmap.png): Heat map used to show the boundary condition of $\Phi \geq 1-T/Y$.
 
 ## Odds Ratio (TO DO)
 
-If we assume a constant odds ratio between test probabilities of
-positive and negative people, this should also parameterize a sensible
-set of curves.
+If we assume a constant odds ratio between test probabilities of positive and negative people, this should also parameterize a sensible set of curves.
 
 (TO DO) New updates from @dushoff on Nov 19th
 
-[`or_mac.rmd`](or_mac.rmd): @dushoff description with preliminary
-calculation on maxima. Not developed here for now.
+[`or_mac.rmd`](or_mac.rmd): @dushoff description with preliminary calculation on maxima. Not developed here for now.
 
 [`or.mac`](or.mac): @dushoff unfinished description
 
@@ -290,5 +172,4 @@ calculation on maxima. Not developed here for now.
 
 ## Related Positivity Bias Project with PHAC and PHO
 
-[`simple.md`](simple.md) gives a brief introduction to current ideas of
-the positivity Bias project with David C. or Kevin B.
+[`simple.md`](simple.md) gives a brief introduction to current ideas of the positivity Bias project with David C. or Kevin B.
