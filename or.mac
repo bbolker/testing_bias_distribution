@@ -10,5 +10,4 @@ fullratsimp(at(B0, [r=1]));
 NTests0 : fullratsimp(at(NTests, [B=B0]));
 PTests0 : fullratsimp(at(PTests, [B=B0]));
 
-oddsP : fullratsimp(PTests0/NTests0);
 P : fullratsimp(PTests0/(PTests0+NTests0));
