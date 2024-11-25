@@ -1,5 +1,13 @@
-T : (1-P)*b/(b+1) + P*r*b/(r*b+1);
-bT : solve(T=To, b)$
-b0 : fullratsimp(rhs(bT[1]));
-fullratsimp(at(b0, [r=1]));
+NTests : (1-Y)*B/(B+1)$
+PTests : Y*r*B/(r*B+1)$
+T : NTests + PTests$
+BT : solve(T=To, B)$
+B0 : fullratsimp(rhs(BT[1]));
 
+/* Check that it all works out when the OR = 1 (both groups test the same) */
+fullratsimp(at(B0, [r=1]));
+
+NTests0 : fullratsimp(at(NTests, [B=B0]));
+PTests0 : fullratsimp(at(PTests, [B=B0]));
+
+oddsP : fullratsimp(PTests0/NTests0);
