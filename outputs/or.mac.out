@@ -1,0 +1,62 @@
+
+Maxima 5.46.0 https://maxima.sourceforge.io
+using Lisp GNU Common Lisp (GCL) GCL 2.6.14 git tag Version_2_6_15pre7
+Distributed under the GNU Public License. See the file COPYING.
+Dedicated to the memory of William Schelter.
+The function bug_report() provides bug reporting information.
+(%i1) batch("or.mac")
+
+read and interpret /home/dushoff/screens/research/betaTesting/or.mac
+(%i2) NTests:((1-Y)*B)/(B+1)
+(%i3) PTests:(Y*r*B)/(r*B+1)
+(%i4) T:NTests+PTests
+(%i5) BT:solve(T = To,B)
+(%i6) B0:fullratsimp(rhs(BT[1]))
+                2              2   2          2              2              2
+(%o6) - (sqrt((Y  - 2 To Y + To ) r  + ((- 2 Y ) + 2 Y - 2 To  + 2 To) r + Y
+                        2
+     + (2 To - 2) Y + To  - 2 To + 1) + (To - Y) r + Y + To - 1)/((2 To - 2) r)
+(%i7) fullratsimp(at(B0,[r = 1]))
+                                       To
+(%o7)                              - ------
+                                     To - 1
+(%i8) NTests0:fullratsimp(at(NTests,[B = B0]))
+                        2              2   2
+(%o8) - ((Y - 1) sqrt((Y  - 2 To Y + To ) r
+          2              2              2                    2
+ + ((- 2 Y ) + 2 Y - 2 To  + 2 To) r + Y  + (2 To - 2) Y + To  - 2 To + 1)
+        2                          2
+ + ((- Y ) + (To + 1) Y - To) r + Y  + (To - 2) Y - To + 1)
+         2              2   2          2              2              2
+/(sqrt((Y  - 2 To Y + To ) r  + ((- 2 Y ) + 2 Y - 2 To  + 2 To) r + Y
+                    2
+ + (2 To - 2) Y + To  - 2 To + 1) + ((- Y) - To + 2) r + Y + To - 1)
+(%i9) PTests0:fullratsimp(at(PTests,[B = B0]))
+                2              2   2          2              2              2
+(%o9) (Y sqrt((Y  - 2 To Y + To ) r  + ((- 2 Y ) + 2 Y - 2 To  + 2 To) r + Y
+                    2                        2       2
+ + (2 To - 2) Y + To  - 2 To + 1) + (To Y - Y ) r + Y  + (To - 1) Y)
+         2              2   2          2              2              2
+/(sqrt((Y  - 2 To Y + To ) r  + ((- 2 Y ) + 2 Y - 2 To  + 2 To) r + Y
+                    2
+ + (2 To - 2) Y + To  - 2 To + 1) + (To - Y) r + Y - To + 1)
+(%i10) oddsP:fullratsimp(PTests0/NTests0)
+             2           2
+(%o10) - (((Y  - Y) r - Y  + (1 - To) Y)
+        2              2   2          2              2              2
+ sqrt((Y  - 2 To Y + To ) r  + ((- 2 Y ) + 2 Y - 2 To  + 2 To) r + Y
+                    2                    3              2          2
+ + (2 To - 2) Y + To  - 2 To + 1) + ((- Y ) + (To + 1) Y  - To Y) r
+       3             2      2                     3               2
+ + (2 Y  + (To - 3) Y  + (To  - 2 To + 1) Y) r - Y  + (2 - 2 To) Y
+         2                     2                             2
+ + ((- To ) + 2 To - 1) Y)/(((Y  + ((- To) - 1) Y + To) r - Y  + Y)
+        2              2   2          2              2              2
+ sqrt((Y  - 2 To Y + To ) r  + ((- 2 Y ) + 2 Y - 2 To  + 2 To) r + Y
+                    2                    3                2
+ + (2 To - 2) Y + To  - 2 To + 1) + ((- Y ) + (2 To + 1) Y
+         2                2   2       3                 2      2            2
+ + ((- To ) - 2 To) Y + To ) r  + (2 Y  + ((- To) - 3) Y  + (To  + 1) Y - To
+            3             2
+ + To) r - Y  + (2 - To) Y  + (To - 1) Y)
+(%o11)         /home/dushoff/screens/research/betaTesting/or.mac
