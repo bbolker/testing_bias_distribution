@@ -40,32 +40,22 @@ read and interpret /home/dushoff/screens/research/betaTesting/or.mac
 /(sqrt((Y  - 2 To Y + To ) r  + ((- 2 Y ) + 2 Y - 2 To  + 2 To) r + Y
                     2
  + (2 To - 2) Y + To  - 2 To + 1) + (To - Y) r + Y - To + 1)
-(%i10) oddsP:fullratsimp(PTests0/NTests0)
-             2           2
-(%o10) - (((Y  - Y) r - Y  + (1 - To) Y)
-        2              2   2          2              2              2
- sqrt((Y  - 2 To Y + To ) r  + ((- 2 Y ) + 2 Y - 2 To  + 2 To) r + Y
-                    2                    3              2          2
- + (2 To - 2) Y + To  - 2 To + 1) + ((- Y ) + (To + 1) Y  - To Y) r
-       3             2      2                     3               2
- + (2 Y  + (To - 3) Y  + (To  - 2 To + 1) Y) r - Y  + (2 - 2 To) Y
-         2                     2                             2
- + ((- To ) + 2 To - 1) Y)/(((Y  + ((- To) - 1) Y + To) r - Y  + Y)
-        2              2   2          2              2              2
- sqrt((Y  - 2 To Y + To ) r  + ((- 2 Y ) + 2 Y - 2 To  + 2 To) r + Y
-                    2                    3                2
- + (2 To - 2) Y + To  - 2 To + 1) + ((- Y ) + (2 To + 1) Y
-         2                2   2       3                 2      2            2
- + ((- To ) - 2 To) Y + To ) r  + (2 Y  + ((- To) - 3) Y  + (To  + 1) Y - To
-            3             2
- + To) r - Y  + (2 - To) Y  + (To - 1) Y)
-(%i11) P:fullratsimp(PTests0/(PTests0+NTests0))
+(%i10) P:fullratsimp(PTests0/(PTests0+NTests0))
                  2              2   2          2              2              2
-(%o11) (Y sqrt((Y  - 2 To Y + To ) r  + ((- 2 Y ) + 2 Y - 2 To  + 2 To) r + Y
+(%o10) (Y sqrt((Y  - 2 To Y + To ) r  + ((- 2 Y ) + 2 Y - 2 To  + 2 To) r + Y
                     2                        2       2
  + (2 To - 2) Y + To  - 2 To + 1) + (To Y - Y ) r + Y  + (To - 1) Y)
             2              2   2          2              2              2
 /(To sqrt((Y  - 2 To Y + To ) r  + ((- 2 Y ) + 2 Y - 2 To  + 2 To) r + Y
                     2                  2                      2
  + (2 To - 2) Y + To  - 2 To + 1) + (To  - To Y) r + To Y - To  + To)
+(%i11) tex(P)
+$${{Y\,\sqrt{\left(Y^2-2\,{\it To}\,Y+{\it To}^2\right)\,r^2+\left(-2
+ \,Y^2+2\,Y-2\,{\it To}^2+2\,{\it To}\right)\,r+Y^2+\left(2\,{\it To}
+ -2\right)\,Y+{\it To}^2-2\,{\it To}+1}+\left({\it To}\,Y-Y^2\right)
+ \,r+Y^2+\left({\it To}-1\right)\,Y}\over{{\it To}\,\sqrt{\left(Y^2-2
+ \,{\it To}\,Y+{\it To}^2\right)\,r^2+\left(-2\,Y^2+2\,Y-2\,{\it To}^
+ 2+2\,{\it To}\right)\,r+Y^2+\left(2\,{\it To}-2\right)\,Y+{\it To}^2
+ -2\,{\it To}+1}+\left({\it To}^2-{\it To}\,Y\right)\,r+{\it To}\,Y-
+ {\it To}^2+{\it To}}}$$
 (%o12)         /home/dushoff/screens/research/betaTesting/or.mac

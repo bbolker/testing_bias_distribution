@@ -11,3 +11,4 @@ NTests0 : fullratsimp(at(NTests, [B=B0]));
 PTests0 : fullratsimp(at(PTests, [B=B0]));
 
 P : fullratsimp(PTests0/(PTests0+NTests0));
+tex(P)$
