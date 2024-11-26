@@ -1,7 +1,9 @@
 ---
-title: "Notes_Nov10"
+title: "Notes"
 author: "Richard Zhao"
-date: "2024-11-18"
+date: "2024-11-26"
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_dir = "outputs") })
 output:
   html_document:
     keep_md: true
@@ -10,6 +12,7 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
 
 # 2024 Nov 10 (Sun)
 
@@ -86,7 +89,7 @@ Still, in this "grey/yellow area", where numerical overflow leads to $Q(1-t)=1$ 
 
 -   (TO DO?) one way to "resolve" this is increase numerical accuracy of qbeta function in R. qbeta use a newton-like methods and limit the maximum iteration to 1000. Idea: we could try to recreate the algorithm in r level (available on Github) and then maybe try C level.
 
--   Anoter way "est": use log_simp when $Q(1-t)$ is away from $1$ (away from "grey area") and use first order estimation of "cdf" formula when it is close to 1
+-   Another way "est": use log_simp when $Q(1-t)$ is away from $1$ (away from "grey area") and use first order estimation of "cdf" formula when it is close to 1
 
     -   Current boundary is set to $1-Q(1-t)=1e^{-5}$ (TO DO? better analysis). where the the estimation and log_simp are close enough, but before the log_simp starting to break down
     -   ???Also a boundary for $Q(1-t)=1e^{-5}$ to avoid similar problem of $Q(1-t)=0$ makes overflow too
@@ -160,17 +163,36 @@ The testing positivity $P$ can be expressed as: $$ P = \frac{Y T_Y}{T}=\frac{Y(1
 
 -   [`./pix/HR_heatmap.png`](./pix/HR_heatmap.png): Heat map used to show the boundary condition of $\Phi \geq 1-T/Y$.
 
-## Odds Ratio (TO DO)
+## Odds Ratio
+
+New updates from @dushoff on Nov 19th on slides
+
+### Assumptions and notations
 
 If we assume a constant odds ratio between test probabilities of positive and negative people, this should also parameterize a sensible set of curves.
 
-(TO DO) New updates from @dushoff on Nov 19th
+We use similar notation with Hazard idea:
 
-[`or_mac.rmd`](or_mac.rmd): @dushoff description with preliminary calculation on maxima. Not developed here for now.
+-   $T_B$ be the baseline probability of uninfected/negative individual being tested.
 
-[`or.mac`](or.mac): @dushoff unfinished description
+-   $B$ is the corresponding odds of $T_B$ $$B=\frac{T_B}{1-T_B} \Leftrightarrow T_B=\frac{B}{1+B}$$
 
-[`or.md`](or.md): @dushoff unfinished description
+-   $T_Y$ is the probability of infected/positive individual being test.
+
+-   $\Phi$ is the (constant) odds ratio between test probabilities of positive and negative people. $$\Phi=\frac{\frac{T_Y}{1-T_Y}}{\frac{T_B}{1-T_B}}=\frac{\frac{T_Y}{1-T_Y}}{B} \Leftrightarrow \Phi B= \frac{T_Y}{1-T_Y} \Leftrightarrow T_Y=\frac{B\Phi}{1+B\Phi}$$
+
+    -   **Constraint** $\Phi>0$
+    -   The probalibity $T_B$ is monotonically increase with corresponding odds.
+
+-   (??) Similar like hazard ratio, did the probability/odds of baseline/negative people a constant? It seems should be corresponding to the behavior factors.
+
+### Target
+
+We would like to use time series of $T$ and $P$ as observed from data and trying to inference $Y$ and $\phi$ with a statistical framework.
+
+### Model
+
+[`or_mac.rmd`](or_mac.rmd): @dushoff description with preliminary calculation on maxima.
 
 ## Related Positivity Bias Project with PHAC and PHO
 
