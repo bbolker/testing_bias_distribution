@@ -13,7 +13,6 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
 # 2024 Nov 10 (Sun)
 
 Notes grouped by project:
@@ -115,11 +114,19 @@ Still, in this "grey/yellow area", where numerical overflow leads to $Q(1-t)=1$ 
 
 ### Assumptions and notations
 
-Assuming at any time $t$, every individual in population have the same baseline cumulative hazard $b$ of being tested, which is irrelevant to being infected or not.
+Assuming at any time $t$,
 
--   (??) if $b$ corresponding to the behavior factors should be a variable $b(t)$ of $t$?
+-   Every individual in population have the same baseline cumulative hazard $b$ of being tested, which is irrelevant to being infected or not.
 
-Assuming infection provides a (constant) hazard offset $\phi$ for being tested.
+    -   (??) if $b$ corresponding to the behavior factors should be a variable $b(t)$ of $t$?
+
+-   Assuming infection provides a (constant) hazard offset $\phi$ for being tested.
+
+-   $T$ is the testing proportion of the whole population (also the average testing probability).
+
+-   $P$ is the testing positivity.
+
+-   $Y$ is the prevalence (also the average infection probability)
 
 ### Target
 
@@ -167,30 +174,68 @@ The testing positivity $P$ can be expressed as: $$ P = \frac{Y T_Y}{T}=\frac{Y(1
 
 New updates from @dushoff on Nov 19th on slides
 
+-   Hazard
+    -   Pro(+): Usage is relatively easy to justify.
+    -   Con(-): Probability curves characterized by hazard has steep drops near $0$ and "suddenly terminate" at $0$
+-   Log Hazard
+    -   Pro(+): To avoid con of hazard, log(Hazard) is used with a better look on neighborhood near $0$ and negative intervals.
+    -   Con(-): It has unfavorable behavior in positive interval ($P \rightarrow 1$ very fast near $2$).
+    -   Con(-): Harder to justify usage
+-   Log Odds:
+    -   Pro(+): Better behavior on both positive and negative interval
+    -   Pro(+): Behave close to hazard in positive interval and close to log hazard in negative interval
+    -   Pro(+): Still fairly easy to justify
+    -   Pro(+): (??) More flexible/nonlinear behavior
+    -   Con(-): Harder to compute
+
 ### Assumptions and notations
 
 If we assume a constant odds ratio between test probabilities of positive and negative people, this should also parameterize a sensible set of curves.
 
 We use similar notation with Hazard idea:
 
+-   $T$ is the testing proportion of the whole population (also the average testing probability).
+
+-   $P$ is the testing positivity.
+
+-   $Y$ is the prevalence (also the average infection probability)
+
 -   $T_B$ be the baseline probability of uninfected/negative individual being tested.
 
 -   $B$ is the corresponding odds of $T_B$ $$B=\frac{T_B}{1-T_B} \Leftrightarrow T_B=\frac{B}{1+B}$$
 
+    -   **Constraint** $B>0$
+
+    -   (??) Maybe for later we use $b=log(B)$ as parameterization
+
+    -   (??) Similar like hazard ratio, should $B$ be a constant as a result of behavior factor of testing? Or $B$ is a intermediate variable?
+
 -   $T_Y$ is the probability of infected/positive individual being test.
 
--   $\Phi$ is the (constant) odds ratio between test probabilities of positive and negative people. $$\Phi=\frac{\frac{T_Y}{1-T_Y}}{\frac{T_B}{1-T_B}}=\frac{\frac{T_Y}{1-T_Y}}{B} \Leftrightarrow \Phi B= \frac{T_Y}{1-T_Y} \Leftrightarrow T_Y=\frac{B\Phi}{1+B\Phi}$$
+-   $\Phi$ is the (constant) odds ratio (strength of the association) between test probabilities of positive and negative people. $$\Phi=\frac{\frac{T_Y}{1-T_Y}}{\frac{T_B}{1-T_B}}=\frac{\frac{T_Y}{1-T_Y}}{B} \Leftrightarrow \Phi B= \frac{T_Y}{1-T_Y} \Leftrightarrow T_Y=\frac{B\Phi}{1+B\Phi}$$
 
     -   **Constraint** $\Phi>0$
-    -   The probalibity $T_B$ is monotonically increase with corresponding odds.
-
--   (??) Similar like hazard ratio, did the probability/odds of baseline/negative people a constant? It seems should be corresponding to the behavior factors.
+    -   The probability $T_B$ is monotonically increase with corresponding odds.
+    -   (??) $\phi=log(\Phi)$ later for better parameterization, $phi>0$
 
 ### Target
 
-We would like to use time series of $T$ and $P$ as observed from data and trying to inference $Y$ and $\phi$ with a statistical framework.
+Same with all other modesl: We would like to use time series of $T$ and $P$ as observed from data and trying to inference $Y$ and $\Phi$ with a statistical framework.
 
 ### Model
+
+Similar with hazard model, we can express $T$ in: $$T = (1-Y) T_B + Y T_Y = (1-Y)\frac{B}{1+B}+Y\frac{B\Phi}{1+B\Phi}$$
+
+We can use this expression to substitute $B$ as constant (or solve $B=B(T,Y,\Phi)$ as a variable). $$B=\frac{X \pm \sqrt{X^2+4T(1-T)\Phi}}{2(1-T)\Phi}$$ where $$X=(T-Y)\Phi+T+Y-1=+T(\Phi+1)-Y(\Phi-1)-1$$
+
+-   Observation: no constraint on $X$, but behavior might change dramatically at $X=0$.
+    -   Practically, we consider case that $T<Y, T+Y<1 \Rightarrow X<0$.
+-   (TO DO??) Interpretation of $X$?
+
+Only add(+sqrt) solution is feasible since $B>0$ as odds. Minus(-sqrt) solution is always negative.$$B=\frac{X + \sqrt{X^2+4T(1-T)\Phi}}{2(1-T)\Phi}$$ - (TO DO??) How $B$, thus $T_B$ change as a function of $T,Y,\Phi$?
+
+Then the testing positivity $P$ can be expressed as: $$P=\frac{Y T_Y}{T}=\frac{Y}{T}\frac{B\Phi}{1+B\Phi}=\frac{Y}{T}\frac{X+\sqrt{X^2+4T(1-T)\Phi}}{X+\sqrt{X^2+4T(1-T)\Phi}+2(1-T)}$$
+$$=\frac{Y}{T}(1+\frac{2(1-T)}{\sqrt{X^2+4T(1-T)\Phi}})^{-1}=\frac{Y}{T}(1-\frac{2(1-T)}{\sqrt{X^2+4T(1-T)\Phi}+2(1-T)})$$
 
 [`or_mac.rmd`](or_mac.rmd): @dushoff description with preliminary calculation on maxima.
 

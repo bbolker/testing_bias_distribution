@@ -528,14 +528,23 @@ qbeta works fine with log_simp method</li>
 <h2>Hazard Ratio</h2>
 <div id="assumptions-and-notations" class="section level3">
 <h3>Assumptions and notations</h3>
-<p>Assuming at any time <span class="math inline">\(t\)</span>, every
-individual in population have the same baseline cumulative hazard <span class="math inline">\(b\)</span> of being tested, which is irrelevant to
-being infected or not.</p>
+<p>Assuming at any time <span class="math inline">\(t\)</span>,</p>
+<ul>
+<li><p>Every individual in population have the same baseline cumulative
+hazard <span class="math inline">\(b\)</span> of being tested, which is
+irrelevant to being infected or not.</p>
 <ul>
 <li>(??) if <span class="math inline">\(b\)</span> corresponding to the
 behavior factors should be a variable <span class="math inline">\(b(t)\)</span> of <span class="math inline">\(t\)</span>?</li>
+</ul></li>
+<li><p>Assuming infection provides a (constant) hazard offset <span class="math inline">\(\phi\)</span> for being tested.</p></li>
+<li><p><span class="math inline">\(T\)</span> is the testing proportion
+of the whole population (also the average testing probability).</p></li>
+<li><p><span class="math inline">\(P\)</span> is the testing
+positivity.</p></li>
+<li><p><span class="math inline">\(Y\)</span> is the prevalence (also
+the average infection probability)</p></li>
 </ul>
-<p>Assuming infection provides a (constant) hazard offset <span class="math inline">\(\phi\)</span> for being tested.</p>
 </div>
 <div id="target" class="section level3">
 <h3>Target</h3>
@@ -615,6 +624,32 @@ map used to show the boundary condition of <span class="math inline">\(\Phi \geq
 <h2>Odds Ratio</h2>
 <p>New updates from <span class="citation">@dushoff</span> on Nov 19th
 on slides</p>
+<ul>
+<li>Hazard
+<ul>
+<li>Pro(+): Usage is relatively easy to justify.</li>
+<li>Con(-): Probability curves characterized by hazard has steep drops
+near <span class="math inline">\(0\)</span> and “suddenly terminate” at
+<span class="math inline">\(0\)</span></li>
+</ul></li>
+<li>Log Hazard
+<ul>
+<li>Pro(+): To avoid con of hazard, log(Hazard) is used with a better
+look on neighborhood near <span class="math inline">\(0\)</span> and
+negative intervals.</li>
+<li>Con(-): It has unfavorable behavior in positive interval (<span class="math inline">\(P \rightarrow 1\)</span> very fast near <span class="math inline">\(2\)</span>).</li>
+<li>Con(-): Harder to justify usage</li>
+</ul></li>
+<li>Log Odds:
+<ul>
+<li>Pro(+): Better behavior on both positive and negative interval</li>
+<li>Pro(+): Behave close to hazard in positive interval and close to log
+hazard in negative interval</li>
+<li>Pro(+): Still fairly easy to justify</li>
+<li>Pro(+): (??) More flexible/nonlinear behavior</li>
+<li>Con(-): Harder to compute</li>
+</ul></li>
+</ul>
 <div id="assumptions-and-notations-1" class="section level3">
 <h3>Assumptions and notations</h3>
 <p>If we assume a constant odds ratio between test probabilities of
@@ -622,34 +657,67 @@ positive and negative people, this should also parameterize a sensible
 set of curves.</p>
 <p>We use similar notation with Hazard idea:</p>
 <ul>
+<li><p><span class="math inline">\(T\)</span> is the testing proportion
+of the whole population (also the average testing probability).</p></li>
+<li><p><span class="math inline">\(P\)</span> is the testing
+positivity.</p></li>
+<li><p><span class="math inline">\(Y\)</span> is the prevalence (also
+the average infection probability)</p></li>
 <li><p><span class="math inline">\(T_B\)</span> be the baseline
 probability of uninfected/negative individual being tested.</p></li>
 <li><p><span class="math inline">\(B\)</span> is the corresponding odds
 of <span class="math inline">\(T_B\)</span> <span class="math display">\[B=\frac{T_B}{1-T_B} \Leftrightarrow
-T_B=\frac{B}{1+B}\]</span></p></li>
+T_B=\frac{B}{1+B}\]</span></p>
+<ul>
+<li><p><strong>Constraint</strong> <span class="math inline">\(B&gt;0\)</span></p></li>
+<li><p>(??) Maybe for later we use <span class="math inline">\(b=log(B)\)</span> as parameterization</p></li>
+<li><p>(??) Similar like hazard ratio, should <span class="math inline">\(B\)</span> be a constant as a result of behavior
+factor of testing? Or <span class="math inline">\(B\)</span> is a
+intermediate variable?</p></li>
+</ul></li>
 <li><p><span class="math inline">\(T_Y\)</span> is the probability of
 infected/positive individual being test.</p></li>
 <li><p><span class="math inline">\(\Phi\)</span> is the (constant) odds
-ratio between test probabilities of positive and negative people. <span class="math display">\[\Phi=\frac{\frac{T_Y}{1-T_Y}}{\frac{T_B}{1-T_B}}=\frac{\frac{T_Y}{1-T_Y}}{B}
+ratio (strength of the association) between test probabilities of
+positive and negative people. <span class="math display">\[\Phi=\frac{\frac{T_Y}{1-T_Y}}{\frac{T_B}{1-T_B}}=\frac{\frac{T_Y}{1-T_Y}}{B}
 \Leftrightarrow \Phi B= \frac{T_Y}{1-T_Y} \Leftrightarrow
 T_Y=\frac{B\Phi}{1+B\Phi}\]</span></p>
 <ul>
 <li><strong>Constraint</strong> <span class="math inline">\(\Phi&gt;0\)</span></li>
-<li>The probalibity <span class="math inline">\(T_B\)</span> is
+<li>The probability <span class="math inline">\(T_B\)</span> is
 monotonically increase with corresponding odds.</li>
+<li>(??) <span class="math inline">\(\phi=log(\Phi)\)</span> later for
+better parameterization, <span class="math inline">\(phi&gt;0\)</span></li>
 </ul></li>
-<li><p>(??) Similar like hazard ratio, did the probability/odds of
-baseline/negative people a constant? It seems should be corresponding to
-the behavior factors.</p></li>
 </ul>
 </div>
 <div id="target-1" class="section level3">
 <h3>Target</h3>
-<p>We would like to use time series of <span class="math inline">\(T\)</span> and <span class="math inline">\(P\)</span> as observed from data and trying to
-inference <span class="math inline">\(Y\)</span> and <span class="math inline">\(\phi\)</span> with a statistical framework.</p>
+<p>Same with all other modesl: We would like to use time series of <span class="math inline">\(T\)</span> and <span class="math inline">\(P\)</span> as observed from data and trying to
+inference <span class="math inline">\(Y\)</span> and <span class="math inline">\(\Phi\)</span> with a statistical framework.</p>
 </div>
 <div id="model-1" class="section level3">
 <h3>Model</h3>
+<p>Similar with hazard model, we can express <span class="math inline">\(T\)</span> in: <span class="math display">\[T =
+(1-Y) T_B + Y T_Y =
+(1-Y)\frac{B}{1+B}+Y\frac{B\Phi}{1+B\Phi}\]</span></p>
+<p>We can use this expression to substitute <span class="math inline">\(B\)</span> as constant (or solve <span class="math inline">\(B=B(T,Y,\Phi)\)</span> as a variable). <span class="math display">\[B=\frac{X \pm
+\sqrt{X^2+4T(1-T)\Phi}}{2(1-T)\Phi}\]</span> where <span class="math display">\[X=(T-Y)\Phi+T+Y-1=+T(\Phi+1)-Y(\Phi-1)-1\]</span></p>
+<ul>
+<li>Observation: no constraint on <span class="math inline">\(X\)</span>, but behavior might change dramatically
+at <span class="math inline">\(X=0\)</span>.
+<ul>
+<li>Practically, we consider case that <span class="math inline">\(T&lt;Y, T+Y&lt;1 \Rightarrow X&lt;0\)</span>.</li>
+</ul></li>
+<li>(TO DO??) Interpretation of <span class="math inline">\(X\)</span>?</li>
+</ul>
+<p>Only add(+sqrt) solution is feasible since <span class="math inline">\(B&gt;0\)</span> as odds. Minus(-sqrt) solution is
+always negative.<span class="math display">\[B=\frac{X +
+\sqrt{X^2+4T(1-T)\Phi}}{2(1-T)\Phi}\]</span> - (TO DO??) How <span class="math inline">\(B\)</span>, thus <span class="math inline">\(T_B\)</span> change as a function of <span class="math inline">\(T,Y,\Phi\)</span>?</p>
+<p>Then the testing positivity <span class="math inline">\(P\)</span>
+can be expressed as: <span class="math display">\[P=\frac{Y
+T_Y}{T}=\frac{Y}{T}\frac{B\Phi}{1+B\Phi}=\frac{Y}{T}\frac{X+\sqrt{X^2+4T(1-T)\Phi}}{X+\sqrt{X^2+4T(1-T)\Phi}+2(1-T)}\]</span>
+<span class="math display">\[=\frac{Y}{T}(1+\frac{2(1-T)}{\sqrt{X^2+4T(1-T)\Phi}})^{-1}=\frac{Y}{T}(1-\frac{2(1-T)}{\sqrt{X^2+4T(1-T)\Phi}+2(1-T)})\]</span></p>
 <p><a href="or_mac.rmd"><code>or_mac.rmd</code></a>: <span class="citation">@dushoff</span> description with preliminary
 calculation on maxima.</p>
 </div>
