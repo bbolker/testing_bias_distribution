@@ -138,13 +138,14 @@ Then the probability/risk of an uninfected individual being tested is governed b
 
 For simplicity we denote $B=e^{-b}$ and $\Phi=e^{-\phi}$, then we have $$ T_B=1-B $$$$ T_Y=1-B\Phi$$Then at any time, the testing proportion $T$, also as the probability of a random individual being tested, can be expressed as: $$ T=T_B (1-Y)+T_Y Y=(1-Y)(1-B)+Y(1-B\Phi)$$This gives us $B$ (thus $b=-log(B)$ as the baseline hazard) $$B(Y,T,\Phi)=\frac{1-T}{1-Y(1-\Phi)}$$
 
-### problem: need constraint on $B\leq 1$ for combination of $T,Y,\Phi$
-
-For $B\leq 1$, $\Phi$ have a constraint $\Phi \geq 1-T/Y$. - If $T \geq Y$, all feasible value of $\Phi \in [0,1]$ works - If $T < Y$ (which is more possible in reality), we must have $\Phi \geq 1-T/Y$ as a lower bound $\Leftrightarrow \phi$ has a upper bound.
+-   Constraint: $B\leq 1$ for combination of $T,Y,\Phi$:
+    -   For $B\leq 1$, $\Phi$ have a constraint $\Phi \geq 1-T/Y$.
+    -   If $T \geq Y$, all feasible value of $\Phi \in [0,1]$ works.
+    -   If $T < Y$ (which is more possible in reality), we must have $\Phi \geq 1-T/Y$ as a lower bound $\Leftrightarrow \phi$ has a upper bound.
 
 Consider we can observe testing positivity $P$ and testing proportion $T$ from data. Try to interpret previous function for $B$ (thus $b$) as a function depend on $T$, $Y$, $\Phi$.
 
-**(To be discussed)** $B$ can be seen as the behavioral(???) factor reflect public and administrative reaction to the endemic. They partially observe $Y$, and the testing probability is also limited by testing availability reflected by $T$. While $\Phi$ (thus $\phi$) is more about medical/biological factor of the infection and testing strategy, like the severity/clarity of the symptoms and if the test focus on high risk people.
+**(To be discussed)** $B$ can be seen as the behavioral(???) factor reflect public and administrative reaction to the endemic. They partially observe $Y$, and the testing probability is also limited by testing availability reflected by $T$. While $\Phi$ (thus $\phi$) is more about medical/biological factor of the infection and testing strategy, like the severity/clarity of the symptoms and if the test focus on high risk people
 
 **(To be discussed)** Interpretation of $B(T,Y,\Phi)$:
 
@@ -169,6 +170,16 @@ The testing positivity $P$ can be expressed as: $$ P = \frac{Y T_Y}{T}=\frac{Y(1
 -   [`./pix/HR_test_positivity_vs_test_proportion-phi.png`](./pix/HR_test_positivity_vs_test_proportion-phi.png): group by different $\phi$ value
 
 -   [`./pix/HR_heatmap.png`](./pix/HR_heatmap.png): Heat map used to show the boundary condition of $\Phi \geq 1-T/Y$.
+
+### Alternative:
+
+Treat $B$, $\Phi$ both as constant. Let $T$ as a function: $$T=T(B,\Phi,Y)=(1-Y)T_B+Y T_Y=(1-Y)(1-B)+Y(1-B\Phi)$$ Also, $P$ as a function: $$P=P(B,\Phi,Y)=\frac{Y T_Y}{T}=\frac{Y}{T}(1-B\Phi)=\frac{Y T_Y}{(1-Y)T_B+Y T_Y}=\frac{Y(1-B\Phi)}{(1-Y)(1-B)+Y(1-B\Phi)} $$
+
+And try to use both time series of $T$ and $P$, trying to inference $(B,\Phi,Y(..))$ with MLE.
+
+(??) Make $P$, $Y$ mutually independent in expression for fitting. $$T=(1-Y)(1-B)+Y(1-B\Phi) \Rightarrow Y=\frac{ 1-B - T }{B(1 - \Phi)}$$
+
+$$P=\frac{Y}{T}(1-B\Phi)=\frac{(1-B-T)(1-B\Phi)}{TB(1-\Phi)} $$ Seems does not really matter in fitting.
 
 ## Odds Ratio
 
@@ -200,9 +211,9 @@ We use similar notation with Hazard idea:
 
 -   $Y$ is the prevalence (also the average infection probability)
 
--   $T_B$ be the baseline probability of uninfected/negative individual being tested.
+-   $B$ is the corresponding odds of uninfected/negative being tested.
 
--   $B$ is the corresponding odds of $T_B$ $$B=\frac{T_B}{1-T_B} \Leftrightarrow T_B=\frac{B}{1+B}$$
+    -   $T_B$ be the baseline probability of uninfected/negative individual being tested. $$B=\frac{T_B}{1-T_B} \Leftrightarrow T_B=\frac{B}{1+B}$$
 
     -   **Constraint** $B>0$
 
@@ -210,12 +221,14 @@ We use similar notation with Hazard idea:
 
     -   (??) Similar like hazard ratio, should $B$ be a constant as a result of behavior factor of testing? Or $B$ is a intermediate variable?
 
--   $T_Y$ is the probability of infected/positive individual being test.
-
 -   $\Phi$ is the (constant) odds ratio (strength of the association) between test probabilities of positive and negative people. $$\Phi=\frac{\frac{T_Y}{1-T_Y}}{\frac{T_B}{1-T_B}}=\frac{\frac{T_Y}{1-T_Y}}{B} \Leftrightarrow \Phi B= \frac{T_Y}{1-T_Y} \Leftrightarrow T_Y=\frac{B\Phi}{1+B\Phi}$$
 
+    -   $T_Y$ is the probability of infected/positive individual being test.
+
     -   **Constraint** $\Phi>0$
+
     -   The probability $T_B$ is monotonically increase with corresponding odds.
+
     -   (??) $\phi=log(\Phi)$ later for better parameterization, $phi>0$
 
 ### Target
@@ -234,10 +247,29 @@ We can use this expression to substitute $B$ as constant (or solve $B=B(T,Y,\Phi
 
 Only add(+sqrt) solution is feasible since $B>0$ as odds. Minus(-sqrt) solution is always negative.$$B=\frac{X + \sqrt{X^2+4T(1-T)\Phi}}{2(1-T)\Phi}$$ - (TO DO??) How $B$, thus $T_B$ change as a function of $T,Y,\Phi$?
 
-Then the testing positivity $P$ can be expressed as: $$P=\frac{Y T_Y}{T}=\frac{Y}{T}\frac{B\Phi}{1+B\Phi}=\frac{Y}{T}\frac{X+\sqrt{X^2+4T(1-T)\Phi}}{X+\sqrt{X^2+4T(1-T)\Phi}+2(1-T)}$$
-$$=\frac{Y}{T}(1+\frac{2(1-T)}{\sqrt{X^2+4T(1-T)\Phi}})^{-1}=\frac{Y}{T}(1-\frac{2(1-T)}{\sqrt{X^2+4T(1-T)\Phi}+2(1-T)})$$
+Then the testing positivity $P$ can be expressed as: $$P=\frac{Y T_Y}{T}=\frac{Y}{T}\frac{B\Phi}{1+B\Phi}=\frac{Y}{T}\frac{X+\sqrt{X^2+4T(1-T)\Phi}}{X+\sqrt{X^2+4T(1-T)\Phi}+2(1-T)}$$ $$=\frac{Y}{T}(1+\frac{2(1-T)}{\sqrt{X^2+4T(1-T)\Phi}})^{-1}=\frac{Y}{T}(1-\frac{2(1-T)}{\sqrt{X^2+4T(1-T)\Phi}+2(1-T)})$$
 
 [`or_mac.rmd`](or_mac.rmd): @dushoff description with preliminary calculation on maxima.
+
+### Alternative:
+
+Again, like hazard idea, treat $B$, $\Phi$ both as constant. Let $T$ as a function: $$T=T(B,\Phi,Y)=(1-Y)T_B+Y T_Y=(1-Y)(1-B)+Y(1-B\Phi)$$ Also, $P$ as a function: $$P=T(B,\Phi,Y)=\frac{Y T_Y}{T}=\frac{Y T_Y}{(1-Y)T_B+Y T_Y}=\frac{Y\frac{B\Phi}{1+B\Phi}}{(1-Y)\frac{B}{1+B}+Y\frac{B\Phi}{1+B\Phi}}= $$
+
+And try to fit both $T$ and $P$ as independent(???), trying to inference $(B,\Phi,Y(..))$ with MLE.
+
+# Simulation and Fitting
+
+## Simulation Phase:
+
+### Exponential Growth Prevalence
+
+Consider a population with size $N$. Starting with a exponential growth model for $Y$: $$Y(Y_0,r,t)=\frac{Y_0}{N} e^{r t} $$
+
+-   $\tilde{Y_0}$ is the initial infection **number**
+-   $\tilde{r}$ is the growth rate.
+
+Assue we have constant value $B=\tilde{B}$ and $\Phi=\tilde{\Phi}$
+
 
 ## Related Positivity Bias Project with PHAC and PHO
 
