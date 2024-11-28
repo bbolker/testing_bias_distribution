@@ -9,9 +9,7 @@ output:
     keep_md: true
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 
 # 2024 Nov 10 (Sun)
 
@@ -225,15 +223,15 @@ We use similar notation with Hazard idea:
 
     -   $T_Y$ is the probability of infected/positive individual being test.
 
-    -   **Constraint** $\Phi>1$
+    -   **Constraint** $\Phi>0$
 
     -   The probability $T_B$ is monotonically increase with corresponding odds.
 
-    -   (??) $\phi=log(\Phi)$ later for better parameterization, $\phi>0$
+    -   (??) $\phi=log(\Phi)$ later for better parameterization, $phi>0$
 
 ### Target
 
-Same with all other model: We would like to use time series of $T$ and $P$ as observed from data and trying to inference $Y$ and $\Phi$ with a statistical framework.
+Same with all other modesl: We would like to use time series of $T$ and $P$ as observed from data and trying to inference $Y$ and $\Phi$ with a statistical framework.
 
 ### Model
 
@@ -253,7 +251,7 @@ Then the testing positivity $P$ can be expressed as: $$P=\frac{Y T_Y}{T}=\frac{Y
 
 ### Alternative:
 
-Again, like hazard idea, treat $B$, $\Phi$ both as constant. Let $T$ as a function: $$T=T(B,\Phi,Y)=(1-Y)T_B+Y T_Y=(1-Y)(1-B)+Y(1-B\Phi)$$ Also, $P$ as a function: $$P=P(B,\Phi,Y)=\frac{Y T_Y}{T}=\frac{Y T_Y}{(1-Y)T_B+Y T_Y}=\frac{Y\frac{B\Phi}{1+B\Phi}}{(1-Y)\frac{B}{1+B}+Y\frac{B\Phi}{1+B\Phi}}=\frac{Y \Phi (1+B)}{1+(B+Y)\Phi-Y} $$
+Again, like hazard idea, treat $B$, $\Phi$ both as constant. Let $T$ as a function: $$T=T(B,\Phi,Y)=(1-Y)T_B+Y T_Y=(1-Y)(1-B)+Y(1-B\Phi)$$ Also, $P$ as a function: $$P=T(B,\Phi,Y)=\frac{Y T_Y}{T}=\frac{Y T_Y}{(1-Y)T_B+Y T_Y}=\frac{Y\frac{B\Phi}{1+B\Phi}}{(1-Y)\frac{B}{1+B}+Y\frac{B\Phi}{1+B\Phi}}= $$
 
 And try to fit both $T$ and $P$ as independent(???), trying to inference $(B,\Phi,Y(..))$ with MLE.
 
@@ -265,20 +263,11 @@ And try to fit both $T$ and $P$ as independent(???), trying to inference $(B,\Ph
 
 Consider a population with size $N$. Starting with a exponential growth model for $Y$: $$Y(Y_0,r,t)=\frac{Y_0}{N} e^{r t} $$
 
--   $Y_0$ is the initial infection **number**
--   $r$ is the growth rate.
+-   $\tilde{Y_0}$ is the initial infection **number**
+-   $\tilde{r}$ is the growth rate.
 
-Assume we know the real value $B=\tilde{B}$, $\Phi=\tilde{\Phi}$, $\tilde{Y_0}$ and $\tilde{r}$, then we can construct time series of prevalence $\tilde{Y}$, expected testing positivity $\tilde{P}$ and expected testing proportion $\tilde{T}$.
+Assue we have constant value $B=\tilde{B}$ and $\Phi=\tilde{\Phi}$
 
-We can then generate the data: time series for observed testing number $N T^{*}$ and observed number of positive tests $N T^{*} P^{*}$.
-
--   $T^{*}$ is the observed testing proportion
-
--   $P^{*}$ is the observed testing positivity
-
--   For observed number of test, we assume: $$ NT^{*} \sim \text{Pois}(N \tilde{T}) $$
-
--   For observed number of positive test, we assume $$N T^{*} P^{*} \sim \text{Binom}(NT^{*},\tilde{P})$$
 
 ## Related Positivity Bias Project with PHAC and PHO
 

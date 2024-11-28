@@ -563,14 +563,19 @@ offset <span class="math inline">\(\phi\)</span>: <span class="math display">\[ 
 T_Y=1-B\Phi\]</span>Then at any time, the testing proportion <span class="math inline">\(T\)</span>, also as the probability of a random
 individual being tested, can be expressed as: <span class="math display">\[ T=T_B (1-Y)+T_Y
 Y=(1-Y)(1-B)+Y(1-B\Phi)\]</span>This gives us <span class="math inline">\(B\)</span> (thus <span class="math inline">\(b=-log(B)\)</span> as the baseline hazard) <span class="math display">\[B(Y,T,\Phi)=\frac{1-T}{1-Y(1-\Phi)}\]</span></p>
-</div>
-<div id="problem-need-constraint-on-bleq-1-for-combination-of-typhi" class="section level3">
-<h3>problem: need constraint on <span class="math inline">\(B\leq
-1\)</span> for combination of <span class="math inline">\(T,Y,\Phi\)</span></h3>
-<p>For <span class="math inline">\(B\leq 1\)</span>, <span class="math inline">\(\Phi\)</span> have a constraint <span class="math inline">\(\Phi \geq 1-T/Y\)</span>. - If <span class="math inline">\(T \geq Y\)</span>, all feasible value of <span class="math inline">\(\Phi \in [0,1]\)</span> works - If <span class="math inline">\(T &lt; Y\)</span> (which is more possible in
-reality), we must have <span class="math inline">\(\Phi \geq
+<ul>
+<li>Constraint: <span class="math inline">\(B\leq 1\)</span> for
+combination of <span class="math inline">\(T,Y,\Phi\)</span>:
+<ul>
+<li>For <span class="math inline">\(B\leq 1\)</span>, <span class="math inline">\(\Phi\)</span> have a constraint <span class="math inline">\(\Phi \geq 1-T/Y\)</span>.</li>
+<li>If <span class="math inline">\(T \geq Y\)</span>, all feasible value
+of <span class="math inline">\(\Phi \in [0,1]\)</span> works.</li>
+<li>If <span class="math inline">\(T &lt; Y\)</span> (which is more
+possible in reality), we must have <span class="math inline">\(\Phi \geq
 1-T/Y\)</span> as a lower bound <span class="math inline">\(\Leftrightarrow \phi\)</span> has a upper
-bound.</p>
+bound.</li>
+</ul></li>
+</ul>
 <p>Consider we can observe testing positivity <span class="math inline">\(P\)</span> and testing proportion <span class="math inline">\(T\)</span> from data. Try to interpret previous
 function for <span class="math inline">\(B\)</span> (thus <span class="math inline">\(b\)</span>) as a function depend on <span class="math inline">\(T\)</span>, <span class="math inline">\(Y\)</span>, <span class="math inline">\(\Phi\)</span>.</p>
 <p><strong>(To be discussed)</strong> <span class="math inline">\(B\)</span> can be seen as the behavioral(???)
@@ -579,7 +584,7 @@ partially observe <span class="math inline">\(Y\)</span>, and the
 testing probability is also limited by testing availability reflected by
 <span class="math inline">\(T\)</span>. While <span class="math inline">\(\Phi\)</span> (thus <span class="math inline">\(\phi\)</span>) is more about medical/biological
 factor of the infection and testing strategy, like the severity/clarity
-of the symptoms and if the test focus on high risk people.</p>
+of the symptoms and if the test focus on high risk people</p>
 <p><strong>(To be discussed)</strong> Interpretation of <span class="math inline">\(B(T,Y,\Phi)\)</span>:</p>
 <ul>
 <li><p><span class="math inline">\(T \uparrow \Rightarrow B \downarrow
@@ -618,6 +623,19 @@ value</p></li>
 <li><p><a href="./pix/HR_heatmap.png"><code>./pix/HR_heatmap.png</code></a>: Heat
 map used to show the boundary condition of <span class="math inline">\(\Phi \geq 1-T/Y\)</span>.</p></li>
 </ul>
+</div>
+<div id="alternative" class="section level3">
+<h3>Alternative:</h3>
+<p>Treat <span class="math inline">\(B\)</span>, <span class="math inline">\(\Phi\)</span> both as constant. Let <span class="math inline">\(T\)</span> as a function: <span class="math display">\[T=T(B,\Phi,Y)=(1-Y)T_B+Y
+T_Y=(1-Y)(1-B)+Y(1-B\Phi)\]</span> Also, <span class="math inline">\(P\)</span> as a function: <span class="math display">\[P=P(B,\Phi,Y)=\frac{Y
+T_Y}{T}=\frac{Y}{T}(1-B\Phi)=\frac{Y T_Y}{(1-Y)T_B+Y
+T_Y}=\frac{Y(1-B\Phi)}{(1-Y)(1-B)+Y(1-B\Phi)} \]</span></p>
+<p>And try to use both time series of <span class="math inline">\(T\)</span> and <span class="math inline">\(P\)</span>, trying to inference <span class="math inline">\((B,\Phi,Y(..))\)</span> with MLE.</p>
+<p>(??) Make <span class="math inline">\(P\)</span>, <span class="math inline">\(Y\)</span> mutually independent in expression for
+fitting. <span class="math display">\[T=(1-Y)(1-B)+Y(1-B\Phi)
+\Rightarrow Y=\frac{ 1-B - T }{B(1 - \Phi)}\]</span></p>
+<p><span class="math display">\[P=\frac{Y}{T}(1-B\Phi)=\frac{(1-B-T)(1-B\Phi)}{TB(1-\Phi)}
+\]</span> Seems does not really matter in fitting.</p>
 </div>
 </div>
 <div id="odds-ratio" class="section level2">
@@ -663,31 +681,31 @@ of the whole population (also the average testing probability).</p></li>
 positivity.</p></li>
 <li><p><span class="math inline">\(Y\)</span> is the prevalence (also
 the average infection probability)</p></li>
-<li><p><span class="math inline">\(T_B\)</span> be the baseline
-probability of uninfected/negative individual being tested.</p></li>
 <li><p><span class="math inline">\(B\)</span> is the corresponding odds
-of <span class="math inline">\(T_B\)</span> <span class="math display">\[B=\frac{T_B}{1-T_B} \Leftrightarrow
-T_B=\frac{B}{1+B}\]</span></p>
+of uninfected/negative being tested.</p>
 <ul>
+<li><p><span class="math inline">\(T_B\)</span> be the baseline
+probability of uninfected/negative individual being tested. <span class="math display">\[B=\frac{T_B}{1-T_B} \Leftrightarrow
+T_B=\frac{B}{1+B}\]</span></p></li>
 <li><p><strong>Constraint</strong> <span class="math inline">\(B&gt;0\)</span></p></li>
 <li><p>(??) Maybe for later we use <span class="math inline">\(b=log(B)\)</span> as parameterization</p></li>
 <li><p>(??) Similar like hazard ratio, should <span class="math inline">\(B\)</span> be a constant as a result of behavior
 factor of testing? Or <span class="math inline">\(B\)</span> is a
 intermediate variable?</p></li>
 </ul></li>
-<li><p><span class="math inline">\(T_Y\)</span> is the probability of
-infected/positive individual being test.</p></li>
 <li><p><span class="math inline">\(\Phi\)</span> is the (constant) odds
 ratio (strength of the association) between test probabilities of
 positive and negative people. <span class="math display">\[\Phi=\frac{\frac{T_Y}{1-T_Y}}{\frac{T_B}{1-T_B}}=\frac{\frac{T_Y}{1-T_Y}}{B}
 \Leftrightarrow \Phi B= \frac{T_Y}{1-T_Y} \Leftrightarrow
 T_Y=\frac{B\Phi}{1+B\Phi}\]</span></p>
 <ul>
-<li><strong>Constraint</strong> <span class="math inline">\(\Phi&gt;0\)</span></li>
-<li>The probability <span class="math inline">\(T_B\)</span> is
-monotonically increase with corresponding odds.</li>
-<li>(??) <span class="math inline">\(\phi=log(\Phi)\)</span> later for
-better parameterization, <span class="math inline">\(phi&gt;0\)</span></li>
+<li><p><span class="math inline">\(T_Y\)</span> is the probability of
+infected/positive individual being test.</p></li>
+<li><p><strong>Constraint</strong> <span class="math inline">\(\Phi&gt;0\)</span></p></li>
+<li><p>The probability <span class="math inline">\(T_B\)</span> is
+monotonically increase with corresponding odds.</p></li>
+<li><p>(??) <span class="math inline">\(\phi=log(\Phi)\)</span> later
+for better parameterization, <span class="math inline">\(phi&gt;0\)</span></p></li>
 </ul></li>
 </ul>
 </div>
@@ -720,6 +738,35 @@ T_Y}{T}=\frac{Y}{T}\frac{B\Phi}{1+B\Phi}=\frac{Y}{T}\frac{X+\sqrt{X^2+4T(1-T)\Ph
 <span class="math display">\[=\frac{Y}{T}(1+\frac{2(1-T)}{\sqrt{X^2+4T(1-T)\Phi}})^{-1}=\frac{Y}{T}(1-\frac{2(1-T)}{\sqrt{X^2+4T(1-T)\Phi}+2(1-T)})\]</span></p>
 <p><a href="or_mac.rmd"><code>or_mac.rmd</code></a>: <span class="citation">@dushoff</span> description with preliminary
 calculation on maxima.</p>
+</div>
+<div id="alternative-1" class="section level3">
+<h3>Alternative:</h3>
+<p>Again, like hazard idea, treat <span class="math inline">\(B\)</span>, <span class="math inline">\(\Phi\)</span> both as constant. Let <span class="math inline">\(T\)</span> as a function: <span class="math display">\[T=T(B,\Phi,Y)=(1-Y)T_B+Y
+T_Y=(1-Y)(1-B)+Y(1-B\Phi)\]</span> Also, <span class="math inline">\(P\)</span> as a function: <span class="math display">\[P=T(B,\Phi,Y)=\frac{Y T_Y}{T}=\frac{Y
+T_Y}{(1-Y)T_B+Y
+T_Y}=\frac{Y\frac{B\Phi}{1+B\Phi}}{(1-Y)\frac{B}{1+B}+Y\frac{B\Phi}{1+B\Phi}}=
+\]</span></p>
+<p>And try to fit both <span class="math inline">\(T\)</span> and <span class="math inline">\(P\)</span> as independent(???), trying to
+inference <span class="math inline">\((B,\Phi,Y(..))\)</span> with
+MLE.</p>
+</div>
+</div>
+</div>
+<div id="simulation-and-fitting" class="section level1">
+<h1>Simulation and Fitting</h1>
+<div id="simulation-phase" class="section level2">
+<h2>Simulation Phase:</h2>
+<div id="exponential-growth-prevalence" class="section level3">
+<h3>Exponential Growth Prevalence</h3>
+<p>Consider a population with size <span class="math inline">\(N\)</span>. Starting with a exponential growth
+model for <span class="math inline">\(Y\)</span>: <span class="math display">\[Y(Y_0,r,t)=\frac{Y_0}{N} e^{r t} \]</span></p>
+<ul>
+<li><span class="math inline">\(\tilde{Y_0}\)</span> is the initial
+infection <strong>number</strong></li>
+<li><span class="math inline">\(\tilde{r}\)</span> is the growth
+rate.</li>
+</ul>
+<p>Assue we have constant value <span class="math inline">\(B=\tilde{B}\)</span> and <span class="math inline">\(\Phi=\tilde{\Phi}\)</span></p>
 </div>
 </div>
 <div id="related-positivity-bias-project-with-phac-and-pho" class="section level2">
