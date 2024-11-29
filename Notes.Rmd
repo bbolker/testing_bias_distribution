@@ -276,9 +276,23 @@ We can then generate the data: time series for observed testing number $N T^{*}$
 
 -   $P^{*}$ is the observed testing positivity
 
--   For observed number of test, we assume: $$ NT^{*} \sim \text{Pois}(N \tilde{T}) $$
+-   For observed number of test, we assume: $$ NT^{*} \sim \text{Pois}(N \tilde{T})$$
 
 -   For observed number of positive test, we assume $$N T^{*} P^{*} \sim \text{Binom}(NT^{*},\tilde{P})$$
+
+## Fitting Phase
+
+Based on what we known:
+
+-   Model equations
+
+-   Data of $P^{*}$, $T^{*}$
+
+-   Total population size
+
+-   Poisson and Binomial distribution
+
+Trying to find the best fit combination of ($\hat{B}$, $\hat{\Phi}$, $\hat{r}$ and $\hat{Y}_0$) using a MLE approach. $$ log(\mathcal{L}(\vec{T^{*}},\vec{P^{*}}|B,\Phi,r,Y_0))=\sum_{t=0} [log(\mathcal{L}_{Pois}(T^{*}(t)|NT(B,\Phi,Y(t;r,Y_0)))+log(\mathcal{L}_{binom}(P^{*}(t)|NT(B,\Phi,Y(t;r,Y_0)),P(B,\Phi,Y(t;r,Y_0)))]$$
 
 ## Related Positivity Bias Project with PHAC and PHO
 

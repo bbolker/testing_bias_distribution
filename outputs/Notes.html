@@ -701,17 +701,17 @@ T_Y=\frac{B\Phi}{1+B\Phi}\]</span></p>
 <ul>
 <li><p><span class="math inline">\(T_Y\)</span> is the probability of
 infected/positive individual being test.</p></li>
-<li><p><strong>Constraint</strong> <span class="math inline">\(\Phi&gt;0\)</span></p></li>
+<li><p><strong>Constraint</strong> <span class="math inline">\(\Phi&gt;1\)</span></p></li>
 <li><p>The probability <span class="math inline">\(T_B\)</span> is
 monotonically increase with corresponding odds.</p></li>
 <li><p>(??) <span class="math inline">\(\phi=log(\Phi)\)</span> later
-for better parameterization, <span class="math inline">\(phi&gt;0\)</span></p></li>
+for better parameterization, <span class="math inline">\(\phi&gt;0\)</span></p></li>
 </ul></li>
 </ul>
 </div>
 <div id="target-1" class="section level3">
 <h3>Target</h3>
-<p>Same with all other modesl: We would like to use time series of <span class="math inline">\(T\)</span> and <span class="math inline">\(P\)</span> as observed from data and trying to
+<p>Same with all other model: We would like to use time series of <span class="math inline">\(T\)</span> and <span class="math inline">\(P\)</span> as observed from data and trying to
 inference <span class="math inline">\(Y\)</span> and <span class="math inline">\(\Phi\)</span> with a statistical framework.</p>
 </div>
 <div id="model-1" class="section level3">
@@ -742,10 +742,10 @@ calculation on maxima.</p>
 <div id="alternative-1" class="section level3">
 <h3>Alternative:</h3>
 <p>Again, like hazard idea, treat <span class="math inline">\(B\)</span>, <span class="math inline">\(\Phi\)</span> both as constant. Let <span class="math inline">\(T\)</span> as a function: <span class="math display">\[T=T(B,\Phi,Y)=(1-Y)T_B+Y
-T_Y=(1-Y)(1-B)+Y(1-B\Phi)\]</span> Also, <span class="math inline">\(P\)</span> as a function: <span class="math display">\[P=T(B,\Phi,Y)=\frac{Y T_Y}{T}=\frac{Y
+T_Y=(1-Y)(1-B)+Y(1-B\Phi)\]</span> Also, <span class="math inline">\(P\)</span> as a function: <span class="math display">\[P=P(B,\Phi,Y)=\frac{Y T_Y}{T}=\frac{Y
 T_Y}{(1-Y)T_B+Y
-T_Y}=\frac{Y\frac{B\Phi}{1+B\Phi}}{(1-Y)\frac{B}{1+B}+Y\frac{B\Phi}{1+B\Phi}}=
-\]</span></p>
+T_Y}=\frac{Y\frac{B\Phi}{1+B\Phi}}{(1-Y)\frac{B}{1+B}+Y\frac{B\Phi}{1+B\Phi}}=\frac{Y
+\Phi (1+B)}{1+(B+Y)\Phi-Y} \]</span></p>
 <p>And try to fit both <span class="math inline">\(T\)</span> and <span class="math inline">\(P\)</span> as independent(???), trying to
 inference <span class="math inline">\((B,\Phi,Y(..))\)</span> with
 MLE.</p>
@@ -761,13 +761,42 @@ MLE.</p>
 <p>Consider a population with size <span class="math inline">\(N\)</span>. Starting with a exponential growth
 model for <span class="math inline">\(Y\)</span>: <span class="math display">\[Y(Y_0,r,t)=\frac{Y_0}{N} e^{r t} \]</span></p>
 <ul>
-<li><span class="math inline">\(\tilde{Y_0}\)</span> is the initial
-infection <strong>number</strong></li>
-<li><span class="math inline">\(\tilde{r}\)</span> is the growth
-rate.</li>
+<li><span class="math inline">\(Y_0\)</span> is the initial infection
+<strong>number</strong></li>
+<li><span class="math inline">\(r\)</span> is the growth rate.</li>
 </ul>
-<p>Assue we have constant value <span class="math inline">\(B=\tilde{B}\)</span> and <span class="math inline">\(\Phi=\tilde{\Phi}\)</span></p>
+<p>Assume we know the real value <span class="math inline">\(B=\tilde{B}\)</span>, <span class="math inline">\(\Phi=\tilde{\Phi}\)</span>, <span class="math inline">\(\tilde{Y_0}\)</span> and <span class="math inline">\(\tilde{r}\)</span>, then we can construct time
+series of prevalence <span class="math inline">\(\tilde{Y}\)</span>,
+expected testing positivity <span class="math inline">\(\tilde{P}\)</span> and expected testing proportion
+<span class="math inline">\(\tilde{T}\)</span>.</p>
+<p>We can then generate the data: time series for observed testing
+number <span class="math inline">\(N T^{*}\)</span> and observed number
+of positive tests <span class="math inline">\(N T^{*}
+P^{*}\)</span>.</p>
+<ul>
+<li><p><span class="math inline">\(T^{*}\)</span> is the observed
+testing proportion</p></li>
+<li><p><span class="math inline">\(P^{*}\)</span> is the observed
+testing positivity</p></li>
+<li><p>For observed number of test, we assume: <span class="math display">\[ NT^{*} \sim \text{Pois}(N
+\tilde{T})\]</span></p></li>
+<li><p>For observed number of positive test, we assume <span class="math display">\[N T^{*} P^{*} \sim
+\text{Binom}(NT^{*},\tilde{P})\]</span></p></li>
+</ul>
 </div>
+</div>
+<div id="fitting-phase" class="section level2">
+<h2>Fitting Phase</h2>
+<p>Based on what we known:</p>
+<ul>
+<li><p>Model equations</p></li>
+<li><p>Data of <span class="math inline">\(P^{*}\)</span>, <span class="math inline">\(T^{*}\)</span></p></li>
+<li><p>Total population size</p></li>
+<li><p>Poisson and Binomial distribution</p></li>
+</ul>
+<p>Trying to find the best fit combination of (<span class="math inline">\(\hat{B}\)</span>, <span class="math inline">\(\hat{\Phi}\)</span>, <span class="math inline">\(\hat{r}\)</span> and <span class="math inline">\(\hat{Y}_0\)</span>) using a MLE approach. <span class="math display">\[
+log(\mathcal{L}(\vec{T^{*}},\vec{P^{*}}|B,\Phi,r,Y_0))=\sum_{t=0}
+[log(\mathcal{L}_{Pois}(T^{*}(t)|NT(B,\Phi,Y(t;r,Y_0)))+log(\mathcal{L}_{binom}(P^{*}(t)|NT(B,\Phi,Y(t;r,Y_0)),P(B,\Phi,Y(t;r,Y_0)))]\]</span></p>
 </div>
 <div id="related-positivity-bias-project-with-phac-and-pho" class="section level2">
 <h2>Related Positivity Bias Project with PHAC and PHO</h2>
