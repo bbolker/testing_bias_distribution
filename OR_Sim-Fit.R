@@ -14,6 +14,12 @@ Phi <- (T_Y/(1-T_Y))/B
 print(B)
 print(Phi)
 
-Y_0 <- 100
+Y_0 <- 10
 N <- 1e6
+r <- log(2)/3
+
+## simulation
+t<-c(0:29)
+NY_t <- Y_0*exp(r*t)
+
 
