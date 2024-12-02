@@ -28,7 +28,7 @@ docs/%.html: %.html
 
 ######################################################################
 
-Sources += betaParams.md simple.md README.md notes.md
+Sources += betaParams.md simple.md README.md
 
 ######################################################################
 
