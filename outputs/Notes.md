@@ -11,9 +11,7 @@ output:
 
 
 
-# 2024 Nov 10 (Sun)
-
-Notes grouped by project:
+# Notes for Testing_distrib
 
 ## Beta Distribution
 
@@ -291,6 +289,8 @@ Based on what we known:
 -   Poisson and Binomial distribution
 
 Trying to find the best fit combination of ($\hat{B}$, $\hat{\Phi}$, $\hat{r}$ and $\hat{Y}_0$) using a MLE approach. $$ log(\mathcal{L}(\vec{T^{*}},\vec{P^{*}}|B,\Phi,r,Y_0))=\sum_{t=0} [log(\mathcal{L}_{Pois}(T^{*}(t)|NT(B,\Phi,Y(t;r,Y_0)))+log(\mathcal{L}_{binom}(P^{*}(t)|NT(B,\Phi,Y(t;r,Y_0)),P(B,\Phi,Y(t;r,Y_0)))]$$
+
+-   bbmle::mle2: Find the real value if initialized at the real value. However, if the initial value gets far away from real value, mle2 might not able to recover $Y_0$ and $\Phi$ as good as $B$ and $r$
 
 ## Related Positivity Bias Project with PHAC and PHO
 

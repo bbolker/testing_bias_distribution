@@ -357,9 +357,8 @@ display: none;
 </div>
 
 
-<div id="nov-10-sun" class="section level1">
-<h1>2024 Nov 10 (Sun)</h1>
-<p>Notes grouped by project:</p>
+<div id="notes-for-testing_distrib" class="section level1">
+<h1>Notes for Testing_distrib</h1>
 <div id="beta-distribution" class="section level2">
 <h2>Beta Distribution</h2>
 <p><a href="testing_distrib.rmd"><code>testing_distrib.rmd</code></a> is
@@ -797,6 +796,11 @@ testing positivity</p></li>
 <p>Trying to find the best fit combination of (<span class="math inline">\(\hat{B}\)</span>, <span class="math inline">\(\hat{\Phi}\)</span>, <span class="math inline">\(\hat{r}\)</span> and <span class="math inline">\(\hat{Y}_0\)</span>) using a MLE approach. <span class="math display">\[
 log(\mathcal{L}(\vec{T^{*}},\vec{P^{*}}|B,\Phi,r,Y_0))=\sum_{t=0}
 [log(\mathcal{L}_{Pois}(T^{*}(t)|NT(B,\Phi,Y(t;r,Y_0)))+log(\mathcal{L}_{binom}(P^{*}(t)|NT(B,\Phi,Y(t;r,Y_0)),P(B,\Phi,Y(t;r,Y_0)))]\]</span></p>
+<ul>
+<li>bbmle::mle2: Find the real value if initialized at the real value.
+However, if the initial value gets far away from real value, mle2 might
+not able to recover <span class="math inline">\(Y_0\)</span> and <span class="math inline">\(\Phi\)</span> as good as <span class="math inline">\(B\)</span> and <span class="math inline">\(r\)</span></li>
+</ul>
 </div>
 <div id="related-positivity-bias-project-with-phac-and-pho" class="section level2">
 <h2>Related Positivity Bias Project with PHAC and PHO</h2>

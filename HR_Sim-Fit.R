@@ -6,8 +6,8 @@ library(bbmle)
 ## Initial true values:
 T_B <- 0.04
 T_Y <- 0.5
-B <- T_B/(1-T_B)
-Phi <- (T_Y/(1-T_Y))/B
+B <- 1-T_B
+Phi <- (1-T_Y)/B
 
 print(B)
 print(Phi)
@@ -58,8 +58,8 @@ dd$OP <- dd$OPNum/dd$OTNum
 
 ### function to calculate negative log-likelihood:
 LL <- function(B,Phi,NY_0,r,dd,N,tmax){
-  T_B <- B/(1+B)
-  T_Y <- B*Phi/(1+B*Phi)
+  T_B <- 1-B
+  T_Y <- 1-B*Phi
   t <- c(0:tmax)
   
   NY_t <- NY_0*exp(r*t)
@@ -84,30 +84,19 @@ LL <- function(B,Phi,NY_0,r,dd,N,tmax){
 
 LL(B,Phi,NY_0,r,dd,N,tmax)
 
-# mle_out <- mle2(LL
-#      ,start = list(B=true_pars["B"]
-#                    ,Phi=true_pars["Phi"]
-#                    ,NY_0=true_pars["NY_0"]
-#                    ,r=true_pars["r"])
-#      ,data = list(dd=dd
-#                   ,N=true_pars["N"]
-#                   ,tmax=tmax)
-#      ,control = list(maxit=1000)
-#      )
-
 mle_out <- mle2(LL
-     ,start = list(B=0.5
-                   ,Phi=15
-                   ,NY_0=120
+     ,start = list(B=0.2
+                   ,Phi=0.7
+                   ,NY_0=150
                    ,r=0.3)
      ,data = list(dd=dd
                   ,N=true_pars["N"]
                   ,tmax=tmax)
-     ,control = list(maxit=10000)
+     ,control = list(maxit=1000)
      )
 # mle_out
 true_pars[c("B","Phi","NY_0","r")]
 coef(mle_out)
 
 mle_out@details
-#summary(mle_out)
+# summary(mle_out)
