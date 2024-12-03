@@ -4,6 +4,8 @@ current: target
 -include target.mk
 Ignore = target.mk
 
+-include makestuff/perl.def
+
 ######################################################################
 
 ## log-diff_cdf-log_simp.png
@@ -11,6 +13,8 @@ Ignore = target.mk
 ## Test_positivity_vs_test_proportion_phi_inc.png
 
 ######################################################################
+
+
 
 Ignore += docs *.html
 Sources += $(wildcard *.rmd *.qmd *.md)
@@ -59,6 +63,9 @@ Sources += or.md $(wildcard *.mac)
 
 ## or.mac.out: or.mac or.md
 ## or_mac.html: or_mac.rmd
+
+or.mac.tex: or.mac.out mactex.pl
+	$(PUSH)
 
 ######################################################################
 
