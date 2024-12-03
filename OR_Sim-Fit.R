@@ -3,8 +3,6 @@ library(ggplot2); theme_set(theme_bw())
 library(viridis)
 library(bbmle)
 
-set.seed(1351)
-
 ## Initial true values:
 T_B <- 0.04
 T_Y <- 0.5
@@ -21,8 +19,8 @@ r <- log(2)/3
 true_pars <- c(NY_0=NY_0, r=r, B=B, Phi=Phi, N=1e6, T_B=T_B, T_Y=T_Y)
 true_pars
 ## simulation
-maxtime <- 29
-t<-c(0:maxtime)
+tmax <- 29
+t<-c(0:tmax)
 
 # Real number of infected
 NY_t <- NY_0*exp(r*t)
@@ -59,13 +57,12 @@ dd$OP <- dd$OPNum/dd$OTNum
 # dd
 
 ### function to calculate negative log-likelihood:
-LL <- function(B,Phi,Y0,r,dd,ture_pars,tmax){
+LL <- function(B,Phi,NY_0,r,dd,N,tmax){
   T_B <- B/(1+B)
   T_Y <- B*Phi/(1+B*Phi)
   t <- c(0:tmax)
-  N <- true_pars["N"]
   
-  NY_t <- N*Y0*exp(r*t)
+  NY_t <- NY_0*exp(r*t)
   # prevalence
   Y_t <- NY_t/N
   
@@ -79,8 +76,27 @@ LL <- function(B,Phi,Y0,r,dd,ture_pars,tmax){
   df$TNum <- round(df$T*N)
   
   # expected test positivity P
-  df$P <- df$Y_t*T_Y/df$T
+  df$P <- (df$Y_t*T_Y)/df$T
   
-  -sum(stats::dpois())
+  out <- -sum(stats::dpois(dd$OTNum, df$TNum,log = TRUE))-sum(stats::dbinom(dd$OPNum,df$TNum,df$P,log = TRUE))
+  return(out)
 }
 
+LL(B,Phi,NY_0,r,dd,N,tmax)
+
+mle_out <- mle2(LL
+     ,start = list(B=true_pars["B"]
+                   ,Phi=true_pars["Phi"]
+                   ,NY_0=true_pars["NY_0"]
+                   ,r=true_pars["r"])
+     ,data = list(dd=dd
+                  ,N=true_pars["N"]
+                  ,tmax=tmax)
+     ,control = list(maxit=1000)
+     )
+# mle_out
+true_pars[c("B","Phi","NY_0","r")]
+coef(mle_out)
+
+mle_out
+summary(mle_out)
