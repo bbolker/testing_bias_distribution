@@ -128,12 +128,14 @@ test_params <- list( B=true_pars["B"]
                    ,r=0.4
                     )
 
+mledat <- list(dd=dd
+              ,N=true_pars["N"]
+              ,tmax=tmax)
+do.call(LL, c(test_params, mledat))
 
 mle_out2 <- mle2(LL
                 ,start = test_params
-                ,data = list(dd=dd
-                             ,N=true_pars["N"]
-                             ,tmax=tmax)
+                ,data = 
                 ,control = list(maxit=10000)
                  )
 
