@@ -137,7 +137,7 @@ do.call(LL, c(test_params, mledat))
 
 mle_out2 <- mle2(LL
                 ,start = test_params
-                ,data = 
+                ,data = mledat
                 ,control = list(maxit=10000)
                  )
 
