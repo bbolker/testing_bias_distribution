@@ -127,8 +127,6 @@ test_params <- list( B=true_pars["B"]
                    ,NY_0=true_pars["NY_0"]
                    ,r=0.0
                    )
-                   ,r=0.4
-                    )
 
 mledat <- list(dd=dd
               ,N=true_pars["N"]
