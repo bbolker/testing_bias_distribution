@@ -3,6 +3,9 @@ library(ggplot2); theme_set(theme_bw())
 library(viridis)
 library(bbmle)
 
+# Set Seeds
+set.seed(13521)
+
 ## Initial true values:
 T_B <- 0.04
 T_Y <- 0.5
@@ -82,7 +85,19 @@ LL <- function(B,Phi,NY_0,r,dd,N,tmax){
   return(out)
 }
 
-LL(B,Phi,NY_0,r,dd,N,tmax)
+real_ML<-LL(B,Phi,NY_0,r,dd,N,tmax)
+
+# mle_out <- mle2(LL
+#      ,start = list(B=true_pars["B"]
+#                    ,Phi=true_pars["Phi"]
+#                    ,NY_0=true_pars["NY_0"]
+#                    ,r=true_pars["r"])
+#      ,data = list(dd=dd
+#                   ,N=true_pars["N"]
+#                   ,tmax=tmax)
+#      ,control = list(maxit=1000)
+#      )
+
 
 mle_out <- mle2(LL
      ,start = list(B=0.2
@@ -98,5 +113,6 @@ mle_out <- mle2(LL
 true_pars[c("B","Phi","NY_0","r")]
 coef(mle_out)
 
-mle_out@details
+mle_out@details$value
+real_ML
 # summary(mle_out)
