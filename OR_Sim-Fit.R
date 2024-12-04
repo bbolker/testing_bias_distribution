@@ -81,7 +81,8 @@ LL <- function(B,Phi,NY_0,r,dd,N,tmax){
   # expected test positivity P
   df$P <- (df$Y_t*T_Y)/df$T
   
-  out <- -sum(stats::dpois(dd$OTNum, df$TNum,log = TRUE))-sum(stats::dbinom(dd$OPNum,df$TNum,df$P,log = TRUE))
+  out <- -sum(dpois(dd$OTNum, df$TNum,log = TRUE))-
+      sum(dbinom(dd$OPNum,df$TNum,df$P,log = TRUE))
   return(out)
 }
 
@@ -107,10 +108,15 @@ mle_out <- mle2(LL
                   ,N=true_pars["N"]
                   ,tmax=tmax)
      ,control = list(maxit=1000)
-     )
-# mle_out
+       )
+
+mle_out_NM <- update(mle_out, method = "Nelder-Mead")
+
+## mle_out
 true_pars[c("B","Phi","NY_0","r")]
 coef(mle_out)
+
+cov2cor(vcov(mle_out))
 
 mle_out@details$value
 real_ML
@@ -121,13 +127,21 @@ test_params <- list( B=true_pars["B"]
                    ,NY_0=true_pars["NY_0"]
                    ,r=0.0
                    )
+                   ,r=0.4
+                    )
+
+mledat <- list(dd=dd
+              ,N=true_pars["N"]
+              ,tmax=tmax)
+do.call(LL, c(test_params, mledat))
+
 mle_out2 <- mle2(LL
                 ,start = test_params
-                ,data = list(dd=dd
-                             ,N=true_pars["N"]
-                             ,tmax=tmax)
+                ,data = 
                 ,control = list(maxit=10000)
-)
+                 )
+
+
 warnings()
 mle_out2@coef
 true_pars[c("B","Phi","NY_0","r")]
