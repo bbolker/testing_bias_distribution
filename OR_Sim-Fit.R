@@ -26,7 +26,7 @@ tmax <- 29
 t<-c(0:tmax)
 
 # Real number of infected
-NY_t <- NY_0*exp(r*t)
+NY_t <- pmin(NY_0*exp(r*t), N)
 
 # Real prevalence
 Y_t <- NY_t/N
@@ -44,13 +44,13 @@ dd$P <- dd$Y_t*true_pars["T_Y"]/dd$T
 
 ### Observed testing number N T*:
 dd$OTNum <-  with(c(as.list(true_pars), dd),
-               rpois(length(t), round(T*N))
-               )
+                  rpois(length(t), round(T*N))
+                  )
 
 ### Observed positive count N T P*:
 dd$OPNum <- with(c(as.list(true_pars), dd)
-              ,rbinom(length(t), size = OTNum, prob=P)
-              )
+                , rbinom(length(t), size = OTNum, prob=P)
+                 )
 ### Observed testing proportion
 dd$OT <- dd$OTNum/N
 
@@ -64,8 +64,10 @@ LL <- function(B,Phi,NY_0,r,dd,N,tmax){
   T_B <- B/(1+B)
   T_Y <- B*Phi/(1+B*Phi)
   t <- c(0:tmax)
+
+  ## don't let number of infected exceed pop size
+  NY_t <- pmin(NY_0*exp(r*t), N)
   
-  NY_t <- NY_0*exp(r*t)
   # prevalence
   Y_t <- NY_t/N
   
@@ -76,10 +78,13 @@ LL <- function(B,Phi,NY_0,r,dd,N,tmax){
   df$T <- (1-df$Y_t)*T_B+df$Y_t*T_Y
   
   ### number of test as parameter:
-  df$TNum <- round(df$T*N)
+  df$TNum <- df$T*N
   
   # expected test positivity P
   df$P <- (df$Y_t*T_Y)/df$T
+
+  ## with worse starting values, last entry of TNum is less
+  ## than last entry of OPNum ... -> (-Inf) probability
   
   out <- -sum(dpois(dd$OTNum, df$TNum,log = TRUE))-
       sum(dbinom(dd$OPNum,df$TNum,df$P,log = TRUE))
