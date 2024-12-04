@@ -119,7 +119,7 @@ real_ML
 test_params <- list( B=true_pars["B"]
                    ,Phi=true_pars["Phi"]
                    ,NY_0=true_pars["NY_0"]
-                   ,r=0.4
+                   ,r=0.0
                    )
 mle_out2 <- mle2(LL
                 ,start = test_params
