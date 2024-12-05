@@ -14,6 +14,8 @@ Ignore = target.mk
 
 OR_Sim-Fit.Rout: OR_Sim-Fit.R
 
+## OR_Sim.md
+
 ######################################################################
 
 Ignore += docs *.html
