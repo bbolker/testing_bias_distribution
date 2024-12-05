@@ -19,7 +19,7 @@ NY_0 <- 100
 N <- 1e6
 r <- log(2)/3
 
-true_pars <- c(NY_0=NY_0, r=r, B=B, Phi=Phi, N=1e6, T_B=T_B, T_Y=T_Y)
+true_pars <- c(NY_0=NY_0, r=r, B=B, Phi=Phi, N=N, T_B=T_B, T_Y=T_Y)
 true_pars
 ## simulation
 tmax <- 29
@@ -94,27 +94,16 @@ LL <- function(B,Phi,NY_0,r,dd,N,tmax){
 
 real_ML<-LL(B,Phi,NY_0,r,dd,N,tmax)
 
-# mle_out <- mle2(LL
-#      ,start = list(B=true_pars["B"]
-#                    ,Phi=true_pars["Phi"]
-#                    ,NY_0=true_pars["NY_0"]
-#                    ,r=true_pars["r"])
-#      ,data = list(dd=dd
-#                   ,N=true_pars["N"]
-#                   ,tmax=tmax)
-#      ,control = list(maxit=1000)
-#      )
-
-mle_out <- mle2(LL
+mle_out <- try(mle2(LL
      ,start = list(B=0.5
-                   ,Phi=15
-                   ,NY_0=120
+                   ,Phi=24
+                   ,NY_0=210
                    ,r=0.3)
      ,data = list(dd=dd
                   ,N=true_pars["N"]
                   ,tmax=tmax)
      ,control = list(maxit=1000)
-       )
+))      
 
 mle_out_NM <- update(mle_out, method = "Nelder-Mead")
 
@@ -126,6 +115,9 @@ cov2cor(vcov(mle_out))
 
 mle_out@details$value
 real_ML
+
+quit()
+
 #summary(mle_out)
 
 test_params <- list( B=true_pars["B"]
@@ -139,14 +131,13 @@ mledat <- list(dd=dd
               ,tmax=tmax)
 do.call(LL, c(test_params, mledat))
 
-mle_out2 <- mle2(LL
-                ,start = test_params
-                ,data = mledat
-                ,control = list(maxit=10000)
-                 )
-
+mle_out2 <- try(mle2(LL
+	,start = test_params
+	,data = mledat
+	,control = list(maxit=10000)
+))
+print(mle_out2)
 
 warnings()
-mle_out2@coef
-true_pars[c("B","Phi","NY_0","r")]
+## true_pars[c("B","Phi","NY_0","r")]
 

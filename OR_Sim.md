@@ -3,3 +3,5 @@ If we don't allow for false readings, then the number of positive tests is just 
 posPeople and negPeople come from the current sim, the Probs come from the parameters, and the Tests come from the “data”. so we don't need to simulate tests in the current sim.
 
 This clarifies also that the most likely way for the model to fall off the cliff would be if posTests (from the “data”) exceeds posPeople (from the current sim).
+
+It's not obvious what is the best way to simulate number infected; we want it to be a whole number. Seems almost easier to simulate with dynamical noise (formerly known as process error), but I'm sticking with binomial observation noise for now.
