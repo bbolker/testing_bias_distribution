@@ -35,22 +35,23 @@ Y_t <- NY_t/N
 dd<- data.frame(t,NY_t,Y_t)
 
 # Real expected test proportion T
-dd$T <- (1-dd$Y_t)*true_pars["T_B"]+dd$Y_t*true_pars["T_Y"]
+dd$TT <- (1-dd$Y_t)*true_pars["T_B"]+dd$Y_t*true_pars["T_Y"]
 
 # Real expected test positivity P
-dd$P <- dd$Y_t*true_pars["T_Y"]/dd$T
+dd$P <- dd$Y_t*true_pars["T_Y"]/dd$TT
 
 # dd$P-(dd$Y_t*true_pars["Phi"]*(1+true_pars["B"])/(1+(true_pars["B"]+dd$Y_t)*true_pars["Phi"]-dd$Y_t))
 
 ### Observed testing number N T*:
 dd$OTNum <-  with(c(as.list(true_pars), dd),
-                  rpois(length(t), round(T*N))
+                  rbinom(length(t), size=round(TT*N), prob=TT)
                   )
 
 ### Observed positive count N T P*:
 dd$OPNum <- with(c(as.list(true_pars), dd)
                 , rbinom(length(t), size = OTNum, prob=P)
                  )
+
 ### Observed testing proportion
 dd$OT <- dd$OTNum/N
 
@@ -75,18 +76,18 @@ LL <- function(B,Phi,NY_0,r,dd,N,tmax){
   df<- data.frame(t,NY_t,Y_t)
   
   # expected test proportion T
-  df$T <- (1-df$Y_t)*T_B+df$Y_t*T_Y
+  df$TT <- (1-df$Y_t)*T_B+df$Y_t*T_Y
   
   ### number of test as parameter:
-  df$TNum <- df$T*N
+  df$TNum <- df$TT*N
   
   # expected test positivity P
-  df$P <- (df$Y_t*T_Y)/df$T
+  df$P <- (df$Y_t*T_Y)/df$TT
 
   ## with worse starting values, last entry of TNum is less
   ## than last entry of OPNum ... -> (-Inf) probability
   
-  out <- -sum(dpois(dd$OTNum, df$TNum,log = TRUE))-
+  out <- -sum(dbinom(dd$OTNum, df$TNum, df$T,log = TRUE))-
       sum(dbinom(dd$OPNum,df$TNum,df$P,log = TRUE))
   return(out)
 }
@@ -130,7 +131,7 @@ real_ML
 test_params <- list( B=true_pars["B"]
                    ,Phi=true_pars["Phi"]
                    ,NY_0=true_pars["NY_0"]
-                   ,r=0.0
+                   ,r=0.4
                    )
 
 mledat <- list(dd=dd
