@@ -11,7 +11,7 @@
 
 <meta name="author" content="Richard Zhao" />
 
-<meta name="date" content="2024-11-26" />
+<meta name="date" content="2024-12-05" />
 
 <title>Notes</title>
 
@@ -352,7 +352,7 @@ display: none;
 
 <h1 class="title toc-ignore">Notes</h1>
 <h4 class="author">Richard Zhao</h4>
-<h4 class="date">2024-11-26</h4>
+<h4 class="date">2024-12-05</h4>
 
 </div>
 
@@ -777,15 +777,15 @@ P^{*}\)</span>.</p>
 testing proportion</p></li>
 <li><p><span class="math inline">\(P^{*}\)</span> is the observed
 testing positivity</p></li>
-<li><p>For observed number of test, we assume: <span class="math display">\[ NT^{*} \sim \text{Pois}(N
+<li><p>For observed number of test, we assume: <span class="math display">\[ NT^{*} \sim \text{binom}(N \tilde{T},
 \tilde{T})\]</span></p></li>
 <li><p>For observed number of positive test, we assume <span class="math display">\[N T^{*} P^{*} \sim
 \text{Binom}(NT^{*},\tilde{P})\]</span></p></li>
 </ul>
 </div>
 </div>
-<div id="fitting-phase" class="section level2">
-<h2>Fitting Phase</h2>
+<div id="fitting-phase-fix-me" class="section level2">
+<h2>Fitting Phase (FIX ME)</h2>
 <p>Based on what we known:</p>
 <ul>
 <li><p>Model equations</p></li>
@@ -795,15 +795,33 @@ testing positivity</p></li>
 </ul>
 <p>Trying to find the best fit combination of (<span class="math inline">\(\hat{B}\)</span>, <span class="math inline">\(\hat{\Phi}\)</span>, <span class="math inline">\(\hat{r}\)</span> and <span class="math inline">\(\hat{Y}_0\)</span>) using a MLE approach. <span class="math display">\[
 log(\mathcal{L}(\vec{T^{*}},\vec{P^{*}}|B,\Phi,r,Y_0))=\sum_{t=0}
-[log(\mathcal{L}_{Pois}(T^{*}(t)|NT(B,\Phi,Y(t;r,Y_0)))+log(\mathcal{L}_{binom}(P^{*}(t)|NT(B,\Phi,Y(t;r,Y_0)),P(B,\Phi,Y(t;r,Y_0)))]\]</span></p>
+[log(\mathcal{L}_{binom}(T^{*}(t)|NT(B,\Phi,Y(t;r,Y_0),T(B,\Phi,Y(t;r,Y_0)))\\+log(\mathcal{L}_{binom}(P^{*}(t)|NT(B,\Phi,Y(t;r,Y_0)),P(B,\Phi,Y(t;r,Y_0)))]\]</span></p>
 <ul>
-<li>bbmle::mle2: Find the real value if initialized at the real value.
-However, if the initial value gets far away from real value, mle2 might
-not able to recover <span class="math inline">\(Y_0\)</span> and <span class="math inline">\(\Phi\)</span> as good as <span class="math inline">\(B\)</span> and <span class="math inline">\(r\)</span></li>
+<li>bbmle::mle2: Being able to inference the real value pretty well if
+initialized near the real value. However, if the initial value gets far
+away from real value, mle2 sometimes is not able to recover <span class="math inline">\(Y_0\)</span> and <span class="math inline">\(\Phi\)</span> as good as <span class="math inline">\(B\)</span> and <span class="math inline">\(r\)</span>.
+<ul>
+<li>Sometimes give negative <span class="math inline">\(\Phi\)</span>
+for HR method.</li>
+</ul></li>
 </ul>
 </div>
-<div id="related-positivity-bias-project-with-phac-and-pho" class="section level2">
-<h2>Related Positivity Bias Project with PHAC and PHO</h2>
+<div id="potential-next-steps" class="section level2">
+<h2>Potential next steps</h2>
+<ul>
+<li><p>1 a): Keep <span class="math inline">\(B\)</span>, <span class="math inline">\(\Phi\)</span> as constant and derive infectious
+dynamics with SIR like model with seasonal forcing</p>
+<ul>
+<li>Alex’s Stuff</li>
+<li>MCMC approach reference??</li>
+</ul></li>
+<li><p>1 b): derive <span class="math inline">\(B(t)\)</span> from some
+random walk approach</p></li>
+<li><p>1 c): assume <span class="math inline">\(T\)</span> is known as
+external factors and <span class="math inline">\(B(t)\)</span> as a
+variable is derived accordingly. ## Related Positivity Bias Project with
+PHAC and PHO</p></li>
+</ul>
 <p><a href="simple.md"><code>simple.md</code></a> gives a brief
 introduction to current ideas of the positivity Bias project with David
 C. or Kevin B.</p>

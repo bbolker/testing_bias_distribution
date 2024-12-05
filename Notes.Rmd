@@ -1,7 +1,7 @@
 ---
 title: "Notes"
 author: "Richard Zhao"
-date: "2024-11-26"
+date: "2024-12-05"
 knit: (function(inputFile, encoding) {
   rmarkdown::render(inputFile, encoding = encoding, output_dir = "outputs") })
 output:
@@ -257,7 +257,7 @@ And try to fit both $T$ and $P$ as independent(???), trying to inference $(B,\Ph
 
 # Simulation and Fitting
 
-## Simulation Phase:
+## Simulation Phase: 
 
 ### Exponential Growth Prevalence
 
@@ -274,11 +274,11 @@ We can then generate the data: time series for observed testing number $N T^{*}$
 
 -   $P^{*}$ is the observed testing positivity
 
--   For observed number of test, we assume: $$ NT^{*} \sim \text{Pois}(N \tilde{T})$$
+-   For observed number of test, we assume: $$ NT^{*} \sim \text{binom}(N \tilde{T}, \tilde{T})$$
 
 -   For observed number of positive test, we assume $$N T^{*} P^{*} \sim \text{Binom}(NT^{*},\tilde{P})$$
 
-## Fitting Phase
+## Fitting Phase (FIX ME)
 
 Based on what we known:
 
@@ -290,11 +290,21 @@ Based on what we known:
 
 -   Poisson and Binomial distribution
 
-Trying to find the best fit combination of ($\hat{B}$, $\hat{\Phi}$, $\hat{r}$ and $\hat{Y}_0$) using a MLE approach. $$ log(\mathcal{L}(\vec{T^{*}},\vec{P^{*}}|B,\Phi,r,Y_0))=\sum_{t=0} [log(\mathcal{L}_{Pois}(T^{*}(t)|NT(B,\Phi,Y(t;r,Y_0)))+log(\mathcal{L}_{binom}(P^{*}(t)|NT(B,\Phi,Y(t;r,Y_0)),P(B,\Phi,Y(t;r,Y_0)))]$$
+Trying to find the best fit combination of ($\hat{B}$, $\hat{\Phi}$, $\hat{r}$ and $\hat{Y}_0$) using a MLE approach. $$ log(\mathcal{L}(\vec{T^{*}},\vec{P^{*}}|B,\Phi,r,Y_0))=\sum_{t=0} [log(\mathcal{L}_{binom}(T^{*}(t)|NT(B,\Phi,Y(t;r,Y_0),T(B,\Phi,Y(t;r,Y_0)))\\+log(\mathcal{L}_{binom}(P^{*}(t)|NT(B,\Phi,Y(t;r,Y_0)),P(B,\Phi,Y(t;r,Y_0)))]$$
 
 -   bbmle::mle2: Being able to inference the real value pretty well if initialized near the real value. However, if the initial value gets far away from real value, mle2 sometimes is not able to recover $Y_0$ and $\Phi$ as good as $B$ and $r$.
     -   Sometimes give negative $\Phi$ for HR method. 
 
+
+## Potential next steps
+
+-   1 a): Keep $B$, $\Phi$ as constant and derive infectious dynamics with SIR like model with seasonal forcing
+    -   Alex's Stuff
+    -   MCMC approach reference??
+    
+-   1 b): derive $B(t)$ from some random walk approach
+
+-   1 c): assume $T$ is known as external factors and $B(t)$ as a variable is derived accordingly.
 ## Related Positivity Bias Project with PHAC and PHO
 
 [`simple.md`](simple.md) gives a brief introduction to current ideas of the positivity Bias project with David C. or Kevin B.
