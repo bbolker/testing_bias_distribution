@@ -305,6 +305,7 @@ Trying to find the best fit combination of ($\hat{B}$, $\hat{\Phi}$, $\hat{r}$ a
 -   1 b): derive $B(t)$ from some random walk approach
 
 -   1 c): assume $T$ is known as external factors and $B(t)$ as a variable is derived accordingly.
+
 ## Related Positivity Bias Project with PHAC and PHO
 
 [`simple.md`](simple.md) gives a brief introduction to current ideas of the positivity Bias project with David C. or Kevin B.
