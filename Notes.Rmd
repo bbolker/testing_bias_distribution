@@ -310,7 +310,9 @@ If we don't allow for false readings, then
 
 So the most straightforward way to calculate the likelihood of observation of both $T^{*}$ and $P^{*}=\frac{T^{*}_+}{T^{*}}$ is $$dbinom(NT^{*}_{+}, N_{+}, T_Y) \times dbinom(NT^{*}_{-}, N_{-}, T_B)$$ where $Y$ and $(1-Y)$ come from the current simulation, the $T_Y$ and $T_B$ come from the parameters, and the $T^{*}_{+}$ and $T^{*}_{-}$ come from the “data”. (??) So we don't need to simulate tests in the current simulation.
 
-This clarifies also that the most likely way for the model to fall off the cliff would be if the number of positive tests $NT^{*}_{+}$ (from the “data”) exceeds number of positive people $N*Y$ (from the current simulation). This could happen if $r<<r^{*}$ and/or $Y_0 << Y_0^{*}$ in exponential growth. - (??)Generate an error message.
+This clarifies also that the most likely way for the model to fall off the cliff would be if the number of positive tests $NT^{*}_{+}$ (from the “data”) exceeds number of positive people $N*Y$ (from the current simulation). This could happen if $r<<r^{*}$ and/or $Y_0 << Y_0^{*}$ in exponential growth.
+
+-   (??)Generate an error message.
 
 It's not obvious what is the best way to simulate number infected (Number of positive $N_{+}$): we want it to be a whole number. Seems almost easier to simulate with dynamical noise (formerly known as process error), but I'm sticking with binomial observation noise for now.
 
