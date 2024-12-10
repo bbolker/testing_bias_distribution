@@ -22,6 +22,7 @@ tmax <- 29
 t <- c(0:tmax)
 pts <- length(t)
 
+## Simulate the data
 dat <- tibble(t=t
 	, pY = pmin(pY_0*exp(r*t), 1)
 	, NY = rbinom(pts, N, pY)
@@ -29,13 +30,33 @@ dat <- tibble(t=t
 	, negTests = rbinom(pts, N-NY, T_B)
 )
 
-long <- (dat
+long_dat <- (dat
 	|> select(-pY)
 	|> pivot_longer(-t)
 )
 
-print(ggplot(long)
-	+ aes(t, value, color=name)
-	+ geom_line()
-	+ scale_y_log10()
-)
+# print(ggplot(long_dat)
+# 	+ aes(t, value, color=name)
+# 	+ geom_line()
+# 	+ scale_y_log10()
+# )
+
+### function to calculate negative log-likelihood:
+LL <- function(B,Phi,pY_0,r,dat,N,tmax){
+  T_B <- B/(1+B)
+  T_Y <- B*Phi/(1+B*Phi)
+  t <- c(0:tmax)
+  ### simulated time series
+  sim <- tibble(t=t
+                , pY = pmin(pY_0*exp(r*t), 1)
+                , NY = rbinom(pts, N, pY)
+  )
+  
+  out <- (-sum(dbinom(dat$posTests, sim$NY, T_Y,log = TRUE))
+          -sum(dbinom(dat$negTests,N-sim$NY,T_B,log = TRUE)))
+  return(out)
+}
+
+real_ML<-LL(B,Phi,pY_0,r,dat,N,tmax)
+real_ML
+

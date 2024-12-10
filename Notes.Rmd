@@ -257,7 +257,7 @@ And try to fit both $T$ and $P$ as independent(???), trying to inference $(B,\Ph
 
 # Simulation and Fitting
 
-## Simulation Phase: 
+## Simulation Phase:
 
 ### Exponential Growth Prevalence
 
@@ -293,15 +293,34 @@ Based on what we known:
 Trying to find the best fit combination of ($\hat{B}$, $\hat{\Phi}$, $\hat{r}$ and $\hat{Y}_0$) using a MLE approach. $$ log(\mathcal{L}(\vec{T^{*}},\vec{P^{*}}|B,\Phi,r,Y_0))=\sum_{t=0} [log(\mathcal{L}_{binom}(T^{*}(t)|NT(B,\Phi,Y(t;r,Y_0),T(B,\Phi,Y(t;r,Y_0)))\\+log(\mathcal{L}_{binom}(P^{*}(t)|NT(B,\Phi,Y(t;r,Y_0)),P(B,\Phi,Y(t;r,Y_0)))]$$
 
 -   bbmle::mle2: Being able to inference the real value pretty well if initialized near the real value. However, if the initial value gets far away from real value, mle2 sometimes is not able to recover $Y_0$ and $\Phi$ as good as $B$ and $r$.
-    -   Sometimes give negative $\Phi$ for HR method. 
+    -   Sometimes give negative $\Phi$ for HR method.
 
+### New fitting based on positive and negative tests
+
+Converted based on [`OR_Sim.md`](OR_Sim.md)
+
+If we don't allow for false readings, then
+
+-   Prevalence at time $t$ is $$Y(t)=\text{min}(Y_0 e^{rt},1)$$ to make sure it does not go exceed $1$ for large $r$.
+-   The number of infected population $N_{+}$ is binomial distributed with probability $Y$: $$N_{+}\sim \text{Binom}(N,Y)$$
+-   The number of uninfected population $N_{-}=N-N_{+}$.
+-   The number of positive tests $NT_{+}$ is just the number of positive people tested: $$NT_{+}\sim \text{Binom}(N_{+},T_Y)$$
+-   The number of negative tests $N T_{-}$ is just the number of negative people tested. $$NT_{-} \sim \text{Binom}(N(1-Y), T_B)$$
+-   $T=T_{+} + T_{-}$
+
+So the most straightforward way to calculate the likelihood of observation of both $T^{*}$ and $P^{*}=\frac{T^{*}_+}{T^{*}}$ is $$dbinom(NT^{*}_{+}, N_{+}, T_Y) \times dbinom(NT^{*}_{-}, N_{-}, T_B)$$ where $Y$ and $(1-Y)$ come from the current simulation, the $T_Y$ and $T_B$ come from the parameters, and the $T^{*}_{+}$ and $T^{*}_{-}$ come from the “data”. (??) So we don't need to simulate tests in the current simulation.
+
+This clarifies also that the most likely way for the model to fall off the cliff would be if the number of positive tests $NT^{*}_{+}$ (from the “data”) exceeds number of positive people $N*Y$ (from the current simulation). This could happen if $r<<r^{*}$ and/or $Y_0 << Y_0^{*}$ in exponential growth. - (??)Generate an error message.
+
+It's not obvious what is the best way to simulate number infected (Number of positive $N_{+}$): we want it to be a whole number. Seems almost easier to simulate with dynamical noise (formerly known as process error), but I'm sticking with binomial observation noise for now.
 
 ## Potential next steps
 
 -   1 a): Keep $B$, $\Phi$ as constant and derive infectious dynamics with SIR like model with seasonal forcing
+
     -   Alex's Stuff
     -   MCMC approach reference??
-    
+
 -   1 b): derive $B(t)$ from some random walk approach
 
 -   1 c): assume $T$ is known as external factors and $B(t)$ as a variable is derived accordingly.
