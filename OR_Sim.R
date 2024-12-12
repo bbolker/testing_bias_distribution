@@ -84,7 +84,7 @@ mle_out_debug <- try(mle2(LL
                           ## ,method = "Nelder-Mead"
 ))
 warnings()
-r
+print(r)
 mle_out_debug
 # mle_out_NM <- update(mle_out, method = "Nelder-Mead")
 
