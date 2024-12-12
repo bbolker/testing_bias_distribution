@@ -1,3 +1,4 @@
+
 library(dplyr)
 library(tidyr)
 library(ggplot2); theme_set(theme_bw())
@@ -27,15 +28,15 @@ pts <- length(t)
 
 ## Simulate the data
 dat <- tibble(t=t
-	, Y = pmin(Y_0*exp(r*t), 1)
-	## , NY = rbinom(pts, N, Y)
-	, NY = round(N*Y)
+	, pY = pmin(Y_0*exp(r*t), 1)
+	## , NY = rbinom(pts, N, pY)
+	, NY = round(N*pY)
 	, posTests = rbinom(pts, NY, T_Y)
 	, negTests = rbinom(pts, N-NY, T_B)
 )
 
 long_dat <- (dat
-	|> select(-Y)
+	|> select(-pY)
 	|> pivot_longer(-t)
 )
 
@@ -46,33 +47,32 @@ long_dat <- (dat
 # )
 
 ### function to calculate negative log-likelihood:
-nll <- function(B,Phi,logY_0,r,dat,N,tmax){
+LL <- function(B,Phi,logY_0,r,dat,N,tmax){
 	Y_0 <- exp(logY_0)
   T_B <- B/(1+B)
   T_Y <- B*Phi/(1+B*Phi)
   t <- c(0:tmax)
   pts <- length(t)
-  Ynull = Y_0*exp(r*t) ## Going to truncate here for now; should we change sim instead?
   ### simulated time series
   sim <- tibble(t=t
-                # , Y = 1-exp(-Ynull)
-                , Y = pmin(Ynull, 1)
-                , NY = round(N*Y)
-                # , NY = rbinom(pts, N, Y)
+                , pY = pmin(Y_0*exp(r*t), 1)
+                ### round here???
+                , NY = round(N*pY)
+                # , NY = rbinom(pts, N, pY)
   )
-  if (max(sim$NY<dat$posTests)) cat("Positive tests exceed infected population", "\n")
-  if (max((N-sim$NY)<dat$negTests)) cat("Negative tests exceed uninfected population", "\n")
+  if (max(sim$NY<dat$posTests)) cat("Underestimated infected population, positive tests exceed infected population", "\n")
+  if (max((N-sim$NY)<dat$negTests)) cat("Overestimated infected population, negative tests exceed uninfected population", "\n")
   out <- (-sum(dbinom(dat$posTests, sim$NY, T_Y,log = TRUE))
           -sum(dbinom(dat$negTests,N-sim$NY,T_B,log = TRUE)))
   return(out)
 }
 
-real_ML<-nll(B,Phi,log(Y_0),r,dat,N,tmax)
+real_ML<-LL(B,Phi,log(Y_0),r,dat,N,tmax)
 real_ML
 
-print(nll(B,Phi,log(0.5),0.0,dat,N,tmax))
+LL(0.05,Phi,log(Y_0),0.2,dat,N,tmax)
 
-mle_out_debug <- try(mle2(nll
+mle_out_debug <- try(mle2(LL
                           ,start = list(B=B
                                         ,Phi=Phi
                                         ,logY_0=log(Y_0)
@@ -81,8 +81,10 @@ mle_out_debug <- try(mle2(nll
                                        ,N=N
                                        ,tmax=tmax)
                           ,control = list(maxit=10000)
-                          ,method = "Nelder-Mead"
+                          ## ,method = "Nelder-Mead"
 ))
 warnings()
+r
+mle_out_debug
+# mle_out_NM <- update(mle_out, method = "Nelder-Mead")
 
-print(mle_out_debug)
