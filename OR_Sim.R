@@ -47,7 +47,7 @@ long_dat <- (dat
 # )
 
 ### function to calculate negative log-likelihood:
-LL <- function(B,Phi,logY_0,r,dat,N,tmax){
+LL <- function(B,Phi,logY_0,r,dat,N,tmax, debug = TRUE){
 	Y_0 <- exp(logY_0)
   T_B <- B/(1+B)
   T_Y <- B*Phi/(1+B*Phi)
@@ -62,8 +62,11 @@ LL <- function(B,Phi,logY_0,r,dat,N,tmax){
   )
   if (max(sim$NY<dat$posTests)) cat("Underestimated infected population, positive tests exceed infected population", "\n")
   if (max((N-sim$NY)<dat$negTests)) cat("Overestimated infected population, negative tests exceed uninfected population", "\n")
-  out <- (-sum(dbinom(dat$posTests, sim$NY, T_Y,log = TRUE))
-          -sum(dbinom(dat$negTests,N-sim$NY,T_B,log = TRUE)))
+  postest_nll <- -sum(dbinom(dat$posTests, sim$NY, T_Y,log = TRUE))
+  negtest_nll <- -sum(dbinom(dat$negTests,N-sim$NY,T_B,log = TRUE))
+  out <- postest_nll + negtest_nll
+  if (debug) cat(B, Phi, logY_0, r, postest_nll, negtest_nll,
+                 out, "\n")
   return(out)
 }
 
@@ -72,17 +75,25 @@ real_ML
 
 LL(0.05,Phi,log(Y_0),0.2,dat,N,tmax)
 
-mle_out_debug <- try(mle2(LL
-                          ,start = list(B=B
-                                        ,Phi=Phi
-                                        ,logY_0=log(Y_0)
-                                        ,r=r)
-                          ,data = list(dat=dat
-                                       ,N=N
-                                       ,tmax=tmax)
-                          ,control = list(maxit=10000)
-                          ## ,method = "Nelder-Mead"
-))
+mle_out_debug <- try(
+    
+    mle2(LL
+        ,start = list(B=B
+                     ,Phi=Phi
+                     ,logY_0=log(Y_0)
+                     ,r=r)
+        ,data = list(dat=dat
+                    ,N=N
+                    ,tmax=tmax)
+        ,control = list(maxit=10000, parscale = c(B, Phi, log(Y_0), r))
+       , method = "Nelder-Mead"
+         )
+
+)
+
+## final value:
+## 0.04169482 23.91323 -9.2344 0.232682 76.43475 136.2932 212.7279
+
 warnings()
 print(r)
 mle_out_debug
