@@ -221,7 +221,7 @@ We use similar notation with Hazard idea:
 
 -   $\Phi$ is the (constant) odds ratio (strength of the association) between test probabilities of positive and negative people. $$\Phi=\frac{\frac{T_Y}{1-T_Y}}{\frac{T_B}{1-T_B}}=\frac{\frac{T_Y}{1-T_Y}}{B} \Leftrightarrow \Phi B= \frac{T_Y}{1-T_Y} \Leftrightarrow T_Y=\frac{B\Phi}{1+B\Phi}$$
 
-    -   $T_Y$ is the probability of infected/positive individual being test.
+    -   $T_Y$ is the probability of infected/positive individual being tested.
 
     -   **Constraint** $\Phi>1$
 
