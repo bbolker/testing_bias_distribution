@@ -302,13 +302,13 @@ Converted based on [`OR_Sim.md`](OR_Sim.md)
 If we don't allow for false readings, then
 
 -   Prevalence at time $t$ is $$Y(t)=\text{min}(Y_0 e^{rt},1)$$ to make sure it does not go exceed $1$ for large $r$.
--   The number of infected population $N_{+}$ is binomial distributed with probability $Y$: $$N_{+}\sim \text{Binom}(N,Y)$$
+-   The number of infected population $N_{+}$ is based on probability $Y$: $$N_{+}= [NY]$$
 -   The number of uninfected population $N_{-}=N-N_{+}$.
 -   The number of positive tests $NT_{+}$ is just the number of positive people tested: $$NT_{+}\sim \text{Binom}(N_{+},T_Y)$$
 -   The number of negative tests $N T_{-}$ is just the number of negative people tested. $$NT_{-} \sim \text{Binom}(N(1-Y), T_B)$$
 -   $T=T_{+} + T_{-}$
 
-So the most straightforward way to calculate the likelihood of observation of both $T^{*}$ and $P^{*}=\frac{T^{*}_+}{T^{*}}$ is $$dbinom(NT^{*}_{+}, N_{+}, T_Y) \times dbinom(NT^{*}_{-}, N_{-}, T_B)$$ where $Y$ and $(1-Y)$ come from the current simulation, the $T_Y$ and $T_B$ come from the parameters, and the $T^{*}_{+}$ and $T^{*}_{-}$ come from the “data”. (??) So we don't need to simulate tests in the current simulation.
+So the most straightforward way to calculate the likelihood of observation of both $T^{*}$ and $P^{*}=\frac{T^{*}_+}{T^{*}}$ is $$dbinom(NT^{*}_{+}, N_{+}, T_Y) \times dbinom(NT^{*}_{-}, N_{-}, T_B)$$ where $Y$ and $(1-Y)$ come from the current simulation, the $T_Y$ and $T_B$ come from the parameters, and the $T^{*}_{+}$ and $T^{*}_{-}$ come from the “data”. So we don't need to simulate tests in the current simulation.
 
 This clarifies also that the most likely way for the model to fall off the cliff would be if the number of positive tests $NT^{*}_{+}$ (from the “data”) exceeds number of positive people $N*Y$ (from the current simulation). This could happen if $r<<r^{*}$ and/or $Y_0 << Y_0^{*}$ in exponential growth.
 
