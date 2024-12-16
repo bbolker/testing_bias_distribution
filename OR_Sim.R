@@ -123,11 +123,22 @@ fit1 <- mle2(LL
 print(real_ML)
 print(-1*logLik(fit1))
 
+## re-do Hessian calculation with optimHess() ...
+fix_hessian <- function(fit) {
+    ## construct vectorized log-likelihood function
+    lfun <- function(p) {
+        do.call(c(as.list(p), fit@data), what = fit@minuslogl)
+    }
+    hh <- optimHess(coef(fit), fn = lfun)
+    fit@vcov <- solve(hh)
+    return(fit)
+}
+
+fit1H <- fix_hessian(fit1)
+summary(fit1H)
+
 ## now try optimHess to see why we get NA values ...
 
-lfun <- function(p) {
-    do.call(c(as.list(p), fit1@data), what = fit1@minuslogl)
-}
 
 fit1@details$hessian
 ## hmm, we get a finite hessian from this ...
