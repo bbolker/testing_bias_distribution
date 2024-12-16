@@ -104,27 +104,42 @@ LL(log(0.05),log(Phi),log(Y_0),0.2,dat,N,tmax)
 
 LLhist <- numeric(0)
 fit1 <- mle2(LL
-        ,start = list(log_B=log(B)
-                     ,log_Phi=log(Phi)
-                     ,logY_0=log(Y_0)
-                     ,r=r)
-        ,data = list(dat=dat
-                    ,N=N
-                    ,tmax=tmax
-                     , debug = FALSE)
-        ,control = list(maxit=10000
-                        ## , parscale = c(B, Phi, log(Y_0), r)
-                        )
-       , method = "Nelder-Mead"
-        , skip.hessian = TRUE)
+        , start = list(log_B=log(B)
+                     , log_Phi=log(Phi)
+                     , logY_0=log(Y_0)
+                     , r=r)
+        , data = list(dat=dat
+                    , N=N
+                    , tmax=tmax
+                    , debug = FALSE)
+        , control = list(maxit=10000
+                       , parscale = c(log(B), log(Phi), log(Y_0), r)
+                         )
+        , method = "Nelder-Mead"
+        , skip.hessian = FALSE  ## TRUE to skip Hessian calculation ...
+          )
 
-
+## ?? not getting Re(ev) error any more?
 print(real_ML)
 print(-1*logLik(fit1))
 
 ## now try optimHess to see why we get NA values ...
 
-## optimHess(coef(fit1), fn = fit1@minuslogl)
+lfun <- function(p) {
+    do.call(c(as.list(p), fit1@data), what = fit1@minuslogl)
+}
+
+fit1@details$hessian
+## hmm, we get a finite hessian from this ...
+hh <- optimHess(coef(fit1), fn = lfun)
+vv <- solve(hh)
+print(cov2cor(vv))
+print(sdvec <- sqrt(diag(vv)))
+
+## mle2 uses numDeriv::hessian() internally instead of optimHess() ...
+numDeriv::hessian(lfun, coef(fit1))
 
 warnings()
+
+## still not sure why it's so hard to get a valid Hessian ...
 
