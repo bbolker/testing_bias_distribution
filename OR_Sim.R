@@ -6,7 +6,7 @@ library(viridis)
 library(bbmle)
 
 # Set Seeds
-set.seed(13521)
+set.seed(13519)
 
 ## Initial true values:
 T_B <- 0.04               ## uninf testing prob
@@ -116,12 +116,13 @@ fit1 <- mle2(LL
                        , parscale = c(log(B), log(Phi), log(Y_0), r)
                          )
         , method = "Nelder-Mead"
-        , skip.hessian = FALSE  ## TRUE to skip Hessian calculation ...
+        , skip.hessian = TRUE  ## TRUE to skip Hessian calculation ...
           )
 
 ## ?? not getting Re(ev) error any more?
 print(real_ML)
 print(-1*logLik(fit1))
+
 
 ## re-do Hessian calculation with optimHess() ...
 fix_hessian <- function(fit) {
@@ -142,6 +143,8 @@ summary(fit1H)
 
 fit1@details$hessian
 ## hmm, we get a finite hessian from this ...
+
+quit()
 hh <- optimHess(coef(fit1), fn = lfun)
 vv <- solve(hh)
 print(cov2cor(vv))

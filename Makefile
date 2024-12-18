@@ -12,8 +12,6 @@ Ignore = target.mk
 ## log-diff_simp-log_simp.png
 ## Test_positivity_vs_test_proportion_phi_inc.png
 
-## OR_Sim-Fit.Rout: OR_Sim-Fit.R
-
 ## OR_Sim.Rout: OR_Sim.R OR_Sim.md
 
 ######################################################################
