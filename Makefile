@@ -69,8 +69,8 @@ or.mac.tex: or.mac.out mactex.pl
 
 ######################################################################
 
-## Canada data repo; developing now for MD talk. Need to clean up at some point
-
+## Link the Canada surveillance data
+Sources += rvdss.md
 Ignore += rvdss_canada
 rvdss_canada.update: | rvdss_canada
 	cd $| && git pull
@@ -78,15 +78,24 @@ rvdss_canada:
 	git clone https://github.com/dajmcdon/rvdss-canada $@
 rvdss_canada/data: | rvdss_canada ;
 
-Ignore += detections.csv
-## Can't easily be processed together bc pdm09 stuff changes (maybe other stuff as well)
-detections.csv: rvdss_canada/data
-	cat $</data/season*/respiratory_detections.csv > $@
+######################################################################
 
-## Just summarizing right now
-## We have 12 years of two major things plus hcov; only 1.5 years of sars afaict
+## Describe the respiratory_detections files
+## detections.Rout.tsv: detections.R 
+## TODO make a mappings file to simplify test names
 detections.Rout: detections.R $(wildcard rvdss_canada/data/season*/respiratory_detections.csv)
 	$(pipeR)
+
+######################################################################
+
+## Not touched since MD Brin talk.
+
+## We have 12 years of two major things plus hcov; only 1.5 years of sars afaict
+
+Ignore += detections.csv
+## Can't easily be processed together bc pdm09 stuff changes (maybe other stuff as well)
+detections.csv: rvdss_canada rvdss_canada/data
+	cat $</data/season*/respiratory_detections.csv > $@
 
 ## Playing around only (2024 flu year is over) 
 lastYear.Rout: lastYear.R rvdss_canada/data/*_*_2024/respiratory_detections.csv
