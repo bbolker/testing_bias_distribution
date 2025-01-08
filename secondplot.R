@@ -3,6 +3,7 @@ library(ggplot2); theme_set(theme_classic(base_size=15))
 
 library(shellpipes)
 loadEnvironments()
+startGraphics()
 
 summary(new)
 
@@ -15,5 +16,6 @@ base <- (ggplot(new |> filter(name != "tests"))
 	## + guides(colour="none")
 )
 
-print(base)
-
+print(base
+	+ theme(panel.grid.major = element_line())
+)
