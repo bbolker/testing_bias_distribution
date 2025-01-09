@@ -81,10 +81,11 @@ rvdss_canada/data: | rvdss_canada ;
 ######################################################################
 
 ## Describe the respiratory_detections files
-## detections.Rout.tsv: detections.R 
+## detections.Rout.tsv: detections.R  vnames.tsv
 ## TODO make a mappings file to simplify test names
-detections.Rout: detections.R $(wildcard rvdss_canada/data/season*/respiratory_detections.csv)
+detections.Rout: detections.R vnames.tsv
 	$(pipeR)
+detections.Rout: $(wildcard rvdss_canada/data/season*/respiratory_detections.csv)
 
 ######################################################################
 

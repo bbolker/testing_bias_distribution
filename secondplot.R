@@ -17,5 +17,9 @@ base <- (ggplot(new |> filter(name != "tests"))
 )
 
 print(base
-	+ theme(panel.grid.major = element_line())
+	+ theme(
+		panel.grid.major = element_line()
+		, strip.background = element_blank()
+		## , strip.text.x = element_blank()
+	)
 )

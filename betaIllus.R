@@ -1,5 +1,6 @@
 library(shellpipes)
 
+## This is a base-plot, side-effect function
 bpic <- function(P, T, kap, xtext=0.9, ytext=0.5, yoff=0.1){
 
 	alp = 1/(kap*(1-P))
@@ -21,6 +22,8 @@ bpic <- function(P, T, kap, xtext=0.9, ytext=0.5, yoff=0.1){
 		, paste0("V = ", sprintf("%4.3f", V))
 		, paste0("C = ", sprintf("%4.3f", T*V))
 	))
+
+	abline(v=P, lty=2)
 }
 
 bpic(P=0.25, T=0.1, kap=0.1)
