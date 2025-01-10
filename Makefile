@@ -81,10 +81,12 @@ rvdss_canada/data/%: | rvdss_canada ;
 ######################################################################
 
 ## Describe the respiratory_detections files
-## detections.Rout.tsv: detections.R 
+Sources += vnames.tsv
+## detections.Rout.tsv: detections.R  vnames.tsv
 ## TODO make a mappings file to simplify test names
-detections.Rout: detections.R $(wildcard rvdss_canada/data/season*/respiratory_detections.csv)
+detections.Rout: detections.R vnames.tsv
 	$(pipeR)
+detections.Rout: $(wildcard rvdss_canada/data/season*/respiratory_detections.csv)
 
 ######################################################################
 
@@ -132,6 +134,7 @@ impmakeR += secondplot
 
 rvdssYears = 2014 2015 2016 2017 2018 2019 2020 2021 2022 2023 2024
 rvdssBrin = $(rvdssYears:%=%.twopath.firstplot.Rout.pdf)
+Ignore += rvdssBrin.pdf
 rvdssBrin.pdf: $(rvdssBrin)
 	$(pdfcat)
 
