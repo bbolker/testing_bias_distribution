@@ -39,7 +39,7 @@ Sources += betaParams.md simple.md README.md
 ## If people don't object to having make install makestuff, you can activate the 00.stamp line below and this stuff will work.
 ## Or we could make more simple rules like those above
 
-autopipeR = defined
+## autopipeR = defined
 
 Sources += $(wildcard *.R)
 
@@ -76,7 +76,7 @@ rvdss_canada.update: | rvdss_canada
 	cd $| && git pull
 rvdss_canada:
 	git clone https://github.com/dajmcdon/rvdss-canada $@
-rvdss_canada/data: | rvdss_canada ;
+rvdss_canada/data/%: | rvdss_canada ;
 
 ######################################################################
 
