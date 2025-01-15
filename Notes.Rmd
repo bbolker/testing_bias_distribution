@@ -13,7 +13,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Notes for Testing_distrib
+# Notes for Testing_distribution
 
 ## Beta Distribution
 
