@@ -125,6 +125,41 @@ print(real_ML)
 print(-1*logLik(fit1))
 
 
+### Testing with parameters away from real value
+# param <- list(log_B=log(0.02), log_Phi=log(Phi), logY_0=log(Y_0), r=r)
+
+param <- list(log_B=log(0.07), log_Phi=log(Phi), logY_0=log(Y_0), r=r)
+## convergence failure: code=10 (degenerate Nelder-Mead simplex)
+
+# param <- list(log_B=log(B), log_Phi=log(Phi+10), logY_0=log(Y_0), r=r)
+## convergence failure: code=10 (degenerate Nelder-Mead simplex)
+
+# param <- list(log_B=log(B), log_Phi=log(Phi-15), logY_0=log(Y_0), r=r)
+
+# param <- list(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0+1e-4), r=r)
+## sensitive to Y_0: Phi is larger
+
+fit2 <- do.call(mle2,list(LL
+                  , start = param
+                  , data = list(dat=dat
+                                , N=N
+                                , tmax=tmax
+                                , debug = FALSE
+                                , debug_plot = FALSE)
+                  , control = list(maxit=10000
+                                   ### parscale??
+                                   #, parscale = c(log(B), log(Phi), log(Y_0), r)
+                  )
+                  , method = "Nelder-Mead"
+                  , skip.hessian = TRUE  ## TRUE to skip Hessian calculation ...
+))
+
+print(real_ML)
+print(-1*logLik(fit2))
+print(fit2)
+summary(fit2)
+
+
 ## re-do Hessian calculation with optimHess() ...
 fix_hessian <- function(fit) {
     ## construct vectorized log-likelihood function
@@ -136,8 +171,8 @@ fix_hessian <- function(fit) {
     return(fit)
 }
 
-fit1H <- fix_hessian(fit1)
-summary(fit1H)
+fit2H <- fix_hessian(fit2)
+summary(fit2H)
 
 ## now try optimHess to see why we get NA values ...
 
