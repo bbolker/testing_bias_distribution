@@ -17,14 +17,14 @@ Phi <- (T_Y/(1-T_Y))/B    ## inf vs uninf testing odds ratio
 print(B)
 print(Phi)
 
-Y_0 <- 1e-4     ## initial prevalence
-N <- 1e6        ## pop size
-NY_0 <- N*Y_0   ## initial number infected
+Y_0 <- 1e-4      ## initial prevalence
+N <- 1e6         ## pop size
+NY_0 <- N*Y_0    ## initial number infected
 
-r <- log(2)/3   ## growth rate (doubling time = 3)
-tmax <- 19
+r <- log(2)/3    ## growth rate (doubling time = 3)
+tmax <- 19       ## max simulation time
 t <- c(0:tmax)
-pts <- length(t)
+pts <- length(t) ## number of time points
 
 ## Simulate the data
 dat <- tibble(t=t
@@ -113,7 +113,8 @@ fit1 <- mle2(LL
                     , tmax=tmax
                     , debug = FALSE)
         , control = list(maxit=10000
-                       , parscale = c(log(B), log(Phi), log(Y_0), r)
+                         ### parscale??
+                       #, parscale = c(log(B), log(Phi), log(Y_0), r)
                          )
         , method = "Nelder-Mead"
         , skip.hessian = TRUE  ## TRUE to skip Hessian calculation ...
