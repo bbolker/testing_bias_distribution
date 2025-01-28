@@ -19,14 +19,17 @@ print(names(dl))
 ## Names of data _fields
 fields <- map(dl, names) |> unname() |> unlist() |> unique()
 corr <- tsvRead()
+print(problems(corr))
 for (r in 1:nrow(corr)){
 	fields <- sub(corr[[r, "pat"]], corr[[r, "rep"]], fields)
 }
 
 testFields <- grep("_tests", fields, value=TRUE)
+## testFields <- sub("_tests", "", testFields)
 confFields <- grep("_positive_tests", testFields, value=TRUE)
 testFields <- setdiff(testFields, confFields)
 
-tsvSave(arrange(data.frame(confFields)))
+virus <- confFields |> unique() |> sort()
+tsvSave(data.frame(virus))
 print(testFields)
  
