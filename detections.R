@@ -28,6 +28,7 @@ for (r in 1:nrow(corr)){
 testFields <- grep("_tests", fields, value=TRUE)
 ## testFields <- sub("_tests", "", testFields)
 confFields <- grep("_positive_tests", testFields, value=TRUE)
+confFields <- sub("_positive_tests", "", confFields)
 testFields <- setdiff(testFields, confFields)
 
 virus <- confFields |> unique() |> sort()
