@@ -5,7 +5,8 @@ library(purrr)
 library(readr)
 library(dplyr)
 
-dl <- csvReadList(na = c("", "NA", "N.R"))
+navalues <- c("", "NA", "N.R", "not tested", "not available")
+dl <- csvReadList(na = navalues, show_col_types=FALSE)
 warn <- (map(dl, problems)
 	|> bind_rows(.id="file")
 )
@@ -18,7 +19,7 @@ print(names(dl))
 
 ## Names of data _fields
 fields <- map(dl, names) |> unname() |> unlist() |> unique()
-corr <- tsvRead()
+corr <- tsvRead(show_col_types=FALSE)
 print(problems(corr))
 for (r in 1:nrow(corr)){
 	fields <- sub(corr[[r, "pat"]], corr[[r, "rep"]], fields)
