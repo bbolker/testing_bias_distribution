@@ -261,10 +261,24 @@ And try to fit both $T$ and $P$ as independent(???), trying to inference $(B,\Ph
 
 ### Exponential Growth Prevalence
 
-Consider a population with size $N$. Starting with a exponential growth model for $Y$: $$Y(Y_0,r,t)=\frac{Y_0}{N} e^{r t} $$
+Consider a population with size $N$. Starting with a exponential growth model for $Y$: $$Y(Y_0,r,t)=Y_0 e^{r t} $$
 
--   $Y_0$ is the initial infection **number**
+-   $Y_0$ is the initial infection proportion
 -   $r$ is the growth rate.
+
+### Logistic Growth Prevalence
+
+To mitigate the problem in fitting caused by capping the exponential growth, we might want to consider the logistic growth model with carrying capacity $K=N$. Then the prevalence $Y$ is governed by the following ODE:$$dY/dt=rY(1-\frac{YN}{K})=rY(1-Y) $$
+
+-   initial condition $Y(0)=Y_0$ as the initial infection **proportion**
+
+-   $r$ is the growth rate.
+
+-   The solution would be:
+
+    $$
+    Y(Y_0,r,t)=\frac{1}{1+(\frac{1}{Y_0}-1)e^{-rt}}=\frac{Y_0}{Y_0+(1-Y_0)e^{-rt}}
+    $$
 
 Assume we know the real value $B=\tilde{B}$, $\Phi=\tilde{\Phi}$, $\tilde{Y_0}$ and $\tilde{r}$, then we can construct time series of prevalence $\tilde{Y}$, expected testing positivity $\tilde{P}$ and expected testing proportion $\tilde{T}$.
 
@@ -293,6 +307,7 @@ Based on what we known:
 Trying to find the best fit combination of ($\hat{B}$, $\hat{\Phi}$, $\hat{r}$ and $\hat{Y}_0$) using a MLE approach. $$ log(\mathcal{L}(\vec{T^{*}},\vec{P^{*}}|B,\Phi,r,Y_0))=\sum_{t=0} [log(\mathcal{L}_{binom}(T^{*}(t)|NT(B,\Phi,Y(t;r,Y_0),T(B,\Phi,Y(t;r,Y_0)))\\+log(\mathcal{L}_{binom}(P^{*}(t)|NT(B,\Phi,Y(t;r,Y_0)),P(B,\Phi,Y(t;r,Y_0)))]$$
 
 -   bbmle::mle2: Being able to inference the real value pretty well if initialized near the real value. However, if the initial value gets far away from real value, mle2 sometimes is not able to recover $Y_0$ and $\Phi$ as good as $B$ and $r$.
+
     -   Sometimes give negative $\Phi$ for HR method.
 
 ### New fitting based on positive and negative tests
@@ -301,11 +316,20 @@ Converted based on [`OR_Sim.md`](OR_Sim.md)
 
 If we don't allow for false readings, then
 
--   Prevalence at time $t$ is $$Y(t)=\text{min}(Y_0 e^{rt},1)$$ to make sure it does not go exceed $1$ for large $r$.
+-   For Exponential growth model, prevalence at time $t$ is $$Y(t)=\text{min}(Y_0 e^{rt},1)$$ to make sure it does not go exceed $1$ for large $r$.
+
+-   For Logistic growth model, prevalence at time $t$ is
+
+    $$Y(Y_0,r,t)=\frac{1}{1+(1/Y_0-1)e^{-rt}}$$
+
 -   The number of infected population $N_{+}$ is based on probability $Y$: $$N_{+}= [NY]$$
+
 -   The number of uninfected population $N_{-}=N-N_{+}$.
+
 -   The number of positive tests $NT_{+}$ is just the number of positive people tested: $$NT_{+}\sim \text{Binom}(N_{+},T_Y)$$
+
 -   The number of negative tests $N T_{-}$ is just the number of negative people tested. $$NT_{-} \sim \text{Binom}(N_{-}, T_B)$$
+
 -   $T=T_{+} + T_{-}$
 
 So the most straightforward way to calculate the likelihood of observation of both $T^{*}$ and $P^{*}=\frac{T^{*}_+}{T^{*}}$ is $$dbinom(NT^{*}_{+}, N_{+}, T_Y) \times dbinom(NT^{*}_{-}, N_{-}, T_B)$$ where $Y$ and $(1-Y)$ come from the current simulation, the $T_Y$ and $T_B$ come from the parameters, and the $T^{*}_{+}$ and $T^{*}_{-}$ come from the “data”. So we don't need to simulate tests in the current simulation.

@@ -31,29 +31,28 @@ true_param <- c("log_B"=log(B),"log_Phi"=log(Phi),"logY_0"=log(Y_0),"r"=r)
 
 ## Simulate the data
 dat <- tibble(t=t
-	## , pY = pmin(Y_0*exp(r*t), 1) ## Exponential growth
-	, pY = 1/(1+(1/Y_0-1)*exp(-r*t))
-	## , NY = rbinom(pts, N, pY)
-	, NY = round(N*pY)
-	, posTests = rbinom(pts, NY, T_Y)
-	, negTests = rbinom(pts, N-NY, T_B)
+	## , pY = pmin(Y_0*exp(r*t), 1)  ## Exponential growth
+	, pY = 1/(1+(1/Y_0-1)*exp(-r*t)) ## Prevalence based on Logistic growth
+	, T_prop = (1-pY)*T_B+pY*T_Y     ## Expected test proportion
+	, T_pos = pY*T_Y/T_prop          ## Expected test positivity
+	, OT = rpois(1,N*T_prop)         ## Observed number of test
 )
-dat
+print(dat,n=60)
 
-matplot(dat$t, dat[,-1], type = "l", log = "y")
-legend("center", col = 1:4, lty = 1:4,
-       legend = names(dat)[-1])
+# matplot(dat$t, dat[,-1], type = "l", log = "y")
+# legend("center", col = 1:4, lty = 1:4,
+#        legend = names(dat)[-1])
 
-long_dat <- (dat
-	|> select(-pY)
-	|> pivot_longer(-t)
-)
-
-print(ggplot(long_dat)
- 	+ aes(t, value, color=name)
- 	+ geom_line()
- 	+ scale_y_log10()
-)
+# long_dat <- (dat
+# 	|> select(-pY)
+# 	|> pivot_longer(-t)
+# )
+# 
+# print(ggplot(long_dat)
+#  	+ aes(t, value, color=name)
+#  	+ geom_line()
+#  	+ scale_y_log10()
+# )
 
 ### function to calculate negative log-likelihood:
 LL <- function(log_B, log_Phi, logY_0, r, dat, N, tmax, debug = TRUE,
@@ -132,7 +131,7 @@ print(real_ML)
 print(-1*logLik(fit1))
 
 coef(fit1)
-true_param
+init_param
 
 ### Testing with parameters away from real value
 
@@ -140,21 +139,21 @@ true_param
 # param <- list(log_B=log(0.01), log_Phi=log(Phi), logY_0=log(Y_0), r=r)
 # param <- list(log_B=log(0.1), log_Phi=log(Phi), logY_0=log(Y_0), r=r)
 
-## Identify true_param pretty well after shift to logistic.
+## Identify init_param pretty well after shift to logistic.
 ## Hessian still not work
 ## Converge problem does not repeat for t=59
 ## When t=39 fit1 convergence failure: code=10 (degenerate Nelder-Mead simplex)
-## However, fit2 works without error for t=39: conv problem is not necessary caused by initial values
+## However, fit2 works without error for t=39: conv problem is not necessary caused by initial condition
 
 ### Disturb Phi
 # param <- list(log_B=log(B), log_Phi=log(Phi+20), logY_0=log(Y_0), r=r)
 # param <- list(log_B=log(B), log_Phi=log(Phi-15), logY_0=log(Y_0), r=r)
-## Identify true_param pretty well after shift to logistic.
+## Identify init_param pretty well after shift to logistic.
 ## Converge problem does not repeat for t=59, t=39
 
 ### Disturb Y_0
 # param <- list(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0+2e-4), r=r)
-## Identify true_param pretty well after shift to logistic.
+## Identify init_param pretty well after shift to logistic.
 ## Converge problem does not repeat for t=59, t=39
 
 # param <- list(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0-5e-5), r=r)

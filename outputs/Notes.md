@@ -11,7 +11,7 @@ output:
 
 
 
-# Notes for Testing_distrib
+# Notes for Testing_distribution
 
 ## Beta Distribution
 
@@ -141,7 +141,7 @@ For simplicity we denote $B=e^{-b}$ and $\Phi=e^{-\phi}$, then we have $$ T_B=1-
 
 Consider we can observe testing positivity $P$ and testing proportion $T$ from data. Try to interpret previous function for $B$ (thus $b$) as a function depend on $T$, $Y$, $\Phi$.
 
-**(To be discussed)** $B$ can be seen as the behavioral(???) factor reflect public and administrative reaction to the endemic. They partially observe $Y$, and the testing probability is also limited by testing availability reflected by $T$. While $\Phi$ (thus $\phi$) is more about medical/biological factor of the infection and testing strategy, like the severity/clarity of the symptoms and if the test focus on high risk people
+**(To be discussed)** $B$ can be seen as the behavioralfactor reflect public and administrative reaction to the endemic. They partially observe $Y$, and the testing probability is also limited by testing availability reflected by $T$. While $\Phi$ (thus $\phi$) is more about medical/biological factor of the infection and testing strategy, like the severity/clarity of the symptoms and if the test focus on high risk people.
 
 **(To be discussed)** Interpretation of $B(T,Y,\Phi)$:
 
@@ -153,7 +153,7 @@ Consider we can observe testing positivity $P$ and testing proportion $T$ from d
 
     -   $T_B=1-B \downarrow$: the symptom of the disease is more clear/severe or the test is targeting more on high risk population, thus uninfected people is less likely of being tested
 
-    -   $T_Y=1-B\Phi ??=1-\frac{(1-T)\Phi}{1-Y(1-\Phi)}$: infected people are more likely to get tested (Not necessary???)
+    -   ??\$T_Y=1-B\\Phi =1-\\frac{(1-T)\\Phi}{1-Y(1-\\Phi)}\$: infected people are more likely to get tested (Not necessary???)
 
 Current simplify idea is assume $\phi$ is a constant for a certain period of time and in future it could be a function of $t$.
 
@@ -179,7 +179,7 @@ $$P=\frac{Y}{T}(1-B\Phi)=\frac{(1-B-T)(1-B\Phi)}{TB(1-\Phi)} $$ Seems does not r
 
 ## Odds Ratio
 
-New updates from @dushoff on Nov 19th on slides
+New updates from @dushoff on Nov 19th slides
 
 -   Hazard
     -   Pro(+): Usage is relatively easy to justify.
@@ -192,8 +192,8 @@ New updates from @dushoff on Nov 19th on slides
     -   Pro(+): Better behavior on both positive and negative interval
     -   Pro(+): Behave close to hazard in positive interval and close to log hazard in negative interval
     -   Pro(+): Still fairly easy to justify
-    -   Pro(+): (??) More flexible/nonlinear behavior
-    -   Con(-): Harder to compute
+    -   Pro(+): (??) More flexible/nonlinear behavior compare to Hazard based idea
+    -   Con(-): Harder for computation
 
 ### Assumptions and notations
 
@@ -211,17 +211,17 @@ We use similar notation with Hazard idea:
 
     -   $T_B$ be the baseline probability of uninfected/negative individual being tested. $$B=\frac{T_B}{1-T_B} \Leftrightarrow T_B=\frac{B}{1+B}$$
 
-    -   **Constraint** $B>0$
+    -   **Constraint:** $B>0$
 
     -   (??) Maybe for later we use $b=log(B)$ as parameterization
 
-    -   (??) Similar like hazard ratio, should $B$ be a constant as a result of behavior factor of testing? Or $B$ is a intermediate variable?
+    -   (??) Similar like hazard ratio, should $B$ be a constant as a result of behavior factor of testing? Or $B$ is a intermediate variable that change with $T,Y$?
 
 -   $\Phi$ is the (constant) odds ratio (strength of the association) between test probabilities of positive and negative people. $$\Phi=\frac{\frac{T_Y}{1-T_Y}}{\frac{T_B}{1-T_B}}=\frac{\frac{T_Y}{1-T_Y}}{B} \Leftrightarrow \Phi B= \frac{T_Y}{1-T_Y} \Leftrightarrow T_Y=\frac{B\Phi}{1+B\Phi}$$
 
-    -   $T_Y$ is the probability of infected/positive individual being test.
+    -   $T_Y$ is the probability of infected/positive individual being tested.
 
-    -   **Constraint** $\Phi>1$
+    -   **Constraint:** $\Phi>1$
 
     -   The probability $T_B$ is monotonically increase with corresponding odds.
 
@@ -255,14 +255,28 @@ And try to fit both $T$ and $P$ as independent(???), trying to inference $(B,\Ph
 
 # Simulation and Fitting
 
-## Simulation Phase: 
+## Simulation Phase:
 
 ### Exponential Growth Prevalence
 
-Consider a population with size $N$. Starting with a exponential growth model for $Y$: $$Y(Y_0,r,t)=\frac{Y_0}{N} e^{r t} $$
+Consider a population with size $N$. Starting with a exponential growth model for $Y$: $$Y(Y_0,r,t)=Y_0 e^{r t} $$
 
--   $Y_0$ is the initial infection **number**
+-   $Y_0$ is the initial infection proportion
 -   $r$ is the growth rate.
+
+### Logistic Growth Prevalence
+
+To mitigate the problem in fitting caused by capping the exponential growth, we might want to consider the logistic growth model with carrying capacity $K=N$. Then the prevalence $Y$ is governed by the following ODE:$$dY/dt=rY(1-\frac{YN}{K})=rY(1-Y) $$
+
+-   initial condition $Y(0)=Y_0$ as the initial infection **proportion**
+
+-   $r$ is the growth rate.
+
+-   The solution would be:
+
+    $$
+    Y(Y_0,r,t)=\frac{1}{1+(\frac{1}{Y_0}-1)e^{-rt}}=\frac{Y_0}{Y_0+(1-Y_0)e^{-rt}}
+    $$
 
 Assume we know the real value $B=\tilde{B}$, $\Phi=\tilde{\Phi}$, $\tilde{Y_0}$ and $\tilde{r}$, then we can construct time series of prevalence $\tilde{Y}$, expected testing positivity $\tilde{P}$ and expected testing proportion $\tilde{T}$.
 
@@ -272,7 +286,7 @@ We can then generate the data: time series for observed testing number $N T^{*}$
 
 -   $P^{*}$ is the observed testing positivity
 
--   For observed number of test, we assume: $$ NT^{*} \sim \text{binom}(N \tilde{T}, \tilde{T})$$
+-   For observed number of test, we assume: $$ NT^{*} \sim \text{Binom}(N \tilde{T}, \tilde{T})$$
 
 -   For observed number of positive test, we assume $$N T^{*} P^{*} \sim \text{Binom}(NT^{*},\tilde{P})$$
 
@@ -291,18 +305,50 @@ Based on what we known:
 Trying to find the best fit combination of ($\hat{B}$, $\hat{\Phi}$, $\hat{r}$ and $\hat{Y}_0$) using a MLE approach. $$ log(\mathcal{L}(\vec{T^{*}},\vec{P^{*}}|B,\Phi,r,Y_0))=\sum_{t=0} [log(\mathcal{L}_{binom}(T^{*}(t)|NT(B,\Phi,Y(t;r,Y_0),T(B,\Phi,Y(t;r,Y_0)))\\+log(\mathcal{L}_{binom}(P^{*}(t)|NT(B,\Phi,Y(t;r,Y_0)),P(B,\Phi,Y(t;r,Y_0)))]$$
 
 -   bbmle::mle2: Being able to inference the real value pretty well if initialized near the real value. However, if the initial value gets far away from real value, mle2 sometimes is not able to recover $Y_0$ and $\Phi$ as good as $B$ and $r$.
-    -   Sometimes give negative $\Phi$ for HR method. 
 
+    -   Sometimes give negative $\Phi$ for HR method.
+
+### New fitting based on positive and negative tests
+
+Converted based on [`OR_Sim.md`](OR_Sim.md)
+
+If we don't allow for false readings, then
+
+-   For Exponential growth model, prevalence at time $t$ is $$Y(t)=\text{min}(Y_0 e^{rt},1)$$ to make sure it does not go exceed $1$ for large $r$.
+
+-   For Logistic growth model, prevalence at time $t$ is
+
+    $$Y(Y_0,r,t)=\frac{1}{1+(1/Y_0-1)e^{-rt}}$$
+
+-   The number of infected population $N_{+}$ is based on probability $Y$: $$N_{+}= [NY]$$
+
+-   The number of uninfected population $N_{-}=N-N_{+}$.
+
+-   The number of positive tests $NT_{+}$ is just the number of positive people tested: $$NT_{+}\sim \text{Binom}(N_{+},T_Y)$$
+
+-   The number of negative tests $N T_{-}$ is just the number of negative people tested. $$NT_{-} \sim \text{Binom}(N_{-}, T_B)$$
+
+-   $T=T_{+} + T_{-}$
+
+So the most straightforward way to calculate the likelihood of observation of both $T^{*}$ and $P^{*}=\frac{T^{*}_+}{T^{*}}$ is $$dbinom(NT^{*}_{+}, N_{+}, T_Y) \times dbinom(NT^{*}_{-}, N_{-}, T_B)$$ where $Y$ and $(1-Y)$ come from the current simulation, the $T_Y$ and $T_B$ come from the parameters, and the $T^{*}_{+}$ and $T^{*}_{-}$ come from the “data”. So we don't need to simulate tests in the current simulation.
+
+This clarifies also that the most likely way for the model to fall off the cliff would be if the number of positive tests $NT^{*}_{+}$ (from the “data”) exceeds number of positive people $N*Y$ (from the current simulation). This could happen if $r<<r^{*}$ and/or $Y_0 << Y_0^{*}$ in exponential growth.
+
+-   For this case, the code in [`OR_Sim.R`](OR_Sim.R) will generate an error message.
+
+It's not obvious what is the best way to simulate number infected (Number of positive $N_{+}$): we want it to be a whole number. Seems almost easier to simulate with dynamical noise (formerly known as process error), but we are sticking with binomial observation noise for now.
 
 ## Potential next steps
 
--   1 a): Keep $B$, $\Phi$ as constant and derive infectious dynamics with SIR like model with seasonal forcing
+-   Keep $B$, $\Phi$ as constant and derive infectious dynamics with SIR like model with seasonal forcing
+
     -   Alex's Stuff
     -   MCMC approach reference??
-    
--   1 b): derive $B(t)$ from some random walk approach
 
--   1 c): assume $T$ is known as external factors and $B(t)$ as a variable is derived accordingly.
+-   derive $B(t)$ from some random walk approach
+
+-   assume $T$ is known as external factors and $B(t)$ as a variable is derived accordingly.
+
 ## Related Positivity Bias Project with PHAC and PHO
 
 [`simple.md`](simple.md) gives a brief introduction to current ideas of the positivity Bias project with David C. or Kevin B.

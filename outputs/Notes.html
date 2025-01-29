@@ -357,8 +357,8 @@ display: none;
 </div>
 
 
-<div id="notes-for-testing_distrib" class="section level1">
-<h1>Notes for Testing_distrib</h1>
+<div id="notes-for-testing_distribution" class="section level1">
+<h1>Notes for Testing_distribution</h1>
 <div id="beta-distribution" class="section level2">
 <h2>Beta Distribution</h2>
 <p><a href="testing_distrib.rmd"><code>testing_distrib.rmd</code></a> is
@@ -577,13 +577,13 @@ bound.</li>
 </ul>
 <p>Consider we can observe testing positivity <span class="math inline">\(P\)</span> and testing proportion <span class="math inline">\(T\)</span> from data. Try to interpret previous
 function for <span class="math inline">\(B\)</span> (thus <span class="math inline">\(b\)</span>) as a function depend on <span class="math inline">\(T\)</span>, <span class="math inline">\(Y\)</span>, <span class="math inline">\(\Phi\)</span>.</p>
-<p><strong>(To be discussed)</strong> <span class="math inline">\(B\)</span> can be seen as the behavioral(???)
-factor reflect public and administrative reaction to the endemic. They
+<p><strong>(To be discussed)</strong> <span class="math inline">\(B\)</span> can be seen as the behavioralfactor
+reflect public and administrative reaction to the endemic. They
 partially observe <span class="math inline">\(Y\)</span>, and the
 testing probability is also limited by testing availability reflected by
 <span class="math inline">\(T\)</span>. While <span class="math inline">\(\Phi\)</span> (thus <span class="math inline">\(\phi\)</span>) is more about medical/biological
 factor of the infection and testing strategy, like the severity/clarity
-of the symptoms and if the test focus on high risk people</p>
+of the symptoms and if the test focus on high risk people.</p>
 <p><strong>(To be discussed)</strong> Interpretation of <span class="math inline">\(B(T,Y,\Phi)\)</span>:</p>
 <ul>
 <li><p><span class="math inline">\(T \uparrow \Rightarrow B \downarrow
@@ -600,9 +600,8 @@ decrease denominator:</p>
 symptom of the disease is more clear/severe or the test is targeting
 more on high risk population, thus uninfected people is less likely of
 being tested</p></li>
-<li><p><span class="math inline">\(T_Y=1-B\Phi
-??=1-\frac{(1-T)\Phi}{1-Y(1-\Phi)}\)</span>: infected people are more
-likely to get tested (Not necessary???)</p></li>
+<li><p>??$T_Y=1-B\Phi =1-\frac{(1-T)\Phi}{1-Y(1-\Phi)}$: infected people
+are more likely to get tested (Not necessary???)</p></li>
 </ul></li>
 </ul>
 <p>Current simplify idea is assume <span class="math inline">\(\phi\)</span> is a constant for a certain period
@@ -640,7 +639,7 @@ fitting. <span class="math display">\[T=(1-Y)(1-B)+Y(1-B\Phi)
 <div id="odds-ratio" class="section level2">
 <h2>Odds Ratio</h2>
 <p>New updates from <span class="citation">@dushoff</span> on Nov 19th
-on slides</p>
+slides</p>
 <ul>
 <li>Hazard
 <ul>
@@ -663,8 +662,9 @@ negative intervals.</li>
 <li>Pro(+): Behave close to hazard in positive interval and close to log
 hazard in negative interval</li>
 <li>Pro(+): Still fairly easy to justify</li>
-<li>Pro(+): (??) More flexible/nonlinear behavior</li>
-<li>Con(-): Harder to compute</li>
+<li>Pro(+): (??) More flexible/nonlinear behavior compare to Hazard
+based idea</li>
+<li>Con(-): Harder for computation</li>
 </ul></li>
 </ul>
 <div id="assumptions-and-notations-1" class="section level3">
@@ -686,11 +686,11 @@ of uninfected/negative being tested.</p>
 <li><p><span class="math inline">\(T_B\)</span> be the baseline
 probability of uninfected/negative individual being tested. <span class="math display">\[B=\frac{T_B}{1-T_B} \Leftrightarrow
 T_B=\frac{B}{1+B}\]</span></p></li>
-<li><p><strong>Constraint</strong> <span class="math inline">\(B&gt;0\)</span></p></li>
+<li><p><strong>Constraint:</strong> <span class="math inline">\(B&gt;0\)</span></p></li>
 <li><p>(??) Maybe for later we use <span class="math inline">\(b=log(B)\)</span> as parameterization</p></li>
 <li><p>(??) Similar like hazard ratio, should <span class="math inline">\(B\)</span> be a constant as a result of behavior
 factor of testing? Or <span class="math inline">\(B\)</span> is a
-intermediate variable?</p></li>
+intermediate variable that change with <span class="math inline">\(T,Y\)</span>?</p></li>
 </ul></li>
 <li><p><span class="math inline">\(\Phi\)</span> is the (constant) odds
 ratio (strength of the association) between test probabilities of
@@ -699,8 +699,8 @@ positive and negative people. <span class="math display">\[\Phi=\frac{\frac{T_Y}
 T_Y=\frac{B\Phi}{1+B\Phi}\]</span></p>
 <ul>
 <li><p><span class="math inline">\(T_Y\)</span> is the probability of
-infected/positive individual being test.</p></li>
-<li><p><strong>Constraint</strong> <span class="math inline">\(\Phi&gt;1\)</span></p></li>
+infected/positive individual being tested.</p></li>
+<li><p><strong>Constraint:</strong> <span class="math inline">\(\Phi&gt;1\)</span></p></li>
 <li><p>The probability <span class="math inline">\(T_B\)</span> is
 monotonically increase with corresponding odds.</p></li>
 <li><p>(??) <span class="math inline">\(\phi=log(\Phi)\)</span> later
@@ -758,11 +758,29 @@ MLE.</p>
 <div id="exponential-growth-prevalence" class="section level3">
 <h3>Exponential Growth Prevalence</h3>
 <p>Consider a population with size <span class="math inline">\(N\)</span>. Starting with a exponential growth
-model for <span class="math inline">\(Y\)</span>: <span class="math display">\[Y(Y_0,r,t)=\frac{Y_0}{N} e^{r t} \]</span></p>
+model for <span class="math inline">\(Y\)</span>: <span class="math display">\[Y(Y_0,r,t)=Y_0 e^{r t} \]</span></p>
 <ul>
 <li><span class="math inline">\(Y_0\)</span> is the initial infection
-<strong>number</strong></li>
+proportion</li>
 <li><span class="math inline">\(r\)</span> is the growth rate.</li>
+</ul>
+</div>
+<div id="logistic-growth-prevalence" class="section level3">
+<h3>Logistic Growth Prevalence</h3>
+<p>To mitigate the problem in fitting caused by capping the exponential
+growth, we might want to consider the logistic growth model with
+carrying capacity <span class="math inline">\(K=N\)</span>. Then the
+prevalence <span class="math inline">\(Y\)</span> is governed by the
+following ODE:<span class="math display">\[dY/dt=rY(1-\frac{YN}{K})=rY(1-Y) \]</span></p>
+<ul>
+<li><p>initial condition <span class="math inline">\(Y(0)=Y_0\)</span>
+as the initial infection <strong>proportion</strong></p></li>
+<li><p><span class="math inline">\(r\)</span> is the growth
+rate.</p></li>
+<li><p>The solution would be:</p>
+<p><span class="math display">\[
+Y(Y_0,r,t)=\frac{1}{1+(\frac{1}{Y_0}-1)e^{-rt}}=\frac{Y_0}{Y_0+(1-Y_0)e^{-rt}}
+\]</span></p></li>
 </ul>
 <p>Assume we know the real value <span class="math inline">\(B=\tilde{B}\)</span>, <span class="math inline">\(\Phi=\tilde{\Phi}\)</span>, <span class="math inline">\(\tilde{Y_0}\)</span> and <span class="math inline">\(\tilde{r}\)</span>, then we can construct time
 series of prevalence <span class="math inline">\(\tilde{Y}\)</span>,
@@ -777,7 +795,7 @@ P^{*}\)</span>.</p>
 testing proportion</p></li>
 <li><p><span class="math inline">\(P^{*}\)</span> is the observed
 testing positivity</p></li>
-<li><p>For observed number of test, we assume: <span class="math display">\[ NT^{*} \sim \text{binom}(N \tilde{T},
+<li><p>For observed number of test, we assume: <span class="math display">\[ NT^{*} \sim \text{Binom}(N \tilde{T},
 \tilde{T})\]</span></p></li>
 <li><p>For observed number of positive test, we assume <span class="math display">\[N T^{*} P^{*} \sim
 \text{Binom}(NT^{*},\tilde{P})\]</span></p></li>
@@ -797,31 +815,75 @@ testing positivity</p></li>
 log(\mathcal{L}(\vec{T^{*}},\vec{P^{*}}|B,\Phi,r,Y_0))=\sum_{t=0}
 [log(\mathcal{L}_{binom}(T^{*}(t)|NT(B,\Phi,Y(t;r,Y_0),T(B,\Phi,Y(t;r,Y_0)))\\+log(\mathcal{L}_{binom}(P^{*}(t)|NT(B,\Phi,Y(t;r,Y_0)),P(B,\Phi,Y(t;r,Y_0)))]\]</span></p>
 <ul>
-<li>bbmle::mle2: Being able to inference the real value pretty well if
-initialized near the real value. However, if the initial value gets far
-away from real value, mle2 sometimes is not able to recover <span class="math inline">\(Y_0\)</span> and <span class="math inline">\(\Phi\)</span> as good as <span class="math inline">\(B\)</span> and <span class="math inline">\(r\)</span>.
+<li><p>bbmle::mle2: Being able to inference the real value pretty well
+if initialized near the real value. However, if the initial value gets
+far away from real value, mle2 sometimes is not able to recover <span class="math inline">\(Y_0\)</span> and <span class="math inline">\(\Phi\)</span> as good as <span class="math inline">\(B\)</span> and <span class="math inline">\(r\)</span>.</p>
 <ul>
 <li>Sometimes give negative <span class="math inline">\(\Phi\)</span>
 for HR method.</li>
 </ul></li>
 </ul>
+<div id="new-fitting-based-on-positive-and-negative-tests" class="section level3">
+<h3>New fitting based on positive and negative tests</h3>
+<p>Converted based on <a href="OR_Sim.md"><code>OR_Sim.md</code></a></p>
+<p>If we don’t allow for false readings, then</p>
+<ul>
+<li><p>For Exponential growth model, prevalence at time <span class="math inline">\(t\)</span> is <span class="math display">\[Y(t)=\text{min}(Y_0 e^{rt},1)\]</span> to make
+sure it does not go exceed <span class="math inline">\(1\)</span> for
+large <span class="math inline">\(r\)</span>.</p></li>
+<li><p>For Logistic growth model, prevalence at time <span class="math inline">\(t\)</span> is</p>
+<p><span class="math display">\[Y(Y_0,r,t)=\frac{1}{1+(1/Y_0-1)e^{-rt}}\]</span></p></li>
+<li><p>The number of infected population <span class="math inline">\(N_{+}\)</span> is based on probability <span class="math inline">\(Y\)</span>: <span class="math display">\[N_{+}=
+[NY]\]</span></p></li>
+<li><p>The number of uninfected population <span class="math inline">\(N_{-}=N-N_{+}\)</span>.</p></li>
+<li><p>The number of positive tests <span class="math inline">\(NT_{+}\)</span> is just the number of positive
+people tested: <span class="math display">\[NT_{+}\sim
+\text{Binom}(N_{+},T_Y)\]</span></p></li>
+<li><p>The number of negative tests <span class="math inline">\(N
+T_{-}\)</span> is just the number of negative people tested. <span class="math display">\[NT_{-} \sim \text{Binom}(N_{-},
+T_B)\]</span></p></li>
+<li><p><span class="math inline">\(T=T_{+} + T_{-}\)</span></p></li>
+</ul>
+<p>So the most straightforward way to calculate the likelihood of
+observation of both <span class="math inline">\(T^{*}\)</span> and <span class="math inline">\(P^{*}=\frac{T^{*}_+}{T^{*}}\)</span> is <span class="math display">\[dbinom(NT^{*}_{+}, N_{+}, T_Y) \times
+dbinom(NT^{*}_{-}, N_{-}, T_B)\]</span> where <span class="math inline">\(Y\)</span> and <span class="math inline">\((1-Y)\)</span> come from the current simulation,
+the <span class="math inline">\(T_Y\)</span> and <span class="math inline">\(T_B\)</span> come from the parameters, and the
+<span class="math inline">\(T^{*}_{+}\)</span> and <span class="math inline">\(T^{*}_{-}\)</span> come from the “data”. So we
+don’t need to simulate tests in the current simulation.</p>
+<p>This clarifies also that the most likely way for the model to fall
+off the cliff would be if the number of positive tests <span class="math inline">\(NT^{*}_{+}\)</span> (from the “data”) exceeds
+number of positive people <span class="math inline">\(N*Y\)</span> (from
+the current simulation). This could happen if <span class="math inline">\(r&lt;&lt;r^{*}\)</span> and/or <span class="math inline">\(Y_0 &lt;&lt; Y_0^{*}\)</span> in exponential
+growth.</p>
+<ul>
+<li>For this case, the code in <a href="OR_Sim.R"><code>OR_Sim.R</code></a> will generate an error
+message.</li>
+</ul>
+<p>It’s not obvious what is the best way to simulate number infected
+(Number of positive <span class="math inline">\(N_{+}\)</span>): we want
+it to be a whole number. Seems almost easier to simulate with dynamical
+noise (formerly known as process error), but we are sticking with
+binomial observation noise for now.</p>
+</div>
 </div>
 <div id="potential-next-steps" class="section level2">
 <h2>Potential next steps</h2>
 <ul>
-<li><p>1 a): Keep <span class="math inline">\(B\)</span>, <span class="math inline">\(\Phi\)</span> as constant and derive infectious
+<li><p>Keep <span class="math inline">\(B\)</span>, <span class="math inline">\(\Phi\)</span> as constant and derive infectious
 dynamics with SIR like model with seasonal forcing</p>
 <ul>
 <li>Alex’s Stuff</li>
 <li>MCMC approach reference??</li>
 </ul></li>
-<li><p>1 b): derive <span class="math inline">\(B(t)\)</span> from some
-random walk approach</p></li>
-<li><p>1 c): assume <span class="math inline">\(T\)</span> is known as
+<li><p>derive <span class="math inline">\(B(t)\)</span> from some random
+walk approach</p></li>
+<li><p>assume <span class="math inline">\(T\)</span> is known as
 external factors and <span class="math inline">\(B(t)\)</span> as a
-variable is derived accordingly. ## Related Positivity Bias Project with
-PHAC and PHO</p></li>
+variable is derived accordingly.</p></li>
 </ul>
+</div>
+<div id="related-positivity-bias-project-with-phac-and-pho" class="section level2">
+<h2>Related Positivity Bias Project with PHAC and PHO</h2>
 <p><a href="simple.md"><code>simple.md</code></a> gives a brief
 introduction to current ideas of the positivity Bias project with David
 C. or Kevin B.</p>
