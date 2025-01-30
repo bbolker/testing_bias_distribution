@@ -5,6 +5,10 @@ library(ggplot2); theme_set(theme_bw())
 library(viridis)
 library(bbmle)
 
+# Sys.setenv(LANG = "en")
+# install.packages("remote")
+# remotes::install_github("bbolker/bbmle")
+# hessian.method = "optimHess"
 # Set Seeds
 set.seed(13519)
 
@@ -22,7 +26,7 @@ N <- 1e6         ## pop size
 NY_0 <- N*Y_0    ## initial number infected
 
 r <- log(2)/3    ## growth rate (doubling time = 3)
-tmax <- 59       ## max simulation time
+tmax <- 39       ## max simulation time
 t <- c(0:tmax)
 pts <- length(t) ## number of time points
 
@@ -124,6 +128,7 @@ fit1 <- mle2(LL
                        #, parscale = c(log(B), log(Phi), log(Y_0), r)
                          )
         , method = "Nelder-Mead"
+        #, hessian.method = "optimHess"
         , skip.hessian = TRUE  ## TRUE to skip Hessian calculation ...
           )
 
@@ -137,7 +142,7 @@ true_param
 ### Testing with parameters away from real value
 
 ### Disturb B
-# param <- list(log_B=log(0.01), log_Phi=log(Phi), logY_0=log(Y_0), r=r)
+param <- list(log_B=log(0.01), log_Phi=log(Phi), logY_0=log(Y_0), r=r)
 # param <- list(log_B=log(0.1), log_Phi=log(Phi), logY_0=log(Y_0), r=r)
 
 ## Identify true_param pretty well after shift to logistic.
@@ -167,17 +172,17 @@ true_param
 # param <- list(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0), r=r+0.2)
 ## function cannot be evaluated at initial parameters
 
-param <- list(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0), r=r+0.1)
+# param <- list(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0), r=r+0.1)
 ## t=39 not converging well, close but not enough log_lik=-547 while real param log_lik=-469
 ## increase maxit does not help
 ## t=59 function cannot be evaluated at initial parameters
 
-param <- list(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0), r=r+0.05)
+# param <- list(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0), r=r+0.05)
 ## indentify the init_param well
 
-param <- list(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0), r=r-0.2)
+# param <- list(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0), r=r-0.2)
 ## function cannot be evaluated at initial parameters
-param <- list(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0), r=r-0.02)
+# param <- list(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0), r=r-0.02)
 ## identify the init_param well
 ## sensitive to r
 
@@ -203,7 +208,7 @@ print(-1*logLik(fit2))
 #summary(fit2)
 param
 coef(fit2)
-## init_param
+true_param
 
 
 
