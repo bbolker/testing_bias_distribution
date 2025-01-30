@@ -288,7 +288,7 @@ We can then generate the data: time series for observed testing number $N T^{*}$
 
 -   $P^{*}$ is the observed testing positivity
 
--   For observed number of test, we assume: $$ NT^{*} \sim \text{Binom}(N \tilde{T}, \tilde{T})$$
+-   For observed number of test, we assume: $$ NT^{*} \sim \text{Binom}(N, \tilde{T})$$
 
 -   For observed number of positive test, we assume $$N T^{*} P^{*} \sim \text{Binom}(NT^{*},\tilde{P})$$
 

@@ -6,7 +6,7 @@ library(viridis)
 library(bbmle)
 
 # Set Seeds
-set.seed(13519)
+#set.seed(13519)
 
 ## Initial true values:
 T_B <- 0.04               ## uninf testing prob
@@ -31,11 +31,13 @@ true_param <- c("log_B"=log(B),"log_Phi"=log(Phi),"logY_0"=log(Y_0),"r"=r)
 
 ## Simulate the data
 dat <- tibble(t=t
-	## , pY = pmin(Y_0*exp(r*t), 1)  ## Exponential growth
-	, pY = 1/(1+(1/Y_0-1)*exp(-r*t)) ## Prevalence based on Logistic growth
-	, T_prop = (1-pY)*T_B+pY*T_Y     ## Expected test proportion
-	, T_pos = pY*T_Y/T_prop          ## Expected test positivity
-	, OT = rpois(1,N*T_prop)         ## Observed number of test
+	## , pY = pmin(Y_0*exp(r*t), 1)          ## Exponential growth
+	, pY = 1/(1+(1/Y_0-1)*exp(-r*t))         ## Prevalence based on Logistic growth
+	, T_prop = (1-pY)*T_B+pY*T_Y             ## Expected test proportion
+	, pos = pY*T_Y/T_prop                    ## Expected test positivity
+	, OT = rbinom(t,N,T_prop)                ## Observed number of test
+	, OP = rbinom(t,OT,pos)                  ## Observed number of positive test
+	### ?? Independence
 )
 print(dat,n=60)
 
@@ -43,10 +45,10 @@ print(dat,n=60)
 # legend("center", col = 1:4, lty = 1:4,
 #        legend = names(dat)[-1])
 
-# long_dat <- (dat
-# 	|> select(-pY)
-# 	|> pivot_longer(-t)
-# )
+long_dat <- (dat
+	|> select(-pY)
+	|> pivot_longer(-t)
+)
 # 
 # print(ggplot(long_dat)
 #  	+ aes(t, value, color=name)
@@ -66,20 +68,22 @@ LL <- function(log_B, log_Phi, logY_0, r, dat, N, tmax, debug = TRUE,
     pts <- length(t)
     ## simulated time series
     sim <- tibble(t=t
-                ##, pY = pmin(Y_0*exp(r*t), 1)
-                , pY = 1/(1+(1/Y_0-1)*exp(-r*t))
-                ### round here???
-                , NY = round(N*pY)
-                # , NY = rbinom(pts, N, pY)
-                )
+                  ## , pY = pmin(Y_0*exp(r*t), 1)          ## Exponential growth
+                  , pY = 1/(1+(1/Y_0-1)*exp(-r*t))         ## Prevalence based on Logistic growth
+                  , T_prop = (1-pY)*T_B+pY*T_Y             ## Expected test proportion
+                  , pos = pY*T_Y/T_prop                    ## Expected test positivity
+                  , ST = rbinom(t,N,T_prop)                ## Simulated number of test
+                  , SP = rbinom(t,dat$OT,pos)              ## Simulated number of positive test
+    ## dat$OT or ST for the size here?
+    )
     if(max(sim$pY) == 1 || any(sim$NY<dat$posTests) || any((N-sim$NY)<dat$negTests) || any(N<sim$NY)) return(NA)
 
-  if (any(sim$NY<dat$posTests)) {
-      cat("Underestimated infected population, pos tests > infected population", "\n")
-  }
-  if (any((N-sim$NY)<dat$negTests)) {
-      cat("Overestimated infected population, neg tests > uninfected population", "\n")
-  }
+  # if (any(sim$NY<dat$posTests)) {
+  #     cat("Underestimated infected population, pos tests > infected population", "\n")
+  # }
+  # if (any((N-sim$NY)<dat$negTests)) {
+  #     cat("Overestimated infected population, neg tests > uninfected population", "\n")
+  # }
   postest_nll <- -sum(dbinom(dat$posTests, sim$NY, T_Y, log = TRUE))
   negtest_nll <- -sum(dbinom(dat$negTests, N-sim$NY, T_B, log = TRUE))
   out <- postest_nll + negtest_nll
