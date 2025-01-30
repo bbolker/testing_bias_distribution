@@ -5,11 +5,9 @@ library(ggplot2); theme_set(theme_bw())
 library(viridis)
 library(bbmle)
 
-<<<<<<< HEAD
+
 # Sys.setenv(LANG = "en")
 # install.packages("remote")
-=======
->>>>>>> origin/main
 # remotes::install_github("bbolker/bbmle")
 # hessian.method = "optimHess"
 # Set Seeds
