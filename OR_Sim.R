@@ -203,7 +203,7 @@ print(-1*logLik(fit2))
 #summary(fit2)
 param
 coef(fit2)
-init_param
+## init_param
 
 
 
