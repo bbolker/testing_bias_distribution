@@ -10,14 +10,14 @@ dl <- csvReadList(na = navalues, show_col_types=FALSE)
 warn <- (map(dl, problems)
 	|> bind_rows(.id="file")
 )
-print(warn)
+stopifnot(nrow(warn)==0)
 
-## Names of data _sets_
+## Give data _sets_ short names by flu year.
 names(dl) <- sub(".*_[12][0-9]", "FY", names(dl))
 names(dl) <- sub("/.*", "", names(dl))
 print(names(dl))
 
-## Names of data _fields
+## Collect and simplify names of data _fields_
 fields <- map(dl, names) |> unname() |> unlist() |> unique()
 corr <- tsvRead(show_col_types=FALSE)
 print(problems(corr))
@@ -27,11 +27,12 @@ for (r in 1:nrow(corr)){
 
 testFields <- grep("_tests", fields, value=TRUE)
 ## testFields <- sub("_tests", "", testFields)
-confFields <- grep("_positive_tests", testFields, value=TRUE)
-confFields <- sub("_positive_tests", "", confFields)
-testFields <- setdiff(testFields, confFields)
+posFields <- grep("_positive_tests", testFields, value=TRUE)
+totFields <- setdiff(testFields, posFields)
 
-virus <- confFields |> unique() |> sort()
-tsvSave(data.frame(virus))
-print(testFields)
+posFields <- sub("_positive_tests", "", posFields)
+
+virus <- posFields |> unique() |> sort()
+tsvSave(data.frame(virus), ext="pos.Rout.tsv")
+print(totFields)
  
