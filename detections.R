@@ -31,8 +31,10 @@ posFields <- grep("_positive_tests", testFields, value=TRUE)
 totFields <- setdiff(testFields, posFields)
 
 posFields <- sub("_positive_tests", "", posFields)
+pos <- posFields |> unique() |> sort()
+tsvSave(data.frame(pos), ext="pos.Rout.tsv")
 
-virus <- posFields |> unique() |> sort()
-tsvSave(data.frame(virus), ext="pos.Rout.tsv")
-print(totFields)
+totFields <- sub("_tests", "", totFields)
+tot <- totFields |> unique() |> sort()
+tsvSave(data.frame(tot), ext="tot.Rout.tsv")
  

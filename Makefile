@@ -84,10 +84,14 @@ rvdss_canada/data/%: | rvdss_canada ;
 
 ## Describe the respiratory_detections files
 Sources += vnames.tsv
-## detections.Rout.tsv: detections.R  vnames.tsv
+## detections.tot.Rout.tsv: detections.R  vnames.tsv
+## detections.pos.Rout.tsv: detections.R  vnames.tsv
 detections.Rout: detections.R vnames.tsv
 	$(pipeR)
 detections.Rout: $(wildcard rvdss_canada/data/season*/respiratory_detections.csv)
+
+## Some notes
+Sources += rvdss.md
 
 ######################################################################
 
