@@ -1,3 +1,5 @@
+# Sys.setenv(LANG = "en")
+# remotes::install_github("bbolker/bbmle")
 
 library(dplyr)
 library(tidyr)
@@ -6,7 +8,7 @@ library(viridis)
 library(bbmle)
 
 # Set Seeds
-#set.seed(13519)
+set.seed(13519)
 
 ## Initial true values:
 T_B <- 0.04               ## uninf testing prob
@@ -22,7 +24,7 @@ N <- 1e6         ## pop size
 NY_0 <- N*Y_0    ## initial number infected
 
 r <- log(2)/3    ## growth rate (doubling time = 3)
-tmax <- 59       ## max simulation time
+tmax <- 39       ## max simulation time
 t <- c(0:tmax)
 pts <- length(t) ## number of time points
 
@@ -72,11 +74,8 @@ LL <- function(log_B, log_Phi, logY_0, r, dat, N, tmax, debug = TRUE,
                   , pY = 1/(1+(1/Y_0-1)*exp(-r*t))         ## Prevalence based on Logistic growth
                   , T_prop = (1-pY)*T_B+pY*T_Y             ## Expected test proportion
                   , pos = pY*T_Y/T_prop                    ## Expected test positivity
-                  , ST = rbinom(t,N,T_prop)                ## Simulated number of test
-                  , SP = rbinom(t,dat$OT,pos)              ## Simulated number of positive test
-    ## dat$OT or ST for the size here?
     )
-    if(max(sim$pY) == 1 || any(sim$NY<dat$posTests) || any((N-sim$NY)<dat$negTests) || any(N<sim$NY)) return(NA)
+  # if(max(sim$pY) == 1 || any(sim$NY<dat$posTests) || any((N-sim$NY)<dat$negTests) || any(N<sim$NY)) return(NA)
 
   # if (any(sim$NY<dat$posTests)) {
   #     cat("Underestimated infected population, pos tests > infected population", "\n")
@@ -84,25 +83,25 @@ LL <- function(log_B, log_Phi, logY_0, r, dat, N, tmax, debug = TRUE,
   # if (any((N-sim$NY)<dat$negTests)) {
   #     cat("Overestimated infected population, neg tests > uninfected population", "\n")
   # }
-  postest_nll <- -sum(dbinom(dat$posTests, sim$NY, T_Y, log = TRUE))
-  negtest_nll <- -sum(dbinom(dat$negTests, N-sim$NY, T_B, log = TRUE))
-  out <- postest_nll + negtest_nll
+  ObsTest_nll <- -sum(dbinom(dat$OT, N, sim$T_prop, log = TRUE))
+  ObsPos_nll <- -sum(dbinom(dat$OP, dat$OT, sim$pos, log = TRUE))
+  out <- ObsTest_nll + ObsPos_nll
   if (debug) {
-      cat(B, Phi, logY_0, r, postest_nll, negtest_nll,
+      cat(B, Phi, logY_0, r, ObsTest_nll, ObsPos_nll,
           out, "\n")
   }
-  if (debug_plot) {
-      par(mfrow= c(1,2), las = 1)
-      ylim <- range(c(dat$posTests, dat$negTests,
-                             sim$NY*T_Y, (N-sim$NY)*T_B))
-      matplot(dat$t, dat[c("posTests", "negTests")], type = "p",
-              pch = 1:2, log = "y",
-              ylim = ylim)
-      matlines(dat$t, cbind(sim$NY*T_Y, (N-sim$NY)*T_B))
-      LLhist <<- c(LLhist, out)
-      plot(LLhist - min(LLhist) + 1e-3, type = "b", log = "y")
-      Sys.sleep(plot_sleep)
-  }
+  # if (debug_plot) {
+  #     par(mfrow= c(1,2), las = 1)
+  #     ylim <- range(c(dat$posTests, dat$negTests,
+  #                            sim$NY*T_Y, (N-sim$NY)*T_B))
+  #     matplot(dat$t, dat[c("posTests", "negTests")], type = "p",
+  #             pch = 1:2, log = "y",
+  #             ylim = ylim)
+  #     matlines(dat$t, cbind(sim$NY*T_Y, (N-sim$NY)*T_B))
+  #     LLhist <<- c(LLhist, out)
+  #     plot(LLhist - min(LLhist) + 1e-3, type = "b", log = "y")
+  #     Sys.sleep(plot_sleep)
+  # }
   return(out)
 }
 
@@ -127,33 +126,35 @@ fit1 <- mle2(LL
                        #, parscale = c(log(B), log(Phi), log(Y_0), r)
                          )
         , method = "Nelder-Mead"
-        , skip.hessian = TRUE  ## TRUE to skip Hessian calculation ...
+        #, hessian.method = "optimHess"
+        , skip.hessian = FALSE  ## TRUE to skip Hessian calculation ...
           )
+## hessian.method = "optimHess": long vectors not supported yet: optim.c:426
 
 ## ?? not getting Re(ev) error any more?
 print(real_ML)
 print(-1*logLik(fit1))
 
 coef(fit1)
-init_param
+true_param
 
-### Testing with parameters away from real value
+fit1@details$hessian
+### This robust method provide an finite Hessian!
 
 ### Disturb B
 # param <- list(log_B=log(0.01), log_Phi=log(Phi), logY_0=log(Y_0), r=r)
-# param <- list(log_B=log(0.1), log_Phi=log(Phi), logY_0=log(Y_0), r=r)
+# param <- list(log_B=log(0.2), log_Phi=log(Phi), logY_0=log(Y_0), r=r)
 
-## Identify init_param pretty well after shift to logistic.
-## Hessian still not work
-## Converge problem does not repeat for t=59
-## When t=39 fit1 convergence failure: code=10 (degenerate Nelder-Mead simplex)
-## However, fit2 works without error for t=39: conv problem is not necessary caused by initial condition
+## Identify init_param pretty well after shift to logistic
+## Allowing wider parameter space
+## Hessian works now
 
 ### Disturb Phi
-# param <- list(log_B=log(B), log_Phi=log(Phi+20), logY_0=log(Y_0), r=r)
-# param <- list(log_B=log(B), log_Phi=log(Phi-15), logY_0=log(Y_0), r=r)
+# param <- list(log_B=log(B), log_Phi=log(Phi+50), logY_0=log(Y_0), r=r)
+# param <- list(log_B=log(B), log_Phi=log(Phi-20), logY_0=log(Y_0), r=r)
+
 ## Identify init_param pretty well after shift to logistic.
-## Converge problem does not repeat for t=59, t=39
+## Hessian works now, takes some time
 
 ### Disturb Y_0
 # param <- list(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0+2e-4), r=r)
@@ -161,27 +162,14 @@ init_param
 ## Converge problem does not repeat for t=59, t=39
 
 # param <- list(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0-5e-5), r=r)
-# function cannot be evaluated at initial parameters
-
-# param <- list(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0-3e-5), r=r)
-# Works now
+## Works for smaller Y_0 value now
 
 ### Disturb r
 # param <- list(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0), r=r+0.2)
-## function cannot be evaluated at initial parameters
-
-param <- list(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0), r=r+0.1)
-## t=39 not converging well, close but not enough log_lik=-547 while real param log_lik=-469
-## increase maxit does not help
-## t=59 function cannot be evaluated at initial parameters
-
-param <- list(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0), r=r+0.05)
-## indentify the init_param well
+## Works for larger r value now
 
 param <- list(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0), r=r-0.2)
-## function cannot be evaluated at initial parameters
-param <- list(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0), r=r-0.02)
-## identify the init_param well
+## Works for lower r value now
 ## sensitive to r
 
 
@@ -197,17 +185,19 @@ fit2 <- do.call(mle2,list(LL
                                    #, parscale = c(log(B), log(Phi), log(Y_0), r)
                   )
                   , method = "Nelder-Mead"
-                  , skip.hessian = TRUE  ## TRUE to skip Hessian calculation ...
+                  , skip.hessian = FALSE  ## TRUE to skip Hessian calculation ...
 ))
 
 print(real_ML)
 print(-1*logLik(fit2))
 #print(fit2)
-#summary(fit2)
-param
-coef(fit2)
-init_param
 
+#param
+coef(fit2)
+true_param
+
+summary(fit2)
+fit2@details$hessian
 
 
 ## re-do Hessian calculation with optimHess() ...

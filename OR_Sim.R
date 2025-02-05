@@ -1,3 +1,5 @@
+# Sys.setenv(LANG = "en")
+# remotes::install_github("bbolker/bbmle")
 
 library(dplyr)
 library(tidyr)
@@ -5,11 +7,6 @@ library(ggplot2); theme_set(theme_bw())
 library(viridis)
 library(bbmle)
 
-
-# Sys.setenv(LANG = "en")
-# install.packages("remote")
-# remotes::install_github("bbolker/bbmle")
-# hessian.method = "optimHess"
 # Set Seeds
 set.seed(13519)
 
