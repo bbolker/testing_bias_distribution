@@ -312,7 +312,7 @@ Trying to find the best fit combination of ($\hat{B}$, $\hat{\Phi}$, $\hat{r}$ a
 
 ### New fitting based on positive and negative tests
 
-Converted based on [`OR_Sim.md`](OR_Sim.md)
+Converted based on [`OR_Sim.md`](OR_Sim.md), realization code is recorded on [`OR_Sim.R`](OR_Sim.R).
 
 If we don't allow for false readings, then
 
