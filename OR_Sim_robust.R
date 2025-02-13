@@ -6,6 +6,8 @@ library(tidyr)
 library(ggplot2); theme_set(theme_bw())
 library(viridis)
 library(bbmle)
+library(broom)
+source("mle2_tidy.R")
 
 # Set Seeds
 set.seed(13519)
@@ -59,7 +61,7 @@ long_dat <- (dat
 # )
 
 ### function to calculate negative log-likelihood:
-LL <- function(log_B, log_Phi, logY_0, r, dat, N, tmax, debug = TRUE,
+LL <- function(log_B, log_Phi, logY_0, r, dat, N, tmax, debug = FALSE,
                debug_plot = FALSE, plot_sleep = 1) {
     Y_0 <- exp(logY_0)
     B <- exp(log_B)
@@ -129,9 +131,7 @@ fit1 <- mle2(LL
         , hessian.method = "optimHess"
         , skip.hessian = FALSE  ## TRUE to skip Hessian calculation ...
           )
-## hessian.method = "optimHess": long vectors not supported yet: optim.c:426
 
-## ?? not getting Re(ev) error any more?
 print(real_ML)
 print(-1*logLik(fit1))
 
@@ -172,21 +172,16 @@ param <- list(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0), r=r-0.2)
 ## Works for lower r value now
 ## sensitive to r
 
-
-fit2 <- do.call(mle2,list(LL
-                  , start = param
-                  , data = list(dat=dat
-                                , N=N
-                                , tmax=tmax
-                                , debug = T
-                                , debug_plot = F)
-                  , control = list(maxit=15000
-                                   ### parscale??
-                                   #, parscale = c(log(B), log(Phi), log(Y_0), r)
-                  )
-                  , method = "Nelder-Mead"
-                  , skip.hessian = FALSE  ## TRUE to skip Hessian calculation ...
-))
+## profiling showed that we can get a slightly better fit ...
+## decreasing tolerance avoids that problem
+fit2 <- mle2(LL
+           , start = param
+           , data = list(dat=dat
+                       , N=N
+                       , tmax=tmax)
+           , control = list(maxit=15000, reltol = 1e-10)
+           , method = "Nelder-Mead"
+)
 
 print(real_ML)
 print(-1*logLik(fit2))
@@ -197,7 +192,44 @@ coef(fit2)
 true_param
 
 summary(fit2)
-fit2@details$hessian
+vcov(fit2)
+
+## one way to present results ...
+
+results <- tidy(fit2, conf.int = TRUE) |>
+    full_join(data.frame(term = names(true_param), true.value = true_param),
+              by = "term") |>
+    select(term, estimate, true.value, conf.low, conf.high)
+
+## a little slow (6 seconds)
+system.time(
+    results_prof <- tidy(fit2, conf.int = TRUE, conf.method = "spline")
+)
+
+## very little difference in this case (although CIs are narrow anyway)
+results_prof$conf.low-results$conf.low
+results_prof$conf.high-results$conf.high
+
+## one way to show the results ...
+knitr::kable(results, digits = 3)
+
+## or graphically ...
+
+## (results are too precise, and range among true values is too large,
+##  to be able to see the confidence intervals if we plot everything on
+## the same scale, so divide into separately scaled facets)
+ggplot(results, aes(y = term)) +
+    geom_pointrange(aes(x = estimate, xmin = conf.low, xmax = conf.high)) +
+    geom_point(aes(x=true.value), colour = "red") +
+    facet_wrap(~term, ncol = 1, scale  = "free")
+
+## we would like to compute profile confidence intervals, but this is slightly
+## problematic
+pp0 <- profile(fit2)
+logLik(pp0)
+logLik(fit2)
+
+cbind(coef(pp0), coef(fit2))
 
 # fit_fun<-function(logB,logPhi,logY_0,r){
 #   param <- list(log_B=logB, log_Phi=logPhi, logY_0=logY_0, r=r)
@@ -236,37 +268,4 @@ fit2@details$hessian
 # which(param_mat$LogLik==Inf)
 
 
-
-## re-do Hessian calculation with optimHess() ...
-fix_hessian <- function(fit) {
-    ## construct vectorized log-likelihood function
-    lfun <- function(p) {
-        do.call(c(as.list(p), fit@data), what = fit@minuslogl)
-    }
-    hh <- optimHess(coef(fit), fn = lfun)
-    fit@vcov <- solve(hh)
-    return(fit)
-}
-
-fit2H <- fix_hessian(fit2)
-summary(fit2H)
-
-## now try optimHess to see why we get NA values ...
-
-
-fit2@details$hessian
-## hmm, we get a finite hessian from this ...
-
-quit()
-hh <- optimHess(coef(fit1), fn = lfun)
-vv <- solve(hh)
-print(cov2cor(vv))
-print(sdvec <- sqrt(diag(vv)))
-
-## mle2 uses numDeriv::hessian() internally instead of optimHess() ...
-numDeriv::hessian(lfun, coef(fit1))
-
-warnings()
-
-## still not sure why it's so hard to get a valid Hessian ...
 
