@@ -199,6 +199,43 @@ true_param
 summary(fit2)
 fit2@details$hessian
 
+# fit_fun<-function(logB,logPhi,logY_0,r){
+#   param <- list(log_B=logB, log_Phi=logPhi, logY_0=logY_0, r=r)
+#   fit <- do.call(mle2,list(LL
+#                            , start = param
+#                            , data = list(dat=dat
+#                                          , N=N
+#                                          , tmax=tmax
+#                                          , debug = F
+#                                          , debug_plot = F)
+#                            , control = list(maxit=15000
+#                            )
+#                            , method = "Nelder-Mead"
+#                            , skip.hessian = TRUE  ## TRUE to skip Hessian calculation ...
+#   ))
+#   out <- as.numeric(-1*logLik(fit))
+#   return(out)
+# }
+# fit_fun(log(B),log(Phi),log(Y_0),r)
+# #tryCatch(fit_fun(log(B),log(Phi),log(Y_0),r-0.01),error=function(e){NaN})
+# fit_fun <- Vectorize(fit_fun,c("logB","logPhi","logY_0","r"))
+# print(c(T_B,T_Y,B,Phi,Y_0,r))
+# 
+# param_mat <- (expand.grid(T_B=seq(from=1e-2, to=9e-2, by=1e-2),
+#                           T_Y=seq(from=1e-2,to=1,by=1e-2),
+#                           Y_0=c(Y_0),
+#                           r=c(r)
+# )
+# %>% as_tibble()
+# %>% mutate(logB=log(T_B/(1-T_B)))
+# %>% mutate(logPhi=log((T_Y/(1-T_Y))/B))
+# %>% mutate(logY_0=log(Y_0))
+# %>% mutate(LogLik=fit_fun(logB,logPhi,logY_0,r))
+# )
+# param_mat
+# which(param_mat$LogLik==Inf)
+
+
 
 ## re-do Hessian calculation with optimHess() ...
 fix_hessian <- function(fit) {
