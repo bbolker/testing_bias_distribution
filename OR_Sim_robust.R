@@ -126,7 +126,7 @@ fit1 <- mle2(LL
                        #, parscale = c(log(B), log(Phi), log(Y_0), r)
                          )
         , method = "Nelder-Mead"
-        #, hessian.method = "optimHess"
+        , hessian.method = "optimHess"
         , skip.hessian = FALSE  ## TRUE to skip Hessian calculation ...
           )
 ## hessian.method = "optimHess": long vectors not supported yet: optim.c:426
