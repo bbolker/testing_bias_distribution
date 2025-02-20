@@ -13,8 +13,8 @@ source("mle2_tidy.R")
 set.seed(13519)
 
 ## Initial true values:
-T_B <- 0.04               ## uninf testing prob
-T_Y <- 0.5                ## inf testing prob
+T_B <- 0.04               ## uninfected testing prob
+T_Y <- 0.5                ## infected testing prob
 B <- T_B/(1-T_B)          ## baseline odds of testing
 Phi <- (T_Y/(1-T_Y))/B    ## inf vs uninf testing odds ratio
 
@@ -26,7 +26,8 @@ N <- 1e6         ## pop size
 NY_0 <- N*Y_0    ## initial number infected
 
 r <- log(2)/3    ## growth rate (doubling time = 3)
-tmax <- 39       ## max simulation time
+tmax <- 39       ## max simulation time (about first half of logis)
+# tmax <- 59     ## max simulation time (end of logis)
 t <- c(0:tmax)
 pts <- length(t) ## number of time points
 
@@ -41,24 +42,23 @@ dat <- tibble(t=t
 	, pos = pY*T_Y/T_prop                    ## Expected test positivity
 	, OT = rbinom(t,N,T_prop)                ## Observed number of test
 	, OP = rbinom(t,OT,pos)                  ## Observed number of positive test
-	### ?? Independence
 )
-print(dat,n=60)
 
-# matplot(dat$t, dat[,-1], type = "l", log = "y")
-# legend("center", col = 1:4, lty = 1:4,
-#        legend = names(dat)[-1])
+# print(dat,n=60)
+matplot(dat$t, dat[,c(-1,-3)], type = "l", log = "y")
+legend("center", col = 1:4, lty = 1:4,
+       legend = names(dat)[c(-1,-3)])
 
 long_dat <- (dat
 	|> select(-pY)
 	|> pivot_longer(-t)
 )
-# 
-# print(ggplot(long_dat)
-#  	+ aes(t, value, color=name)
-#  	+ geom_line()
-#  	+ scale_y_log10()
-# )
+
+print(ggplot(long_dat)
+ 	+ aes(t, value, color=name)
+ 	+ geom_line()
+ 	+ scale_y_log10()
+)
 
 ### function to calculate negative log-likelihood:
 LL <- function(log_B, log_Phi, logY_0, r, dat, N, tmax, debug = FALSE,
@@ -185,7 +185,8 @@ fit2 <- mle2(LL
 
 print(real_ML)
 print(-1*logLik(fit2))
-#print(fit2)
+print(-1*logLik(fit1))
+# print(fit2)
 
 #param
 coef(fit2)
@@ -225,46 +226,48 @@ ggplot(results, aes(y = term)) +
 
 ## we would like to compute profile confidence intervals, but this is slightly
 ## problematic
-pp0 <- profile(fit2)
-logLik(pp0)
-logLik(fit2)
+# pp0 <- profile(fit2)
+# logLik(pp0)
+# logLik(fit2)
+# 
+# cbind(coef(pp0), coef(fit2))
 
-cbind(coef(pp0), coef(fit2))
 
-# fit_fun<-function(logB,logPhi,logY_0,r){
-#   param <- list(log_B=logB, log_Phi=logPhi, logY_0=logY_0, r=r)
-#   fit <- do.call(mle2,list(LL
-#                            , start = param
-#                            , data = list(dat=dat
-#                                          , N=N
-#                                          , tmax=tmax
-#                                          , debug = F
-#                                          , debug_plot = F)
-#                            , control = list(maxit=15000
-#                            )
-#                            , method = "Nelder-Mead"
-#                            , skip.hessian = TRUE  ## TRUE to skip Hessian calculation ...
-#   ))
-#   out <- as.numeric(-1*logLik(fit))
-#   return(out)
-# }
-# fit_fun(log(B),log(Phi),log(Y_0),r)
-# #tryCatch(fit_fun(log(B),log(Phi),log(Y_0),r-0.01),error=function(e){NaN})
-# fit_fun <- Vectorize(fit_fun,c("logB","logPhi","logY_0","r"))
+fit_fun<-function(logB,logPhi,logY_0,r){
+  param <- list(log_B=logB, log_Phi=logPhi, logY_0=logY_0, r=r)
+  fit <- do.call(mle2,list(LL
+                           , start = param
+                           , data = list(dat=dat
+                                         , N=N
+                                         , tmax=tmax
+                                         , debug = F
+                                         , debug_plot = F)
+                           , control = list(maxit=10000
+                           )
+                           , method = "Nelder-Mead"
+                           , skip.hessian = TRUE  ## TRUE to skip Hessian calculation ...
+  ))
+  out <- as.numeric(-1*logLik(fit))
+  return(out)
+}
+fit_fun(log(B),log(Phi),log(Y_0),r-0.2)
+as.numeric(-1*logLik(fit2))
+# tryCatch(fit_fun(log(B),log(Phi),log(Y_0),r-0.01),error=function(e){NaN})
+fit_fun <- Vectorize(fit_fun,c("logB","logPhi","logY_0","r"))
 # print(c(T_B,T_Y,B,Phi,Y_0,r))
 # 
-# param_mat <- (expand.grid(T_B=seq(from=1e-2, to=9e-2, by=1e-2),
-#                           T_Y=seq(from=1e-2,to=1,by=1e-2),
-#                           Y_0=c(Y_0),
-#                           r=c(r)
-# )
-# %>% as_tibble()
-# %>% mutate(logB=log(T_B/(1-T_B)))
-# %>% mutate(logPhi=log((T_Y/(1-T_Y))/B))
-# %>% mutate(logY_0=log(Y_0))
-# %>% mutate(LogLik=fit_fun(logB,logPhi,logY_0,r))
-# )
-# param_mat
+param_mat <- (expand.grid(T_B=seq(from=1e-2, to=50e-2, by=1e-2),
+                          T_Y=seq(from=1e-2,to=50e-2,by=1e-2),
+                          Y_0=c(Y_0),
+                          r=c(r)
+)
+%>% as_tibble()
+%>% mutate(logB=log(T_B/(1-T_B)))
+%>% mutate(logPhi=log((T_Y/(1-T_Y))/B))
+%>% mutate(logY_0=log(Y_0))
+%>% mutate(LogLik=fit_fun(logB,logPhi,logY_0,r))
+)
+print(param_mat,n=81)
 # which(param_mat$LogLik==Inf)
 
 
