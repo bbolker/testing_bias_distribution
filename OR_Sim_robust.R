@@ -203,9 +203,9 @@ results <- tidy(fit2, conf.int = TRUE) |>
     select(term, estimate, true.value, conf.low, conf.high)
 
 # ## a little slow (6 seconds)
-# system.time(
-#     results_prof <- tidy(fit2, conf.int = TRUE, conf.method = "spline")
-# )
+system.time(
+    results_prof <- tidy(fit2, conf.int = TRUE, conf.method = "spline")
+)
 
 ## very little difference in this case (although CIs are narrow anyway)
 results_prof$conf.low-results$conf.low
@@ -234,54 +234,46 @@ ggplot(results, aes(y = term)) +
 
 
 ### Randomize initial parameter for fitting
-TB_random <- runif(1,0,0.25)
-TY_random <- runif(1,TB_random,1)
-B_random <- TB_random/(1-TB_random)
-logB_random <- log(B_random)
-Phi_random <- (TY_random/(1-TY_random))/B
-logPhi_random <- log(Phi_random)
-
-Y0_random <- round(runif(1,0,5e-4),6)
-logY0_random <- log(Y0_random)
-r_random <- log(2)/runif(1,0,5)
-
-param_rd_vec <- c("log_B"=logB_random,"log_Phi"=logPhi_random,"logY_0"=logY0_random,"r"=r_random)
-
-param_rd <- list(log_B=logB_random, log_Phi=logPhi_random, logY_0=logY0_random, r=r_random)
-
-fit3 <- mle2(LL
-             , start = param_rd
-             , data = list(dat=dat
-                           , N=N
-                           , tmax=tmax
-                           , debug = T)
-             , control = list(maxit=25000, reltol = 1e-10)
-             , method = "Nelder-Mead"
-)
-
-print(real_ML)
-print(-1*logLik(fit3))
-vcov(fit3)
-#param
-coef(fit3)
-true_param
-param_rd_vec
-
-## one way to present results ...
-results3 <- tidy(fit3, conf.int = TRUE) |>
-  full_join(data.frame(term = names(true_param), true.value = true_param),
-            by = "term") |>
-  select(term, estimate, true.value, conf.low, conf.high)
-results3
-## one way to show the results ...
-# knitr::kable(results3, digits = 3)
-
-## or graphically ...
-
-## (results are too precise, and range among true values is too large,
-##  to be able to see the confidence intervals if we plot everything on
-## the same scale, so divide into separately scaled facets)
-ggplot(results3, aes(y = term)) +
-  geom_pointrange(aes(x = estimate, xmin = conf.low, xmax = conf.high)) +
-  geom_point(aes(x=true.value), colour = "red") +
-  facet_wrap(~term, ncol = 1, scale  = "free")
+# TB_random <- runif(1,0,0.25)
+# TY_random <- runif(1,TB_random,1)
+# B_random <- TB_random/(1-TB_random)
+# logB_random <- log(B_random)
+# Phi_random <- (TY_random/(1-TY_random))/B
+# logPhi_random <- log(Phi_random)
+# 
+# Y0_random <- round(runif(1,0,5e-4),6)
+# logY0_random <- log(Y0_random)
+# r_random <- log(2)/runif(1,0,5)
+# 
+# param_rd_vec <- c("log_B"=logB_random,"log_Phi"=logPhi_random,"logY_0"=logY0_random,"r"=r_random)
+# 
+# param_rd <- list(log_B=logB_random, log_Phi=logPhi_random, logY_0=logY0_random, r=r_random)
+# 
+# fit3 <- mle2(LL
+#              , start = param_rd
+#              , data = list(dat=dat
+#                            , N=N
+#                            , tmax=tmax
+#                            , debug = T)
+#              , control = list(maxit=25000, reltol = 1e-10)
+#              , method = "Nelder-Mead"
+# )
+# 
+# print(real_ML)
+# print(-1*logLik(fit3))
+# vcov(fit3)
+# #param
+# coef(fit3)
+# true_param
+# param_rd_vec
+# 
+# ## one way to present results ...
+# results3 <- tidy(fit3, conf.int = TRUE) |>
+#   full_join(data.frame(term = names(true_param), true.value = true_param),
+#             by = "term") |>
+#   select(term, estimate, true.value, conf.low, conf.high)
+# 
+# ggplot(results3, aes(y = term)) +
+#   geom_pointrange(aes(x = estimate, xmin = conf.low, xmax = conf.high)) +
+#   geom_point(aes(x=true.value), colour = "red") +
+#   facet_wrap(~term, ncol = 1, scale  = "free")
