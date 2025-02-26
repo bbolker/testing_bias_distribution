@@ -10,7 +10,7 @@ library(broom)
 source("mle2_tidy.R")
 
 # Set Seeds
-set.seed(13519)
+# set.seed(13519)
 
 ## Initial true values:
 T_B <- 0.04               ## uninfected testing prob
@@ -202,10 +202,10 @@ results <- tidy(fit2, conf.int = TRUE) |>
               by = "term") |>
     select(term, estimate, true.value, conf.low, conf.high)
 
-## a little slow (6 seconds)
-system.time(
-    results_prof <- tidy(fit2, conf.int = TRUE, conf.method = "spline")
-)
+# ## a little slow (6 seconds)
+# system.time(
+#     results_prof <- tidy(fit2, conf.int = TRUE, conf.method = "spline")
+# )
 
 ## very little difference in this case (although CIs are narrow anyway)
 results_prof$conf.low-results$conf.low
@@ -233,42 +233,55 @@ ggplot(results, aes(y = term)) +
 # cbind(coef(pp0), coef(fit2))
 
 
-fit_fun<-function(logB,logPhi,logY_0,r){
-  param <- list(log_B=logB, log_Phi=logPhi, logY_0=logY_0, r=r)
-  fit <- do.call(mle2,list(LL
-                           , start = param
-                           , data = list(dat=dat
-                                         , N=N
-                                         , tmax=tmax
-                                         , debug = F
-                                         , debug_plot = F)
-                           , control = list(maxit=10000
-                           )
-                           , method = "Nelder-Mead"
-                           , skip.hessian = TRUE  ## TRUE to skip Hessian calculation ...
-  ))
-  out <- as.numeric(-1*logLik(fit))
-  return(out)
-}
-fit_fun(log(B),log(Phi),log(Y_0),r-0.2)
-as.numeric(-1*logLik(fit2))
-# tryCatch(fit_fun(log(B),log(Phi),log(Y_0),r-0.01),error=function(e){NaN})
-fit_fun <- Vectorize(fit_fun,c("logB","logPhi","logY_0","r"))
-# print(c(T_B,T_Y,B,Phi,Y_0,r))
-# 
-param_mat <- (expand.grid(T_B=seq(from=1e-2, to=50e-2, by=1e-2),
-                          T_Y=seq(from=1e-2,to=50e-2,by=1e-2),
-                          Y_0=c(Y_0),
-                          r=c(r)
+### Randomize initial parameter for fitting
+TB_random <- runif(1,0,0.25)
+TY_random <- runif(1,TB_random,1)
+B_random <- TB_random/(1-TB_random)
+logB_random <- log(B_random)
+Phi_random <- (TY_random/(1-TY_random))/B
+logPhi_random <- log(Phi_random)
+
+Y0_random <- round(runif(1,0,5e-4),6)
+logY0_random <- log(Y0_random)
+r_random <- log(2)/runif(1,0,5)
+
+param_rd_vec <- c("log_B"=logB_random,"log_Phi"=logPhi_random,"logY_0"=logY0_random,"r"=r_random)
+
+param_rd <- list(log_B=logB_random, log_Phi=logPhi_random, logY_0=logY0_random, r=r_random)
+
+fit3 <- mle2(LL
+             , start = param_rd
+             , data = list(dat=dat
+                           , N=N
+                           , tmax=tmax
+                           , debug = T)
+             , control = list(maxit=25000, reltol = 1e-10)
+             , method = "Nelder-Mead"
 )
-%>% as_tibble()
-%>% mutate(logB=log(T_B/(1-T_B)))
-%>% mutate(logPhi=log((T_Y/(1-T_Y))/B))
-%>% mutate(logY_0=log(Y_0))
-%>% mutate(LogLik=fit_fun(logB,logPhi,logY_0,r))
-)
-print(param_mat,n=81)
-# which(param_mat$LogLik==Inf)
 
+print(real_ML)
+print(-1*logLik(fit3))
+vcov(fit3)
+#param
+coef(fit3)
+true_param
+param_rd_vec
 
+## one way to present results ...
+results3 <- tidy(fit3, conf.int = TRUE) |>
+  full_join(data.frame(term = names(true_param), true.value = true_param),
+            by = "term") |>
+  select(term, estimate, true.value, conf.low, conf.high)
+results3
+## one way to show the results ...
+# knitr::kable(results3, digits = 3)
 
+## or graphically ...
+
+## (results are too precise, and range among true values is too large,
+##  to be able to see the confidence intervals if we plot everything on
+## the same scale, so divide into separately scaled facets)
+ggplot(results3, aes(y = term)) +
+  geom_pointrange(aes(x = estimate, xmin = conf.low, xmax = conf.high)) +
+  geom_point(aes(x=true.value), colour = "red") +
+  facet_wrap(~term, ncol = 1, scale  = "free")
