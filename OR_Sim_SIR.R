@@ -69,7 +69,7 @@ dat <- tibble(t=t
 	, OP = rbinom(t,OT,pos)                  ## Observed number of positive test
 )
 
-print(dat,n=60)
+print(dat,n=pts)
 
 matplot(dat$t, dat[,c(-1,-3)], type = "l", log = "y")
 legend("center", col = 1:4, lty = 1:4,
@@ -142,7 +142,7 @@ LL <- function(log_B, log_Phi, logY_0, beta, gamma, dat, N, tmin ,tmax, debug = 
   }
   # if (debug_plot) {
   #     par(mfrow= c(1,2), las = 1)
-  #     ylim <- range(c(dat$posTests, dat$negTests,
+  #     ylim <- range(c(dat$OT, dat$OP,
   #                            sim$NY*T_Y, (N-sim$NY)*T_B))
   #     matplot(dat$t, dat[c("posTests", "negTests")], type = "p",
   #             pch = 1:2, log = "y",
@@ -158,11 +158,11 @@ LL <- function(log_B, log_Phi, logY_0, beta, gamma, dat, N, tmin ,tmax, debug = 
 real_ML <- LL(log(B),log(Phi),log(Y_0),beta,gamma,dat,N,tmin,tmax)
 print(real_ML)
 
-LL(log(B),log(Phi),log(Y_0)+0.01,0.25,0.10,dat,N,tmin,tmax)
+LL(log(B),log(Phi),log(Y_0)+0.05,0.25,0.10,dat,N,tmin,tmax)
 
 LLhist <- numeric(0)
 fit1 <- mle2(LL
-        , start = list(log_B=log(B)
+        , start = list(log_B=log(0.2)
                      , log_Phi=log(Phi)
                      , logY_0=log(Y_0)
                      , beta=beta
@@ -193,14 +193,14 @@ fit1@details$hessian
 
 ### Disturb B
 # param <- list(log_B=log(0.01), log_Phi=log(Phi), logY_0=log(Y_0), beta=beta, gamma=gamma)
-param <- list(log_B=log(0.2), log_Phi=log(Phi), logY_0=log(Y_0), beta=beta, gamma=gamma)
+# param <- list(log_B=log(0.2), log_Phi=log(Phi), logY_0=log(Y_0), beta=beta, gamma=gamma)
 
 ## Identify init_param pretty well after shift to logistic
 ## Allowing wider parameter space
 ## Hessian works now
 
 ### Disturb Phi
-# param <- list(log_B=log(B), log_Phi=log(Phi+50), logY_0=log(Y_0), beta=beta, gamma=gamma)
+param <- list(log_B=log(B), log_Phi=log(Phi+50), logY_0=log(Y_0), beta=beta, gamma=gamma)
 # param <- list(log_B=log(B), log_Phi=log(Phi-20), logY_0=log(Y_0), beta=beta, gamma=gamma)
 
 ## Identify init_param pretty well after shift to logistic.
@@ -243,71 +243,71 @@ true_param
 summary(fit2)
 vcov(fit2)
 
-NY_0_fit2 <- N*exp(coef(fit2)[3])
-beta_fit2 <- coef(fit2)[4]
-gamma_fit2 <- coef(fit2)[5]
+# NY_0_fit2 <- N*exp(coef(fit2)[3])
+# beta_fit2 <- coef(fit2)[4]
+# gamma_fit2 <- coef(fit2)[5]
 
 
-(sir
-  |> mp_tmb_update(
-    default = list (
-      beta = beta
-      , gamma = gamma
-      , N = N
-      , I = NY_0
-      , R = 0)
-  )
-  # simulation
-  |> mp_simulator(
-    time_steps = 100
-    ,outputs = c("I","infection")
-  ) 
-  # formating data to long format for figure
-  |> mp_trajectory()
-  
-  # Rename models
-  |> mutate(quantity=case_match( matrix
-                                 , "I" ~ "Prevalence"
-                                 , "infection" ~ "Incidence"
-                                 )
-            , case = "true"
-  )
-) -> true_traj
+# (sir
+#   |> mp_tmb_update(
+#     default = list (
+#       beta = beta
+#       , gamma = gamma
+#       , N = N
+#       , I = NY_0
+#       , R = 0)
+#   )
+#   # simulation
+#   |> mp_simulator(
+#     time_steps = 100
+#     ,outputs = c("I","infection")
+#   ) 
+#   # formating data to long format for figure
+#   |> mp_trajectory()
+#   
+#   # Rename models
+#   |> mutate(quantity=case_match( matrix
+#                                  , "I" ~ "Prevalence"
+#                                  , "infection" ~ "Incidence"
+#                                  )
+#             , case = "true"
+#   )
+# ) -> true_traj
+# 
+# (sir
+#   |> mp_tmb_update(
+#     default = list (
+#         beta = as.numeric(beta_fit2)
+#       , gamma = as.numeric(gamma_fit2)
+#       , N = N
+#       , I = NY_0_fit2
+#       , R = 0)
+#   )
+#   # simulation
+#   |> mp_simulator(
+#     time_steps = 100
+#     ,outputs = c("I","infection")
+#   ) 
+#   # formating data to long format for figure
+#   |> mp_trajectory()
+#   
+#   # Rename models
+#   |> mutate(quantity=case_match( matrix
+#                                  , "I" ~ "Prevalence"
+#                                  , "infection" ~ "Incidence"
+#                                  )
+#             , case = "fit2"
+#   )
+# ) -> fit2_traj
+# 
+# dat_traj <- rbind(true_traj,fit2_traj)
 
-(sir
-  |> mp_tmb_update(
-    default = list (
-        beta = as.numeric(beta_fit2)
-      , gamma = as.numeric(gamma_fit2)
-      , N = N
-      , I = NY_0_fit2
-      , R = 0)
-  )
-  # simulation
-  |> mp_simulator(
-    time_steps = 100
-    ,outputs = c("I","infection")
-  ) 
-  # formating data to long format for figure
-  |> mp_trajectory()
-  
-  # Rename models
-  |> mutate(quantity=case_match( matrix
-                                 , "I" ~ "Prevalence"
-                                 , "infection" ~ "Incidence"
-                                 )
-            , case = "fit2"
-  )
-) -> fit2_traj
-
-dat_traj <- rbind(true_traj,fit2_traj)
-
-  # plot with ggplot
-(ggplot(dat_traj)
-  + geom_line(aes(time,value,color=case))
-  + facet_wrap(~ quantity,scales = "free")
-  + theme_bw()
-)
+# plot with ggplot
+# (ggplot(dat_traj)
+#   + geom_line(aes(time,value,color=case))
+#   + facet_wrap(~ quantity,scales = "free")
+#   + theme_bw()
+# )
 
 ## one way to present results ...
 
