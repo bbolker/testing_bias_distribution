@@ -116,7 +116,10 @@ fit_proc <- function(dat,param_fit,tmax,N,debug=FALSE){
   r <- param_fit$r
 
   ## BMB: why do you unpack param_fit and then re-pack it? Seems unnecessary
-    
+  
+  ## RZ: just the param_fit contains more vector than mle2/LL needs. Smarter way
+  ## to do this? I guess I should change the input matrix.
+  
   param <- list(log_B=log_B, log_Phi=log_Phi, log_Y0=log_Y0, r=r)
     
   fit <- mle2(LL
@@ -153,8 +156,12 @@ ggplot(comb, aes(fit_val, true_val)) +
     facet_wrap(~param, scale = "free") +
     geom_point(data = comb[NA_case,], col = "red", size = 3)
 
+## I don't get the comb[NA_case,] part here
+# comb[NA_case, ]
+## I guess
+# comb[which(comb$run %in% NA_case),]
 
-param_fit[NA_case,]
+param_fit[NA_case[1],]
 ### Checking cases
 case <- NA_case[1]
 
