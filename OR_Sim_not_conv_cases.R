@@ -68,16 +68,17 @@ dat_func <- function(param_vec, tmax, N) {
   Y_0 <- param_vec$Y_0
   t <- c(0:tmax)
   dat <- tibble(t=t
-                , pY = 1/(1+(1/Y_0-1)*exp(-r*t))         ## Prevalence based on Logistic growth
-                , T_prop = (1-pY)*T_B+pY*T_Y             ## Expected test proportion
-                , pos = pY*T_Y/T_prop                    ## Expected test positivity
-                , OT = rbinom(t,N,T_prop)                ## Observed number of test
-                , OP = rbinom(t,OT,pos)                  ## Observed number of positive test
+              , pY = 1/(1+(1/Y_0-1)*exp(-r*t))  ## Prevalence based on Logistic growth
+              , T_prop = (1-pY)*T_B+pY*T_Y      ## Expected test proportion
+              , pos = pY*T_Y/T_prop             ## Expected test positivity
+              , OT = rbinom(t,N,T_prop)         ## Observed number of tests
+              , OP = rbinom(t,OT,pos)           ## Observed number of positive tests
   )
   return(dat)
 }
 
-## BMB: changed logY_0 to logY_0 for consistency
+## BMB: changed logY_0 to logY_0 for consistency (could also be
+## log_Y0 or log_Y_0, but aim for consistency in any case)
 
 ### function to calculate negative log-likelihood:
 LL <- function(log_B, log_Phi, log_Y0, r, dat, tmax, N, debug = FALSE,
@@ -96,14 +97,6 @@ LL <- function(log_B, log_Phi, log_Y0, r, dat, tmax, N, debug = FALSE,
                   , T_prop = (1-pY)*T_B+pY*T_Y             ## Expected test proportion
                   , pos = pY*T_Y/T_prop                    ## Expected test positivity
     )
-  # if(max(sim$pY) == 1 || any(sim$NY<dat$posTests) || any((N-sim$NY)<dat$negTests) || any(N<sim$NY)) return(NA)
-
-  # if (any(sim$NY<dat$posTests)) {
-  #     cat("Underestimated infected population, pos tests > infected population", "\n")
-  # }
-  # if (any((N-sim$NY)<dat$negTests)) {
-  #     cat("Overestimated infected population, neg tests > uninfected population", "\n")
-  # }
   ObsTest_nll <- -sum(dbinom(dat$OT, N, sim$T_prop, log = TRUE))
   ObsPos_nll <- -sum(dbinom(dat$OP, dat$OT, sim$pos, log = TRUE))
   out <- ObsTest_nll + ObsPos_nll
@@ -111,29 +104,21 @@ LL <- function(log_B, log_Phi, log_Y0, r, dat, tmax, N, debug = FALSE,
       cat(B, Phi, log_Y0, r, ObsTest_nll, ObsPos_nll,
           out, "\n")
   }
-  # if (debug_plot) {
-  #     par(mfrow= c(1,2), las = 1)
-  #     ylim <- range(c(dat$posTests, dat$negTests,
-  #                            sim$NY*T_Y, (N-sim$NY)*T_B))
-  #     matplot(dat$t, dat[c("posTests", "negTests")], type = "p",
-  #             pch = 1:2, log = "y",
-  #             ylim = ylim)
-  #     matlines(dat$t, cbind(sim$NY*T_Y, (N-sim$NY)*T_B))
-  #     LLhist <<- c(LLhist, out)
-  #     plot(LLhist - min(LLhist) + 1e-3, type = "b", log = "y")
-  #     Sys.sleep(plot_sleep)
-  # }
   return(out)
 }
 
 ### fitting procedure
-fit_proc <- function(dat,param_fit,tmax,N,debug=F){
+fit_proc <- function(dat,param_fit,tmax,N,debug=FALSE){
+
   log_B <-param_fit$log_B
   log_Phi <- param_fit$log_Phi
   log_Y0 <- param_fit$log_Y0
   r <- param_fit$r
 
+  ## BMB: why do you unpack param_fit and then re-pack it? Seems unnecessary
+    
   param <- list(log_B=log_B, log_Phi=log_Phi, log_Y0=log_Y0, r=r)
+    
   fit <- mle2(LL
               , start = param
               , data = list(dat=dat
@@ -146,55 +131,13 @@ fit_proc <- function(dat,param_fit,tmax,N,debug=F){
   return(fit)
 }
 
-# true_logLik <- c(0)
-# fit_logLik <- c(0)
-# fit_logB <- c(0)
-# fit_logPhi <- c(0)
-# fit_logY0 <- c(0)
-# fit_r <- c(0)
-# inCI <- c(0)
-# 
-# results_list <- list(0)
-# 
-# for (i in c(1:n)) {
-#   dat <- dat_func(param_true[i,], tmax, N)
-#   true_logLik[i] <- LL(param_true[i,]$log_B,param_true[i,]$log_Phi,param_true[i,]$log_Y0,param_true[i,]$r,dat,tmax,N)
-# 
-#   fit <- fit_proc(dat,param_fit[i,],tmax,N)
-#   fit_logLik[i] <- -logLik(fit)
-#   fit_logB[i] <- coef(fit)[1]
-#   fit_logPhi[i] <- coef(fit)[2]
-#   fit_logY0[i] <- coef(fit)[3]
-#   fit_r[i] <- coef(fit)[4]
-# 
-#   true_value <- c(param_true[i,]$log_B,param_true[i,]$log_Phi,param_true[i,]$log_Y0,param_true[i,]$r)
-#   
-#   results<- tidy(fit, conf.int = TRUE) |>
-#     full_join(data.frame(term = tidy(fit)$term, true.value = true_value),
-#               by = "term") |>
-#     select(term, estimate, true.value, conf.low, conf.high)
-#   results_list[[i]]<-results
-#   inCI[i] <- min(results$true.value<=results$conf.high & results$true.value>=results$conf.low)
-# }
-# 
-# inCI
-# length(which(inCI==1))
-# length(which(is.na(inCI)))
-# 
-# NA_case <- which(is.na(inCI))
-# Zero_case <- which(inCI==0)
-# NA_case
-# Zero_case
-
-
-
 ## All 10 cases that fail to converge to true values
 NA_case <- c(227,313,343,436,660,711,725,760,882,956)
 
 ## plot joint distributions of starting values and true values
 plong <- function(x, lab = "true_val") {
     (x
-        |> select(-c(Phi, B, Y_0))
+        |> select(-c(log_Phi, log_B, log_Y0))
         |> mutate(run = seq(n()))
         |> pivot_longer(-run,
                         names_to = "param",
@@ -239,13 +182,15 @@ fit_logLik <- -logLik(fit_case)
 true_logLik
 fit_logLik
 
-true_value <- param_true[case,vars]
+true_value <- param_true[case, vars]
 
 ### error starts here due to ill-behaved or missing hessian
-results_case <- tidy(fit_case, conf.int = TRUE) |>
-      full_join(data.frame(term = tidy(fit_case)$term, true.value = true_value),
-                by = "term") |>
-      select(term, estimate, true.value, conf.low, conf.high)
+tt <- tidy(fit_case, conf.int = TRUE)
+results_case <- tt |>
+    full_join(data.frame(term = names(true_value),
+                         true.value = unlist(true_value)),
+              by = "term") |>
+    select(term, estimate, true.value, conf.low, conf.high)
 
 # results_case
 # inCI_case <- min(results_case$true.value<=results_case$conf.high & results_case$true.value>=results_case$conf.low)
