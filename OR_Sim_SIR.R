@@ -162,7 +162,7 @@ LL(log(B),log(Phi),log(Y_0)+0.05,0.25,0.10,dat,N,tmin,tmax)
 
 LLhist <- numeric(0)
 fit1 <- mle2(LL
-        , start = list(log_B=log(0.2)
+        , start = list(log_B=log(B)
                      , log_Phi=log(Phi)
                      , logY_0=log(Y_0)
                      , beta=beta
@@ -171,9 +171,9 @@ fit1 <- mle2(LL
                     , N=N
                     , tmin=tmin
                     , tmax=tmax
-                    , debug = T
-                    , debug_plot = F)
-        , control = list(maxit=1000
+                    , debug = FALSE
+                    , debug_plot = FALSE)
+        , control = list(maxit=10000
                          ### parscale??
                        #, parscale = c(log(B), log(Phi), log(Y_0), r)
                          )
@@ -226,7 +226,7 @@ fit2 <- mle2(LL
                        , N=N
                        , tmin=tmin
                        , tmax=tmax
-                       , debug = T)
+                       , debug = TRUE)
            , control = list(maxit=10000, reltol = 1e-10)
            , method = "Nelder-Mead"
 )
