@@ -11,7 +11,7 @@ library(broom)
 source("mle2_tidy.R")
 
 # Set Seeds
-set.seed(13513)
+set.seed(13519)
 
 ## Initial true values:
 T_B <- 0.04               ## uninfected testing prob
@@ -87,8 +87,11 @@ print(ggplot(long_dat)
 )
 
 ### function to calculate negative log-likelihood:
-LL <- function(log_B, log_Phi, logY_0, beta, gamma, dat, N, tmin ,tmax, debug = FALSE,
-               debug_plot = FALSE, plot_sleep = 1) {
+LL <- function(true_param, dat, N, tmin ,tmax, debug = FALSE
+               #,debug_plot = FALSE, plot_sleep = 1
+               ) {
+    
+    
     Y_0 <- exp(logY_0)
     NY_0 <- N*Y_0
     B <- exp(log_B)
@@ -171,7 +174,7 @@ fit1 <- mle2(LL
                     , N=N
                     , tmin=tmin
                     , tmax=tmax
-                    , debug = T
+                    , debug = FALSE
                     , debug_plot = FALSE)
         , control = list(maxit=10000
                          ### parscale??
