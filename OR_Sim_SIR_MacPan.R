@@ -29,7 +29,7 @@ NY_0 <- N*Y_0    ## initial number infected
 # r <- log(2)/3    ## growth rate (doubling time = 3)
 beta <- 0.25
 gamma <- 0.1
-tmin <- 10
+tmin <- 50
 tmax <- 80      ## max simulation time (about first half of logis)
 # tmax <- 59     ## max simulation time (end of logis)
 t <- c(tmin:tmax)
@@ -37,162 +37,173 @@ pts <- length(t) ## number of time points
 
 true_param <- c("log_B"=log(B),"log_Phi"=log(Phi),"logY_0"=log(Y_0),"beta"=beta, "gamma"=gamma)
 
+tp_list <- list(beta = beta
+              , gamma = gamma
+              , N = N
+              , I = NY_0
+              , R = 0
+              , T_Y = T_Y
+              , T_B = T_B
+              )
+
 ### SIR from macpan
 mc_sir <- mp_tmb_library("starter_models","sir", package = "macpan2")
 
-mc_sir |> mp_tmb_update(
-  default = list (
-       beta = beta
-     , gamma = gamma
-     , N = N
-     , I = NY_0
-     , R=0)
-) -> sir
+(mc_sir 
+  |> mp_tmb_update(
+    default = tp_list
+    )
+  |> mp_tmb_insert(
+      phase = "during"
+    , at = Inf
+    , expressions = list(
+          pY ~ I/N                          ## Prevalence based on SIR
+        , T_prop ~ (1-pY)*T_B+pY*T_Y        ## Expected test proportion
+        , pos ~ pY*T_Y/T_prop               ## Expected test positivity
+        , OT ~ rbinom(N,T_prop)
+        , OP ~ rbinom(OT,pos)
+        )
+    )
+  )-> sir
+
+# sir |> mp_expand()
 
 (sir
   |> mp_simulator(
-     time_steps = tmax
-    ,outputs = c("I")
+      time_steps = tmax
+    , outputs = c("pY","T_prop","pos","OT","OP")
   ) 
-  
-  # formating data to long format for figure
   |> mp_trajectory()
-) |> select(value)/N -> pY
+  |> dplyr::select(-c(row, col))
+  |> filter(time>=tmin)
+) -> dat
 
-## Simulate the data
-dat <- tibble(t=t
-	## , pY = pmin(Y_0*exp(r*t), 1)          ## Exponential growth
-	, pY = pY$value[tmin:tmax]                               ## Prevalence based on SIR
-	, T_prop = (1-pY)*T_B+pY*T_Y             ## Expected test proportion
-	, pos = pY*T_Y/T_prop                    ## Expected test positivity
-	, OT = rbinom(t,N,T_prop)                ## Observed number of test
-	, OP = rbinom(t,OT,pos)                  ## Observed number of positive test
-)
+(dat
+  |> pivot_wider(names_from = matrix,values_from = value)
+) |> print(n=pts)
 
-print(dat,n=pts)
-
-matplot(dat$t, dat[,c(-1,-3)], type = "l", log = "y")
-legend("center", col = 1:4, lty = 1:4,
-       legend = names(dat)[c(-1,-3)])
-
-long_dat <- (dat
-	|> select(-pY)
-	|> pivot_longer(-t)
-)
-
-print(ggplot(long_dat)
- 	+ aes(t, value, color=name)
+print(ggplot(dat)
+ 	+ aes(time, value, color=matrix)
  	+ geom_line()
  	+ scale_y_log10()
 )
 
-### function to calculate negative log-likelihood:
-LL <- function(true_param, dat, N, tmin ,tmax, debug = FALSE
-               #,debug_plot = FALSE, plot_sleep = 1
-               ) {
-    
-    
-    Y_0 <- exp(logY_0)
-    NY_0 <- N*Y_0
-    B <- exp(log_B)
-    Phi <- exp(log_Phi)
-    T_B <- B/(1+B)
-    T_Y <- B*Phi/(1+B*Phi)
-    t <- c(tmin:tmax)
-    pts <- length(t)
-    beta <- beta
-    gamma <- gamma
-    
-    (sir
-      |> mp_tmb_update(
-        default = list (
-            beta = beta
-          , gamma = gamma
-          , N = N
-          , I = NY_0
-          , R = 0)
-      )
-      |> mp_simulator(
-        time_steps = tmax
-        ,outputs = c("I")
-      ) 
-      
-      # formating data to long format for figure
-      |> mp_trajectory()
-    ) |> select(value)/N -> pY
-    
-    ## simulated time series
-    sim <- tibble(t=t
-                  ## , pY = pmin(Y_0*exp(r*t), 1)          ## Exponential growth
-                  , pY = pY$value[tmin:tmax]                          ## Prevalence based on Logistic growth
-                  , T_prop = (1-pY)*T_B+pY*T_Y             ## Expected test proportion
-                  , pos = pY*T_Y/T_prop                    ## Expected test positivity
+### Calibrator in macpan
+# initial values for simulation
+sp_list<-list(beta = beta
+            , gamma = gamma
+            , N = N
+            , I = NY_0
+            , R = 0
+            , T_Y = T_Y
+            , T_B = T_B
+            )
+
+sir_sim <- mp_tmb_update(sir,
+  default = sp_list
+)
+
+calibrator <- mp_tmb_calibrator(
+    sir_sim
+  , data = dat
+  , traj = c("OT","OP")
+  , par = c("beta","gamma","I","T_Y","T_B")
+  , default = list(N = N
+                 , R = 0
     )
-  # if(max(sim$pY) == 1 || any(sim$NY<dat$posTests) || any((N-sim$NY)<dat$negTests) || any(N<sim$NY)) return(NA)
+  )
 
-  # if (any(sim$NY<dat$posTests)) {
-  #     cat("Underestimated infected population, pos tests > infected population", "\n")
-  # }
-  # if (any((N-sim$NY)<dat$negTests)) {
-  #     cat("Overestimated infected population, neg tests > uninfected population", "\n")
-  # }
-  ObsTest_nll <- -sum(dbinom(dat$OT, N, sim$T_prop, log = TRUE))
-  ObsPos_nll <- -sum(dbinom(dat$OP, dat$OT, sim$pos, log = TRUE))
-  out <- ObsTest_nll + ObsPos_nll
-  if (debug) {
-      cat(B, Phi, logY_0, beta, gamma, ObsTest_nll, ObsPos_nll,
-          out, "\n")
-  }
-  # if (debug_plot) {
-  #     par(mfrow= c(1,2), las = 1)
-  #     ylim <- range(c(dat$OT, dat$OP,
-  #                            sim$NY*T_Y, (N-sim$NY)*T_B))
-  #     matplot(dat$t, dat[c("posTests", "negTests")], type = "p",
-  #             pch = 1:2, log = "y",
-  #             ylim = ylim)
-  #     matlines(dat$t, cbind(sim$NY*T_Y, (N-sim$NY)*T_B))
-  #     LLhist <<- c(LLhist, out)
-  #     plot(LLhist - min(LLhist) + 1e-3, type = "b", log = "y")
-  #     Sys.sleep(plot_sleep)
-  # }
-  return(out)
-}
+print(calibrator)
+### No mp_bin, just mp_neg_bin
 
-real_ML <- LL(log(B),log(Phi),log(Y_0),beta,gamma,dat,N,tmin,tmax)
-print(real_ML)
 
-LL(log(B),log(Phi),log(Y_0)+0.05,0.25,0.10,dat,N,tmin,tmax)
 
-LLhist <- numeric(0)
-fit1 <- mle2(LL
-        , start = list(log_B=log(B)
-                     , log_Phi=log(Phi)
-                     , logY_0=log(Y_0)
-                     , beta=beta
-                     , gamma=gamma)
-        , data = list(dat=dat
-                    , N=N
-                    , tmin=tmin
-                    , tmax=tmax
-                    , debug = FALSE
-                    , debug_plot = FALSE)
-        , control = list(maxit=10000
-                         ### parscale??
-                       #, parscale = c(log(B), log(Phi), log(Y_0), r)
-                         )
-        , method = "Nelder-Mead"
-        , hessian.method = "optimHess"
-        , skip.hessian = FALSE  ## TRUE to skip Hessian calculation ...
-          )
-
-print(real_ML)
-print(-1*logLik(fit1))
-
-coef(fit1)
-true_param
-
-fit1@details$hessian
-### This robust method provide an finite Hessian!
+# ### function to calculate negative log-likelihood:
+# LL <- function(log_B, log_Phi, logY_0, beta, gamma
+#                , dat, N, tmin ,tmax
+#                , debug = FALSE
+#                #,debug_plot = FALSE, plot_sleep = 1
+#                ) {
+#   Y_0 <- exp(logY_0)
+#   NY_0 <- N*Y_0
+#   B <- exp(log_B)
+#   Phi <- exp(log_Phi)
+#   T_B <- B/(1+B)
+#   T_Y <- B*Phi/(1+B*Phi)
+#   
+#   t <- c(tmin:tmax)
+#   pts <- length(t)
+#   
+#   beta <- beta
+#   gamma <- gamma
+#   
+#   param_list <- list(  beta = beta
+#                        , gamma = gamma
+#                        , N = N
+#                        , I = NY_0
+#                        , R = 0
+#                        , T_Y = T_Y
+#                        , T_B = T_B
+#   )
+#   
+#   (sir
+#     |> mp_tmb_update(default = param_list)
+#     |> mp_simulator(
+#        time_steps = tmax
+#       ,outputs = c("pY","T_prop","pos")
+#       ) 
+#     |> mp_trajectory()
+#     |> dplyr::select(-c(row, col)) 
+#     |> pivot_wider(names_from = matrix,values_from = value)
+#     |> mutate(OT = rbinom(tmax,N,T_prop))
+#     |> mutate(OP = rbinom(tmax,OT,pos))
+#     |> dplyr::slice(tmin:tmax)
+#     ) -> sim
+#   ObsTest_nll <- -sum(dbinom(dat$OT, N, sim$T_prop, log = TRUE))
+#   ObsPos_nll <- -sum(dbinom(dat$OP, dat$OT, sim$pos, log = TRUE))
+#   out <- ObsTest_nll + ObsPos_nll
+#   if (debug) {
+#     cat(B, Phi, NY_0, beta, gamma, ObsTest_nll, ObsPos_nll, out, "\n")
+#   }
+#   return(out)
+# }
+# 
+# real_ML <- LL(log(B),log(Phi),log(Y_0),beta,gamma,dat,N,tmin,tmax)
+# print(real_ML)
+# 
+# LL(log(B),log(Phi),log(Y_0)+0.05,0.25,0.10,dat,N,tmin,tmax)
+# 
+# fit1 <- mle2(LL
+#              , start = list(log_B=log(B)
+#                             , log_Phi=log(Phi)
+#                             , logY_0=log(Y_0)
+#                             , beta=beta
+#                             , gamma=gamma
+#                             )
+#              , data = list(dat=dat
+#                            , N=N
+#                            , tmin=tmin
+#                            , tmax=tmax
+#                            , debug = FALSE
+#                            , debug_plot = FALSE
+#                            )
+#         , control = list(maxit=10000
+#                          # parscale??
+#                          #, parscale = c(log(B), log(Phi), log(Y_0), r)
+#                          )
+#         , method = "Nelder-Mead"
+#         , hessian.method = "optimHess"
+#         , skip.hessian = FALSE  ## TRUE to skip Hessian calculation ...
+#         )
+# 
+# print(real_ML)
+# print(-1*logLik(fit1))
+# 
+# coef(fit1)
+# true_param
+# 
+# fit1@details$hessian
+# ### This robust method provide an finite Hessian!
 
 ### Disturb B
 # param <- list(log_B=log(0.01), log_Phi=log(Phi), logY_0=log(Y_0), beta=beta, gamma=gamma)
@@ -230,7 +241,9 @@ fit2 <- mle2(LL
                        , tmin=tmin
                        , tmax=tmax
                        , debug = TRUE)
-           , control = list(maxit=10000, reltol = 1e-10)
+           , control = list(  maxit=10000
+                            , reltol = 1e-10
+                            )
            , method = "Nelder-Mead"
 )
 
@@ -251,71 +264,8 @@ vcov(fit2)
 # gamma_fit2 <- coef(fit2)[5]
 
 
-# (sir
-#   |> mp_tmb_update(
-#     default = list (
-#       beta = beta
-#       , gamma = gamma
-#       , N = N
-#       , I = NY_0
-#       , R = 0)
-#   )
-#   # simulation
-#   |> mp_simulator(
-#     time_steps = 100
-#     ,outputs = c("I","infection")
-#   ) 
-#   # formating data to long format for figure
-#   |> mp_trajectory()
-#   
-#   # Rename models
-#   |> mutate(quantity=case_match( matrix
-#                                  , "I" ~ "Prevalence"
-#                                  , "infection" ~ "Incidence"
-#                                  )
-#             , case = "true"
-#   )
-# ) -> true_traj
-# 
-# (sir
-#   |> mp_tmb_update(
-#     default = list (
-#         beta = as.numeric(beta_fit2)
-#       , gamma = as.numeric(gamma_fit2)
-#       , N = N
-#       , I = NY_0_fit2
-#       , R = 0)
-#   )
-#   # simulation
-#   |> mp_simulator(
-#     time_steps = 100
-#     ,outputs = c("I","infection")
-#   ) 
-#   # formating data to long format for figure
-#   |> mp_trajectory()
-#   
-#   # Rename models
-#   |> mutate(quantity=case_match( matrix
-#                                  , "I" ~ "Prevalence"
-#                                  , "infection" ~ "Incidence"
-#                                  )
-#             , case = "fit2"
-#   )
-# ) -> fit2_traj
-# 
-# dat_traj <- rbind(true_traj,fit2_traj)
-
-# plot with ggplot
-# (ggplot(dat_traj)
-#   + geom_line(aes(time,value,color=case))
-#   + facet_wrap(~ quantity,scales = "free")
-#   + theme_bw()
-# )
-
 ## one way to present results ...
-
-results <- tidy(fit2, conf.int = TRUE) |>
-    full_join(data.frame(term = names(true_param), true.value = true_param),
+results <- tidy(fit2, conf.int = TRUE) |> full_join(data.frame(term = names(true_param), true.value = true_param),
               by = "term") |>
     select(term, estimate, true.value, conf.low, conf.high)
 

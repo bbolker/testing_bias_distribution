@@ -87,16 +87,19 @@ print(ggplot(long_dat)
 )
 
 ### function to calculate negative log-likelihood:
-LL <- function(log_B, log_Phi, logY_0, beta, gamma, dat, N, tmin ,tmax, debug = FALSE,
-               debug_plot = FALSE, plot_sleep = 1) {
+LL <- function(log_B, log_Phi, logY_0, beta, gamma, dat, N, tmin ,tmax, debug = FALSE
+               #,debug_plot = FALSE, plot_sleep = 1
+               ) {
     Y_0 <- exp(logY_0)
     NY_0 <- N*Y_0
     B <- exp(log_B)
     Phi <- exp(log_Phi)
     T_B <- B/(1+B)
     T_Y <- B*Phi/(1+B*Phi)
+    
     t <- c(tmin:tmax)
     pts <- length(t)
+    
     beta <- beta
     gamma <- gamma
     
