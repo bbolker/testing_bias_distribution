@@ -19,11 +19,10 @@ library(broom)
 library(broom.mixed)
 library(DEoptim)
 
-source("mle2_tidy.R")
+# source("mle2_tidy.R")
 
 # Set Seeds
 set.seed(13519)
-
 
 ## Initial true values:
 T_B <- 0.04               ## uninfected testing prob
@@ -127,7 +126,8 @@ calibrator$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum
 print(calibrator)
 
 fit_tp <- mp_optimize(calibrator)
-fit_tp <- mp_optimize(calibrator, control=list(iter.max=1000, eval.max=1000))
+
+# fit_tp <- mp_optimize(calibrator, control=list(iter.max=1000, eval.max=1000))
 fit_tp$message
 fit_tp$convergence
 
@@ -281,68 +281,68 @@ param <- tibble::lst(log_B=log(B), log_Phi=log(Phi+50), logY_0=log(Y_0), beta, g
 
 ## profiling showed that we can get a slightly better fit ...
 ## decreasing tolerance avoids that problem
-fit2 <- mle2(LL
-           , start = param
-           , data = list(dat=dat
-                       , N=N
-                       , tmin=tmin
-                       , tmax=tmax
-                       , debug = TRUE)
-           , control = list(  maxit=10000
-                            , reltol = 1e-10
-                            )
-           , method = "Nelder-Mead"
-)
-
-print(real_ML)
-print(-1*logLik(fit2))
-print(-1*logLik(fit1))
-# print(fit2)
-
-#param
-coef(fit2)
-true_param
-
-summary(fit2)
-vcov(fit2)
-
-# NY_0_fit2 <- N*exp(coef(fit2)[3])
-# beta_fit2 <- coef(fit2)[4]
-# gamma_fit2 <- coef(fit2)[5]
-
-
-## one way to present results ...
-results <- tidy(fit2, conf.int = TRUE) |> full_join(data.frame(term = names(true_param), true.value = true_param),
-              by = "term") |>
-    select(term, estimate, true.value, conf.low, conf.high)
-
-# # ## a little slow (6 seconds)
-# system.time(
-#     results_prof <- tidy(fit2, conf.int = TRUE, conf.method = "spline")
+# fit2 <- mle2(LL
+#            , start = param
+#            , data = list(dat=dat
+#                        , N=N
+#                        , tmin=tmin
+#                        , tmax=tmax
+#                        , debug = TRUE)
+#            , control = list(  maxit=10000
+#                             , reltol = 1e-10
+#                             )
+#            , method = "Nelder-Mead"
 # )
 # 
-# ## very little difference in this case (although CIs are narrow anyway)
-# results_prof$conf.low-results$conf.low
-# results_prof$conf.high-results$conf.high
-
-## one way to show the results ...
-knitr::kable(results, digits = 3)
-
-## or graphically ...
-
-## (results are too precise, and range among true values is too large,
-##  to be able to see the confidence intervals if we plot everything on
-## the same scale, so divide into separately scaled facets)
-ggplot(results, aes(y = term)) +
-    geom_pointrange(aes(x = estimate, xmin = conf.low, xmax = conf.high)) +
-    geom_point(aes(x=true.value), colour = "red") +
-    facet_wrap(~term, ncol = 1, scale  = "free")
-
-## we would like to compute profile confidence intervals, but this is slightly
-## problematic
-# pp0 <- profile(fit2)
-# logLik(pp0)
-# logLik(fit2)
+# print(real_ML)
+# print(-1*logLik(fit2))
+# print(-1*logLik(fit1))
+# # print(fit2)
 # 
-# cbind(coef(pp0), coef(fit2))
-
+# #param
+# coef(fit2)
+# true_param
+# 
+# summary(fit2)
+# vcov(fit2)
+# 
+# # NY_0_fit2 <- N*exp(coef(fit2)[3])
+# # beta_fit2 <- coef(fit2)[4]
+# # gamma_fit2 <- coef(fit2)[5]
+# 
+# 
+# ## one way to present results ...
+# results <- tidy(fit2, conf.int = TRUE) |> full_join(data.frame(term = names(true_param), true.value = true_param),
+#               by = "term") |>
+#     select(term, estimate, true.value, conf.low, conf.high)
+# 
+# # # ## a little slow (6 seconds)
+# # system.time(
+# #     results_prof <- tidy(fit2, conf.int = TRUE, conf.method = "spline")
+# # )
+# # 
+# # ## very little difference in this case (although CIs are narrow anyway)
+# # results_prof$conf.low-results$conf.low
+# # results_prof$conf.high-results$conf.high
+# 
+# ## one way to show the results ...
+# knitr::kable(results, digits = 3)
+# 
+# ## or graphically ...
+# 
+# ## (results are too precise, and range among true values is too large,
+# ##  to be able to see the confidence intervals if we plot everything on
+# ## the same scale, so divide into separately scaled facets)
+# ggplot(results, aes(y = term)) +
+#     geom_pointrange(aes(x = estimate, xmin = conf.low, xmax = conf.high)) +
+#     geom_point(aes(x=true.value), colour = "red") +
+#     facet_wrap(~term, ncol = 1, scale  = "free")
+# 
+# ## we would like to compute profile confidence intervals, but this is slightly
+# ## problematic
+# # pp0 <- profile(fit2)
+# # logLik(pp0)
+# # logLik(fit2)
+# # 
+# # cbind(coef(pp0), coef(fit2))
+# 
