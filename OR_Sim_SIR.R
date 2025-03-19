@@ -8,7 +8,7 @@ library(ggplot2); theme_set(theme_bw())
 library(viridis)
 library(bbmle)
 library(broom)
-source("mle2_tidy.R")
+# source("mle2_tidy.R")
 
 # Set Seeds
 set.seed(13513)
