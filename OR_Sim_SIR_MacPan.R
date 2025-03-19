@@ -1,9 +1,8 @@
 # Sys.setenv(LANG = "en")
 # remotes::install_github("bbolker/bbmle")
 
-
 ## for now we need a patched version of macpan2
-# remotes::install_github("canmod/macpan2", ref = "dbinom")
+# remotes::install_github("canmod/macpan2@dab471ea769", ref = "dbinom")
 # options(macpan2_verbose = FALSE)
 
 ### ??? p_simulator dependence of "DEoptim" 
@@ -17,9 +16,9 @@ library(viridis)
 library(bbmle)
 library(broom)
 library(broom.mixed)
-library(DEoptim)
+# library(DEoptim)
 
-# source("mle2_tidy.R")
+source("mle2_tidy.R")
 
 # Set Seeds
 set.seed(13519)
@@ -101,7 +100,7 @@ print(ggplot(dat)
 
 ### Calibrator in macpan
 ## initial values for simulation
-sp_list <-tibble::lst(beta, gamma, N, T_Y, T_B
+sp_list <-tibble::lst(beta, gamma, N, T_Y=T_Y, T_B
             , I = NY_0
             , R = 0
 )
@@ -119,230 +118,78 @@ calibrator <- mp_tmb_calibrator(
   , default = list(N = N
                  , R = 0
     )
-  #, time = mp_sim_offset(tmin,tmax,"steps")
+  , time = mp_sim_bounds(1,tmax,"steps")
   )
 calibrator$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum(dbinom(obs_OP, obs_OT, sim_pos)))
 
 print(calibrator)
+calibrator$simulator
 
-fit_tp <- mp_optimize(calibrator)
+# fit_tp <- mp_optimize(calibrator)
 
-# fit_tp <- mp_optimize(calibrator, control=list(iter.max=1000, eval.max=1000))
+fit_tp <- mp_optimize(calibrator, control=list(iter.max=10000, eval.max=10000))
 fit_tp$message
 fit_tp$convergence
-
 fit_loglik <- fit_tp$objective
 print(fit_loglik)
 
-mp_tmb_coef(calibrator)
-exp(true_param$logY_0)*N
 
-# I does not converge to ture initial value, maybe related to the initial time
-# tmin <> 1?
+## optim fit
+# fit_tp_optim <- mp_optimize(calibrator, "optim" ,method ="Nelder-Mead",control=list(maxit=10000, reltol = 1e-10))
+# fit_tp_optim$convergence
+# fit_loglik_optim<-fit_tp_optim$value
+# print(fit_loglik_optim)
 
-# tmin= 30: singular convergence (7)
-# huge difference in traj of pY and I 
 
-# dat must start with time =1?
-# tmin and tmax would be a factor for fitting? Or this degree of freedom shift 
-# to I_0 and N?
+#mp_tmb_coef(calibrator)
+
+# tmin and tmax would be a factor for fitting? 
+# Could this degree of freedom shift to I_0 and N?
 
 # mp_sim_offset not available!
 # https://github.com/canmod/macpan2/blob/main/R/mp_tmb_calibrator.R
 # https://github.com/canmod/macpan2/blob/main/man/mp_sim_offset.Rd
 # ??? mp_sim_bounds()
-mp_sim_bounds(tmin,tmax,"steps")
+# mp_sim_bounds(tmin,tmax,"steps")
 # ??? mp_cal_time()
 # need to change documentation! 
 # ??? time argument of mp_tmb_calibrator
 
-fit_traj <- mp_trajectory(calibrator)
-fit_traj
-ggplot(fit_traj, aes(time+tmin-1, value, color=matrix)) +
+fit_tp_traj <- mp_trajectory(calibrator)
+# fit_tp_traj
+ggplot(fit_tp_traj, aes(time, value, color=matrix)) +
     geom_line() +
     scale_y_log10() +
-    geom_point(data = dat, aes(x = time))
+    geom_point(data = dat, aes(x = time),size=0.8)
 
-dat[which(dat$matrix=="I"),]
-fit_traj[which(fit_traj$matrix=="I"),]
-### function to calculate negative log-likelihood:
+fit_tp_result <- (mp_tmb_coef(calibrator,conf.int = TRUE) 
+                  |> select(-c("term", "type","row","col"))
+                  |> cbind(true_value=c(beta, gamma, NY_0, T_Y, T_B))
+                  )
 
-# LL <- function(log_B, log_Phi, logY_0, beta, gamma
-#                , dat, N, tmin ,tmax
-#                , debug = FALSE
-#                #,debug_plot = FALSE, plot_sleep = 1
-#                ) {
-#   Y_0 <- exp(logY_0)
-#   NY_0 <- N*Y_0
-#   B <- exp(log_B)
-#   Phi <- exp(log_Phi)
-#   T_B <- B/(1+B)
-#   T_Y <- B*Phi/(1+B*Phi)
-#   
-#   t <- c(tmin:tmax)
-#   pts <- length(t)
-#   
-#   beta <- beta
-#   gamma <- gamma
-#   
-#   param_list <- list(  beta = beta
-#                        , gamma = gamma
-#                        , N = N
-#                        , I = NY_0
-#                        , R = 0
-#                        , T_Y = T_Y
-#                        , T_B = T_B
-#   )
-#   
-#   (sir
-#     |> mp_tmb_update(default = param_list)
-#     |> mp_simulator(
-#        time_steps = tmax
-#       ,outputs = c("pY","T_prop","pos")
-#       ) 
-#     |> mp_trajectory()
-#     |> dplyr::select(-c(row, col)) 
-#     |> pivot_wider(names_from = matrix,values_from = value)
-#     |> mutate(OT = rbinom(tmax,N,T_prop))
-#     |> mutate(OP = rbinom(tmax,OT,pos))
-#     |> dplyr::slice(tmin:tmax)
-#     ) -> sim
-#   ObsTest_nll <- -sum(dbinom(dat$OT, N, sim$T_prop, log = TRUE))
-#   ObsPos_nll <- -sum(dbinom(dat$OP, dat$OT, sim$pos, log = TRUE))
-#   out <- ObsTest_nll + ObsPos_nll
-#   if (debug) {
-#     cat(B, Phi, NY_0, beta, gamma, ObsTest_nll, ObsPos_nll, out, "\n")
-#   }
-#   return(out)
-# }
-# 
-# real_ML <- LL(log(B),log(Phi),log(Y_0),beta,gamma,dat,N,tmin,tmax)
-# print(real_ML)
-# 
-# LL(log(B),log(Phi),log(Y_0)+0.05,0.25,0.10,dat,N,tmin,tmax)
-# 
-# fit1 <- mle2(LL
-#              , start = list(log_B=log(B)
-#                             , log_Phi=log(Phi)
-#                             , logY_0=log(Y_0)
-#                             , beta=beta
-#                             , gamma=gamma
-#                             )
-#              , data = list(dat=dat
-#                            , N=N
-#                            , tmin=tmin
-#                            , tmax=tmax
-#                            , debug = FALSE
-#                            , debug_plot = FALSE
-#                            )
-#         , control = list(maxit=10000
-#                          # parscale??
-#                          #, parscale = c(log(B), log(Phi), log(Y_0), r)
-#                          )
-#         , method = "Nelder-Mead"
-#         , hessian.method = "optimHess"
-#         , skip.hessian = FALSE  ## TRUE to skip Hessian calculation ...
-#         )
-# 
-# print(real_ML)
-# print(-1*logLik(fit1))
-# 
-# coef(fit1)
-# true_param
-# 
-# fit1@details$hessian
-# ### This robust method provide an finite Hessian!
+print(fit_tp_result)
 
-### Disturb B
-# param <- list(log_B=log(0.01), log_Phi=log(Phi), logY_0=log(Y_0), beta=beta, gamma=gamma)
-# param <- list(log_B=log(0.2), log_Phi=log(Phi), logY_0=log(Y_0), beta=beta, gamma=gamma)
-
-## Identify init_param pretty well after shift to logistic
-## Allowing wider parameter space
-## Hessian works now
-
-### Disturb Phi
-param <- tibble::lst(log_B=log(B), log_Phi=log(Phi+50), logY_0=log(Y_0), beta, gamma)
-
-## Identify init_param pretty well after shift to logistic.
-## Hessian works now, takes some time
-
-### Disturb Y_0
-# param <- list(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0+2e-4), beta=beta, gamma=gamma)
-## Identify init_param pretty well after shift to logistic.
-## Converge problem does not repeat for t=59, t=39
-
-# param <- list(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0-5e-5), beta=beta, gamma=gamma)
-## Works for smaller Y_0 value now
-
-### Disturb beta
-
-### Disturb gamma
-
-## profiling showed that we can get a slightly better fit ...
-## decreasing tolerance avoids that problem
-# fit2 <- mle2(LL
-#            , start = param
-#            , data = list(dat=dat
-#                        , N=N
-#                        , tmin=tmin
-#                        , tmax=tmax
-#                        , debug = TRUE)
-#            , control = list(  maxit=10000
-#                             , reltol = 1e-10
-#                             )
-#            , method = "Nelder-Mead"
-# )
-# 
-# print(real_ML)
-# print(-1*logLik(fit2))
-# print(-1*logLik(fit1))
-# # print(fit2)
-# 
-# #param
-# coef(fit2)
-# true_param
-# 
-# summary(fit2)
-# vcov(fit2)
-# 
-# # NY_0_fit2 <- N*exp(coef(fit2)[3])
-# # beta_fit2 <- coef(fit2)[4]
-# # gamma_fit2 <- coef(fit2)[5]
-# 
-# 
-# ## one way to present results ...
+## one way to present results ...
 # results <- tidy(fit2, conf.int = TRUE) |> full_join(data.frame(term = names(true_param), true.value = true_param),
 #               by = "term") |>
 #     select(term, estimate, true.value, conf.low, conf.high)
-# 
-# # # ## a little slow (6 seconds)
-# # system.time(
-# #     results_prof <- tidy(fit2, conf.int = TRUE, conf.method = "spline")
-# # )
-# # 
-# # ## very little difference in this case (although CIs are narrow anyway)
-# # results_prof$conf.low-results$conf.low
-# # results_prof$conf.high-results$conf.high
-# 
-# ## one way to show the results ...
+
+
+## one way to show the results ...
 # knitr::kable(results, digits = 3)
-# 
-# ## or graphically ...
-# 
-# ## (results are too precise, and range among true values is too large,
-# ##  to be able to see the confidence intervals if we plot everything on
-# ## the same scale, so divide into separately scaled facets)
-# ggplot(results, aes(y = term)) +
-#     geom_pointrange(aes(x = estimate, xmin = conf.low, xmax = conf.high)) +
-#     geom_point(aes(x=true.value), colour = "red") +
-#     facet_wrap(~term, ncol = 1, scale  = "free")
-# 
-# ## we would like to compute profile confidence intervals, but this is slightly
-# ## problematic
-# # pp0 <- profile(fit2)
-# # logLik(pp0)
-# # logLik(fit2)
-# # 
-# # cbind(coef(pp0), coef(fit2))
-# 
+
+
+## or graphically ...
+## (results are too precise, and range among true values is too large,
+## to be able to see the confidence intervals if we plot everything on
+## the same scale, so divide into separately scaled facets)
+ggplot(fit_tp_result, aes(y = mat)) +
+    geom_pointrange(aes(x = estimate, xmin = conf.low, xmax = conf.high)) +
+    geom_point(aes(x=true_value), colour = "red") +
+    facet_wrap(~mat, ncol = 1, scale  = "free")
+
+### does not work with beta+0.2
+# false convergence (8)
+
+
+
