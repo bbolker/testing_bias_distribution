@@ -1,9 +1,13 @@
 # Sys.setenv(LANG = "en")
-## remotes::install_github("bbolker/bbmle")
+# remotes::install_github("bbolker/bbmle")
+
 
 ## for now we need a patched version of macpan2
-remotes::install_github("canmod/macpan2", ref = "dbinom")
-options(macpan2_verbose = FALSE)
+# remotes::install_github("canmod/macpan2", ref = "dbinom")
+# options(macpan2_verbose = FALSE)
+
+### ??? p_simulator dependence of "DEoptim" 
+# install.packages("DEoptim")
 
 library(dplyr)
 library(macpan2)
@@ -12,6 +16,9 @@ library(ggplot2); theme_set(theme_bw())
 library(viridis)
 library(bbmle)
 library(broom)
+library(broom.mixed)
+library(DEoptim)
+
 source("mle2_tidy.R")
 
 # Set Seeds
@@ -34,7 +41,7 @@ NY_0 <- N*Y_0    ## initial number infected
 # r <- log(2)/3    ## growth rate (doubling time = 3)
 beta <- 0.25
 gamma <- 0.1
-tmin <- 50
+tmin <- 30
 tmax <- 80      ## max simulation time (about first half of logis)
 # tmax <- 59     ## max simulation time (end of logis)
 t <- c(tmin:tmax)
@@ -47,7 +54,6 @@ tp_list <-tibble::lst(beta, gamma, N, T_Y, T_B
               , I = NY_0
               , R = 0
 )
-                      
                       
 ### SIR from macpan
 mc_sir <- mp_tmb_library("starter_models","sir", package = "macpan2")
@@ -74,12 +80,15 @@ mc_sir <- mp_tmb_library("starter_models","sir", package = "macpan2")
 (sir
   |> mp_simulator(
       time_steps = tmax
-    , outputs = c("pY","T_prop","pos","OT","OP")
+    , outputs = c("pY","T_prop","pos","OT","OP","I")
   ) 
   |> mp_trajectory()
   |> dplyr::select(-c(row, col))
   |> filter(time>=tmin)
 ) -> dat
+
+dat
+# dat$time <- dat$time-tmin+1
 
 (dat
   |> pivot_wider(names_from = matrix,values_from = value)
@@ -101,29 +110,62 @@ sp_list <-tibble::lst(beta, gamma, N, T_Y, T_B
 sir_sim <- mp_tmb_update(sir,
   default = sp_list
 )
+sir_sim |> mp_expand()
 
 calibrator <- mp_tmb_calibrator(
     sir_sim
   , data = dat
-  , traj = c("OT","OP", "T_prop", "pos")
-  , par = c("beta","gamma","I","T_Y","T_B")
+  , traj = c("OT", "OP", "T_prop", "pos", "pY", "I")
+  , par = c("beta", "gamma", "I", "T_Y", "T_B")
   , default = list(N = N
                  , R = 0
     )
+  #, time = mp_sim_offset(tmin,tmax,"steps")
   )
-calibrator$simulator$replace$obj_fn(~ -sum(dbinom(obs_OT, N, sim_T_prop)) - sum(dbinom(obs_OP, obs_OT, sim_pos)))
+calibrator$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum(dbinom(obs_OP, obs_OT, sim_pos)))
 
-mp_optimize(calibrator)
+print(calibrator)
+
+fit_tp <- mp_optimize(calibrator)
+fit_tp <- mp_optimize(calibrator, control=list(iter.max=1000, eval.max=1000))
+fit_tp$message
+fit_tp$convergence
+
+fit_loglik <- fit_tp$objective
+print(fit_loglik)
+
 mp_tmb_coef(calibrator)
-fit_traj <- mp_trajectory(calibrator)
+exp(true_param$logY_0)*N
 
-ggplot(fit_traj, aes(time, value, color=matrix)) +
+# I does not converge to ture initial value, maybe related to the initial time
+# tmin <> 1?
+
+# tmin= 30: singular convergence (7)
+# huge difference in traj of pY and I 
+
+# dat must start with time =1?
+# tmin and tmax would be a factor for fitting? Or this degree of freedom shift 
+# to I_0 and N?
+
+# mp_sim_offset not available!
+# https://github.com/canmod/macpan2/blob/main/R/mp_tmb_calibrator.R
+# https://github.com/canmod/macpan2/blob/main/man/mp_sim_offset.Rd
+# ??? mp_sim_bounds()
+mp_sim_bounds(tmin,tmax,"steps")
+# ??? mp_cal_time()
+# need to change documentation! 
+# ??? time argument of mp_tmb_calibrator
+
+fit_traj <- mp_trajectory(calibrator)
+fit_traj
+ggplot(fit_traj, aes(time+tmin-1, value, color=matrix)) +
     geom_line() +
     scale_y_log10() +
-    geom_point(data = dat, aes(x = time - 50))
+    geom_point(data = dat, aes(x = time))
 
-
-                                        # ### function to calculate negative log-likelihood:
+dat[which(dat$matrix=="I"),]
+fit_traj[which(fit_traj$matrix=="I"),]
+### function to calculate negative log-likelihood:
 
 # LL <- function(log_B, log_Phi, logY_0, beta, gamma
 #                , dat, N, tmin ,tmax
