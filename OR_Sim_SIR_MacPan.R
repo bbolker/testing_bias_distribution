@@ -1,5 +1,9 @@
 # Sys.setenv(LANG = "en")
-# remotes::install_github("bbolker/bbmle")
+## remotes::install_github("bbolker/bbmle")
+
+## for now we need a patched version of macpan2
+remotes::install_github("canmod/macpan2", ref = "dbinom")
+options(macpan2_verbose = FALSE)
 
 library(dplyr)
 library(macpan2)
@@ -12,6 +16,7 @@ source("mle2_tidy.R")
 
 # Set Seeds
 set.seed(13519)
+
 
 ## Initial true values:
 T_B <- 0.04               ## uninfected testing prob
@@ -35,17 +40,15 @@ tmax <- 80      ## max simulation time (about first half of logis)
 t <- c(tmin:tmax)
 pts <- length(t) ## number of time points
 
-true_param <- c("log_B"=log(B),"log_Phi"=log(Phi),"logY_0"=log(Y_0),"beta"=beta, "gamma"=gamma)
+## BMB: use self-naming list from tibble pkg
+true_param <- tibble::lst(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0), beta, gamma)
 
-tp_list <- list(beta = beta
-              , gamma = gamma
-              , N = N
+tp_list <-tibble::lst(beta, gamma, N, T_Y, T_B
               , I = NY_0
               , R = 0
-              , T_Y = T_Y
-              , T_B = T_B
-              )
-
+)
+                      
+                      
 ### SIR from macpan
 mc_sir <- mp_tmb_library("starter_models","sir", package = "macpan2")
 
@@ -89,15 +92,11 @@ print(ggplot(dat)
 )
 
 ### Calibrator in macpan
-# initial values for simulation
-sp_list<-list(beta = beta
-            , gamma = gamma
-            , N = N
+## initial values for simulation
+sp_list <-tibble::lst(beta, gamma, N, T_Y, T_B
             , I = NY_0
             , R = 0
-            , T_Y = T_Y
-            , T_B = T_B
-            )
+)
 
 sir_sim <- mp_tmb_update(sir,
   default = sp_list
@@ -106,19 +105,26 @@ sir_sim <- mp_tmb_update(sir,
 calibrator <- mp_tmb_calibrator(
     sir_sim
   , data = dat
-  , traj = c("OT","OP")
+  , traj = c("OT","OP", "T_prop", "pos")
   , par = c("beta","gamma","I","T_Y","T_B")
   , default = list(N = N
                  , R = 0
     )
   )
+calibrator$simulator$replace$obj_fn(~ -sum(dbinom(obs_OT, N, sim_T_prop)) - sum(dbinom(obs_OP, obs_OT, sim_pos)))
 
-print(calibrator)
-### No mp_bin, just mp_neg_bin
+mp_optimize(calibrator)
+mp_tmb_coef(calibrator)
+fit_traj <- mp_trajectory(calibrator)
+
+ggplot(fit_traj, aes(time, value, color=matrix)) +
+    geom_line() +
+    scale_y_log10() +
+    geom_point(data = dat, aes(x = time - 50))
 
 
+                                        # ### function to calculate negative log-likelihood:
 
-# ### function to calculate negative log-likelihood:
 # LL <- function(log_B, log_Phi, logY_0, beta, gamma
 #                , dat, N, tmin ,tmax
 #                , debug = FALSE
@@ -214,8 +220,7 @@ print(calibrator)
 ## Hessian works now
 
 ### Disturb Phi
-param <- list(log_B=log(B), log_Phi=log(Phi+50), logY_0=log(Y_0), beta=beta, gamma=gamma)
-# param <- list(log_B=log(B), log_Phi=log(Phi-20), logY_0=log(Y_0), beta=beta, gamma=gamma)
+param <- tibble::lst(log_B=log(B), log_Phi=log(Phi+50), logY_0=log(Y_0), beta, gamma)
 
 ## Identify init_param pretty well after shift to logistic.
 ## Hessian works now, takes some time
