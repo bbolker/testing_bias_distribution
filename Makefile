@@ -13,6 +13,10 @@ Ignore = target.mk
 ## Test_positivity_vs_test_proportion_phi_inc.png
 
 ## OR_Sim.Rout: OR_Sim.R OR_Sim.md
+OR_Sim_SIR_MacPan.Rout: OR_Sim_SIR_MacPan.R
+	$(pipeR)
+
+## OR_Sim.Rout: OR_Sim.R OR_Sim.md
 OR_Sim.Rout: OR_Sim.R
 	$(pipeR)
 

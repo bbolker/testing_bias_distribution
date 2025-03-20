@@ -8,12 +8,12 @@
 ### ??? p_simulator dependence of "DEoptim" 
 # install.packages("DEoptim")
 
-library(dplyr)
-library(macpan2)
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(macpan2))
+suppressPackageStartupMessages(library(bbmle))
 library(tidyr)
 library(ggplot2); theme_set(theme_bw())
 library(viridis)
-library(bbmle)
 library(broom)
 library(broom.mixed)
 # library(DEoptim)
