@@ -1,5 +1,5 @@
 # Sys.setenv(LANG = "en")
-# remotes::install_github("bbolker/bbmle")
+## remotes::install_github("bbolker/bbmle")
 
 ## for now we need a patched version of macpan2
 ## remotes::install_github("canmod/macpan2", ref = "dbinom2")
@@ -16,6 +16,8 @@ library(viridis)
 library(broom)
 library(broom.mixed)
 library(DEoptim)
+library(nloptr)
+## https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/#local-gradient-based-optimization
 
 options(macpan2_verbose = FALSE)
 
@@ -127,6 +129,54 @@ calibrator <- mp_tmb_calibrator(
 calibrator$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum(dbinom(obs_OP, obs_OT, sim_pos)))
 
 print(calibrator)
+
+#' @param p parameter vector
+#' @param off_par names or indices of parameters to modify
+#' @param off_val values to offset specified parameters
+#' @param cal macpan calibrator object
+#' @param optimizer name (or symbol) of optimizer function
+#' @param ret_val "all" to return full list, character vector to return subset of list
+#' @param ... additional arguments (e.g. method for optim)
+my_opt <- function(p,
+                   off_par = NULL,
+                   off_val = 0,
+                   cal = calibrator,
+                   optimizer = "nlminb",
+                   ret_val = "par", ...) {
+    obj <- mp_tmb(cal)
+    if (!is.null(off_par)) p[off_par] <- p[off_par]+off_val
+    if (is.character(optimizer)) optimizer <- get(optimizer)
+    fit <- optimizer(p, obj$fn, obj$gr, ...)
+    if (ret_val == "all") return(fit)
+    return(fit[ret_val])
+}
+
+p0 <- unlist(tp_list)[fit_pars]
+my_opt(p0)
+my_opt(p0, off_par = "beta", off_val = 0.3, ret_val = "objective")
+
+offvec <- seq(0, 0.3, by = 0.01)
+nllvec <- sapply(offvec, \(x) my_opt(p0, off_par = "beta", off_val = x, ret_val = "objective")[[1]])
+## max value that's OK
+offvec[which(nllvec>1000)[1] -1 ]
+
+nllvec2 <- sapply(offvec, \(x) my_opt(p0, off_par = "beta", off_val = x,
+                                      optimizer = "optim", method = "BFGS",
+                                      ret_val = "value")[[1]])
+
+nlfun <- function(par, fn, gr, algorithm = "NLOPT_LD_LBFGS") {
+    ## hack around nloptr limitations
+    fn0 <- function(x) fn(x)
+    gr0 <- function(x) gr(x)
+    fit <- suppressWarnings(nloptr(x0 = par, eval_f = fn0, eval_grad_f = gr0, opts = list(algorithm = algorithm)))
+    return(list(par = fit$solution, value = fit$objective, convergence = fit$status))
+}
+
+my_opt(p0, optimizer = "nlfun", ret_val = "all")
+
+nllvec3 <- sapply(offvec, \(x) my_opt(p0, off_par = "beta", off_val = x,
+                                      optimizer = "nlfun",
+                                      ret_val = "value")[[1]])
 
 # fit_tp <- mp_optimize(calibrator)
 
