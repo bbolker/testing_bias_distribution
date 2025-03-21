@@ -15,7 +15,7 @@ library(ggplot2); theme_set(theme_bw())
 library(viridis)
 library(broom)
 library(broom.mixed)
-# library(DEoptim)
+library(DEoptim)
 
 options(macpan2_verbose = FALSE)
 
@@ -101,7 +101,7 @@ print(ggplot(dat)
 
 ### Calibrator in macpan
 ## initial values for simulation
-sp_list <-tibble::lst(beta, gamma, N, T_Y=T_Y, T_B
+sp_list <-tibble::lst(beta=beta+0.2, gamma, N, T_Y, T_B
             , I = NY_0
             , R = 0
 )
@@ -180,7 +180,6 @@ fit_tp_result <- (mp_tmb_coef(calibrator,conf.int = TRUE)
                   |> select(-c("term", "type","row","col","std.error"))
                   |> cbind(true_value=unlist(tp_list)[fit_pars])
                   )
-
 print(fit_tp_result)
 
 ## one way to present results ...
@@ -211,8 +210,8 @@ tmb_obj <- mp_tmb(calibrator)
 ## starting value, objective function, gradient fn in both cases
 (pars0 <- with(tmb_obj, nlminb(p0, fn, gr))$par)
 (pars1 <- with(tmb_obj, optim (p0, fn, gr, method = "BFGS"))$par)
-(pars2 <- with(tmb_obj, optim (p0+c(0.2, 0, 0, 0, 0), fn, gr, method = "BFGS"))$par)
-(pars3 <- with(tmb_obj, nlminb(p0+c(0.2, 0, 0, 0, 0), fn, gr))$par)
+(pars2 <- with(tmb_obj, optim (p0+c(0.3, 0, 0, 0, 0), fn, gr, method = "BFGS"))$par)
+(pars3 <- with(tmb_obj, nlminb(p0+c(0.3, 0, 0, 0, 0), fn, gr))$par)
 
 (pmat <- cbind(pars0, pars1, pars2, pars3))
 pmat - pmat[,1]
