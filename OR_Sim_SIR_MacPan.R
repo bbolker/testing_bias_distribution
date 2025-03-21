@@ -3,7 +3,6 @@
 
 ## for now we need a patched version of macpan2
 ## remotes::install_github("canmod/macpan2", ref = "dbinom2")
-options(macpan2_verbose = FALSE)
 
 ### ??? p_simulator dependence of "DEoptim" 
 # install.packages("DEoptim")
@@ -17,6 +16,8 @@ library(viridis)
 library(broom)
 library(broom.mixed)
 # library(DEoptim)
+
+options(macpan2_verbose = FALSE)
 
 source("mle2_tidy.R")
 
@@ -110,31 +111,44 @@ sir_sim <- mp_tmb_update(sir,
 )
 sir_sim |> mp_expand()
 
+fit_pars <- c("beta", "gamma", "I", "T_Y", "T_B")
 calibrator <- mp_tmb_calibrator(
     sir_sim
   , data = dat
   , traj = c("OT", "OP", "T_prop", "pos", "pY", "I")
-  , par = c("beta", "gamma", "I", "T_Y", "T_B")
+  , par = fit_pars,
   , default = list(N = N
                  , R = 0
     )
   , time = mp_sim_bounds(1,tmax,"steps")
-  )
+)
+## modify likelihood function (eventually we'll have mp_binom() so we can do this
+## when defining the calibrator)
 calibrator$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum(dbinom(obs_OP, obs_OT, sim_pos)))
 
 print(calibrator)
-calibrator$simulator
 
 # fit_tp <- mp_optimize(calibrator)
 
-fit_tp <- mp_optimize(calibrator, control=list(iter.max=10000, eval.max=10000))
-fit_tp$message
-fit_tp$convergence
+fit_tp <- mp_optimize(calibrator)
+
+cmp_par <- function(fit, true = unlist(tp_list),
+                    pars = fit_pars) {
+    data.frame(est = setNames(fit$par, pars),
+               true = true[pars])
+}
+
+cmp_par(fit_tp)
+
+## BMB: what was this for??                    , control=list(iter.max=10000, eval.max=10000))
+
+print(fit_tp)
+
 fit_loglik <- fit_tp$objective
 print(fit_loglik)
 
+## optim fit?
 
-## optim fit
 # fit_tp_optim <- mp_optimize(calibrator, "optim" ,method ="Nelder-Mead",control=list(maxit=10000, reltol = 1e-10))
 # fit_tp_optim$convergence
 # fit_loglik_optim<-fit_tp_optim$value
@@ -163,8 +177,8 @@ ggplot(fit_tp_traj, aes(time, value, color=matrix)) +
     geom_point(data = dat, aes(x = time),size=0.8)
 
 fit_tp_result <- (mp_tmb_coef(calibrator,conf.int = TRUE) 
-                  |> select(-c("term", "type","row","col"))
-                  |> cbind(true_value=c(beta, gamma, NY_0, T_Y, T_B))
+                  |> select(-c("term", "type","row","col","std.error"))
+                  |> cbind(true_value=unlist(tp_list)[fit_pars])
                   )
 
 print(fit_tp_result)
@@ -189,7 +203,17 @@ ggplot(fit_tp_result, aes(y = mat)) +
     facet_wrap(~mat, ncol = 1, scale  = "free")
 
 ### does not work with beta+0.2
-# false convergence (8)
+## false convergence (8)
 
+p0 <- unlist(tp_list)[fit_pars]
+tmb_obj <- mp_tmb(calibrator)
+## nlminb and optim have different argument names but args 1, 2, 3 are
+## starting value, objective function, gradient fn in both cases
+(pars0 <- with(tmb_obj, nlminb(p0, fn, gr))$par)
+(pars1 <- with(tmb_obj, optim (p0, fn, gr, method = "BFGS"))$par)
+(pars2 <- with(tmb_obj, optim (p0+c(0.2, 0, 0, 0, 0), fn, gr, method = "BFGS"))$par)
+(pars3 <- with(tmb_obj, nlminb(p0+c(0.2, 0, 0, 0, 0), fn, gr))$par)
 
+(pmat <- cbind(pars0, pars1, pars2, pars3))
+pmat - pmat[,1]
 
