@@ -22,6 +22,7 @@ library(nloptr)
 options(macpan2_verbose = FALSE)
 
 source("mle2_tidy.R")
+source("spec_trans_par.R")
 
 # Set Seeds
 set.seed(13519)
@@ -129,6 +130,29 @@ calibrator <- mp_tmb_calibrator(
 calibrator$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum(dbinom(obs_OP, obs_OT, sim_pos)))
 
 print(calibrator)
+
+## NOT IDEMPOTENT, mutability issues,  etc ...
+cal_trans_spec <- mp_trans_pars(sir_sim, c(beta = "log", gamma = "log", T_Y = "logit", T_B = "logit", I = "log"))
+cal_trans_spec
+
+## this doesn't work yet ...
+calibrator_trans <- mp_tmb_calibrator(
+    cal_trans_spec
+  , data = dat
+  , traj = c("OT", "OP", "T_prop", "pos", "pY", "I")
+  , par = fit_pars,
+  , default = list(N = N
+                 , R = 0
+    )
+  , time = mp_sim_bounds(1,tmax,"steps")
+)
+calibrator_trans$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum(dbinom(obs_OP, obs_OT, sim_pos)))
+
+## modify?
+calibrator_trans$cal_args$par
+
+
+mp_optimize(calibrator_trans)
 
 #' @param p parameter vector
 #' @param off_par names or indices of parameters to modify
