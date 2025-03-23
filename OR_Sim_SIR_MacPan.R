@@ -131,16 +131,16 @@ calibrator$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum
 
 print(calibrator)
 
-## NOT IDEMPOTENT, mutability issues,  etc ...
-cal_trans_spec <- mp_trans_pars(sir_sim, c(beta = "log", gamma = "log", T_Y = "logit", T_B = "logit", I = "log"))
-cal_trans_spec
+## NOT IDEMPOTENT, mutability issues,  etc .... ???
+par_trans <- c(beta = "log", gamma = "log", T_Y = "logit", T_B = "logit", I = "log")
+cal_trans_spec <- mp_trans_pars(sir_sim, par_trans)
 
-## this doesn't work yet ...
 calibrator_trans <- mp_tmb_calibrator(
     cal_trans_spec
   , data = dat
   , traj = c("OT", "OP", "T_prop", "pos", "pY", "I")
-  , par = fit_pars,
+    ## use transformed names
+  , par = mk_par_names(par_trans),
   , default = list(N = N
                  , R = 0
     )
@@ -149,7 +149,7 @@ calibrator_trans <- mp_tmb_calibrator(
 calibrator_trans$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum(dbinom(obs_OP, obs_OT, sim_pos)))
 
 ## modify?
-calibrator_trans$cal_args$par
+## calibrator_trans <- mp_trans_args(calibrator, par_trans)
 
 
 mp_optimize(calibrator_trans)
