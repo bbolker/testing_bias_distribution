@@ -143,7 +143,7 @@ For simplicity we denote $B=e^{-b}$ and $\Phi=e^{-\phi}$, then we have $$ T_B=1-
 
 Consider we can observe testing positivity $P$ and testing proportion $T$ from data. Try to interpret previous function for $B$ (thus $b$) as a function depend on $T$, $Y$, $\Phi$.
 
-**(To be discussed)** $B$ can be seen as the behavioralfactor reflect public and administrative reaction to the endemic. They partially observe $Y$, and the testing probability is also limited by testing availability reflected by $T$. While $\Phi$ (thus $\phi$) is more about medical/biological factor of the infection and testing strategy, like the severity/clarity of the symptoms and if the test focus on high risk people.
+**(To be discussed)** $B$ can be seen as the behavioral factor reflect public and administrative reaction to the endemic. They partially observe $Y$, and the testing probability is also limited by testing availability reflected by $T$. While $\Phi$ (thus $\phi$) is more about medical/biological factor of the infection and testing strategy, like the severity/clarity of the symptoms and if the test focus on high risk people.
 
 **(To be discussed)** Interpretation of $B(T,Y,\Phi)$:
 
