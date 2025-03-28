@@ -2,7 +2,7 @@
 ## remotes::install_github("bbolker/bbmle")
 
 ## for now we need a patched version of macpan2
-## remotes::install_github("canmod/macpan2", ref = "dbinom2")
+## remotes::install_github("canmod/macpan2", ref = "dbinom")
 
 ### ??? p_simulator dependence of "DEoptim" 
 # install.packages("DEoptim")
