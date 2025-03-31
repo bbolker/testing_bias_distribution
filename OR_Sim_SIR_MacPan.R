@@ -117,7 +117,7 @@ print(ggplot(dat)
 
 ### Calibrator in macpan
 ## initial values for simulation
-sp_list <-tibble::lst(beta=beta+0.35, gamma, N, T_B=T_B, T_Y
+sp_list <-tibble::lst(beta=beta+0.3, gamma, N, T_B=T_B, T_Y
             , I = NY_0
             , R = 0
 )
@@ -147,7 +147,7 @@ calibrator$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum
 
 calibrator|>print()
 
-mp_optimize(calibrator,optimizer = "optim", method = "Nelder-Mead")
+mp_optimize(calibrator,optimizer = "optim", method = "BFGS")
 
 fit<-mp_optimize(calibrator)
 fit$par
@@ -205,12 +205,13 @@ p0 <- unlist(tp_list)[c("beta","gamma","I","T_B","T_Y")]
 
 my_opt(p0)
 
-my_opt(p0, off_par = "beta", off_val = 0.25, ret_val = "objective")
+my_opt(p0, off_par = "beta", off_val = 0.3, ret_val = "objective")
 
-offvec <- seq(-0.2, 0.5, by = 0.01)
+offvec <- seq(-0.24, 0.6, by = 0.01)
 nllvec <- sapply(offvec, \(x) my_opt(p0, off_par = "beta", off_val = x, ret_val = "objective")[[1]])
 ## max value that's OK
 offvec[which(nllvec>1000)[1] -1 ]
+nllvec
 
 nllvec2 <- sapply(offvec, \(x) my_opt(p0, off_par = "beta", off_val = x,
                                       optimizer = "optim", method = "BFGS",
