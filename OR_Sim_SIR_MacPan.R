@@ -49,35 +49,46 @@ tmax <- 80      ## max simulation time (about first half of logis)
 t <- c(tmin:tmax)
 pts <- length(t) ## number of time points
 
-## BMB: use self-naming list from tibble pkg
-true_param <- tibble::lst(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0), beta, gamma)
+logit_trans <- function(x){
+  log(x)-log(1-x)
+}
 
-tp_list <-tibble::lst(beta, gamma, N, T_Y, T_B
+## BMB: use self-naming list from tibble pkg
+true_param <- tibble::lst(  log_B=log(B)
+                          , log_Phi=log(Phi)
+                          , logY_0=log(Y_0)
+                          , logit_T_B=logit_trans(T_B)
+                          , logit_T_Y=logit_trans(T_Y)
+                          )
+
+tp_list <-tibble::lst(beta, gamma, N, T_B, T_Y
               , I = NY_0
               , R = 0
 )
-                      
+
 ### SIR from macpan
 mc_sir <- mp_tmb_library("starter_models","sir", package = "macpan2")
 
-(mc_sir 
+(mc_sir
   |> mp_tmb_update(
     default = tp_list
     )
+  |> mp_tmb_insert_backtrans(variables = c("beta","gamma","I"), mp_log)
+  |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_logit)
   |> mp_tmb_insert(
-      phase = "during"
+    phase = "during"
     , at = Inf
     , expressions = list(
-          pY ~ I/N                          ## Prevalence based on SIR
-        , T_prop ~ (1-pY)*T_B+pY*T_Y        ## Expected test proportion
-        , pos ~ pY*T_Y/T_prop               ## Expected test positivity
-        , OT ~ rbinom(N,T_prop)
-        , OP ~ rbinom(OT,pos)
-        )
+        pY ~ I/N                          ## Prevalence based on SIR
+      , T_prop ~ (1-pY)*T_B+pY*T_Y        ## Expected test proportion
+      , pos ~ pY*T_Y/T_prop               ## Expected test positivity
+      , OT ~ rbinom(N,T_prop)
+      , OP ~ rbinom(OT,pos)
     )
-  )-> sir
+  )
+)->sir
 
-# sir |> mp_expand()
+sir |> mp_expand()
 
 (sir
   |> mp_simulator(
@@ -104,7 +115,7 @@ print(ggplot(dat)
 
 ### Calibrator in macpan
 ## initial values for simulation
-sp_list <-tibble::lst(beta=beta+0.2, gamma, N, T_Y, T_B
+sp_list <-tibble::lst(beta, gamma, N, T_B, T_Y
             , I = NY_0
             , R = 0
 )
@@ -114,11 +125,11 @@ sir_sim <- mp_tmb_update(sir,
 )
 sir_sim |> mp_expand()
 
-fit_pars <- c("beta", "gamma", "I", "T_Y", "T_B")
+fit_pars <- c("beta", "gamma", "I", "T_B", "T_Y")
 calibrator <- mp_tmb_calibrator(
     sir_sim
   , data = dat
-  , traj = c("OT", "OP", "T_prop", "pos", "pY", "I")
+  , traj = c("OT", "OP", "T_prop", "pos","pY", "I")
   , par = fit_pars,
   , default = list(N = N
                  , R = 0
@@ -131,28 +142,28 @@ calibrator$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum
 
 print(calibrator)
 
-## NOT IDEMPOTENT, mutability issues,  etc .... ???
-par_trans <- c(beta = "log", gamma = "log", T_Y = "logit", T_B = "logit", I = "log")
-cal_trans_spec <- mp_trans_pars(sir_sim, par_trans)
+# ## NOT IDEMPOTENT, mutability issues,  etc .... ???
+# par_trans <- c(beta = "log", gamma = "log", T_Y = "logit", T_B = "logit", I = "log")
+# cal_trans_spec <- mp_trans_pars(sir_sim, par_trans)
+# 
+# calibrator_trans <- mp_tmb_calibrator(
+#     cal_trans_spec
+#   , data = dat
+#   , traj = c("OT", "OP", "T_prop", "pos", "pY", "I")
+#     ## use transformed names
+#   , par = mk_par_names(par_trans),
+#   , default = list(N = N
+#                  , R = 0
+#     )
+#   , time = mp_sim_bounds(1,tmax,"steps")
+# )
+# calibrator_trans$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum(dbinom(obs_OP, obs_OT, sim_pos)))
+# 
+# ## modify?
+# ## calibrator_trans <- mp_trans_args(calibrator, par_trans)
 
-calibrator_trans <- mp_tmb_calibrator(
-    cal_trans_spec
-  , data = dat
-  , traj = c("OT", "OP", "T_prop", "pos", "pY", "I")
-    ## use transformed names
-  , par = mk_par_names(par_trans),
-  , default = list(N = N
-                 , R = 0
-    )
-  , time = mp_sim_bounds(1,tmax,"steps")
-)
-calibrator_trans$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum(dbinom(obs_OP, obs_OT, sim_pos)))
 
-## modify?
-## calibrator_trans <- mp_trans_args(calibrator, par_trans)
-
-
-mp_optimize(calibrator_trans)
+mp_optimize(calibrator)
 
 #' @param p parameter vector
 #' @param off_par names or indices of parameters to modify
