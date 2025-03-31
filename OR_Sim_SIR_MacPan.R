@@ -129,7 +129,7 @@ fit_pars <- c("beta", "gamma", "I", "T_B", "T_Y")
 calibrator <- mp_tmb_calibrator(
     sir_sim
   , data = dat
-  , traj = c("OT", "OP", "T_prop", "pos","pY", "I")
+  , traj = c("OT", "OP", "T_prop", "pos","pY","I")
   , par = fit_pars,
   , default = list(N = N
                  , R = 0
@@ -140,7 +140,9 @@ calibrator <- mp_tmb_calibrator(
 ## when defining the calibrator)
 calibrator$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum(dbinom(obs_OP, obs_OT, sim_pos)))
 
-print(calibrator)
+calibrator|>print()
+
+mp_optimize(calibrator)
 
 # ## NOT IDEMPOTENT, mutability issues,  etc .... ???
 # par_trans <- c(beta = "log", gamma = "log", T_Y = "logit", T_B = "logit", I = "log")
@@ -162,8 +164,6 @@ print(calibrator)
 # ## modify?
 # ## calibrator_trans <- mp_trans_args(calibrator, par_trans)
 
-
-mp_optimize(calibrator)
 
 #' @param p parameter vector
 #' @param off_par names or indices of parameters to modify
