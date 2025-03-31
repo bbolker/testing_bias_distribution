@@ -117,7 +117,7 @@ print(ggplot(dat)
 
 ### Calibrator in macpan
 ## initial values for simulation
-sp_list <-tibble::lst(beta=beta+0.3, gamma, N, T_B=T_B, T_Y
+sp_list <-tibble::lst(beta=beta+0.35, gamma, N, T_B=T_B, T_Y
             , I = NY_0
             , R = 0
 )
@@ -147,7 +147,7 @@ calibrator$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum
 
 calibrator|>print()
 
-mp_optimize(calibrator,optimizer = "optim", method = "BFGS")
+mp_optimize(calibrator,optimizer = "optim", method = "Nelder-Mead")
 
 fit<-mp_optimize(calibrator)
 fit$par
