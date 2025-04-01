@@ -2,7 +2,7 @@
 ## remotes::install_github("bbolker/bbmle")
 
 ## for now we need a patched version of macpan2
-## remotes::install_github("canmod/macpan2", ref = "dbinom")
+## remotes::install_github("canmod/macpan2", ref = "dbinom2")
 
 ### ??? p_simulator dependence of "DEoptim" 
 # install.packages("DEoptim")
@@ -44,40 +44,53 @@ NY_0 <- N*Y_0    ## initial number infected
 beta <- 0.25
 gamma <- 0.1
 tmin <- 30
-tmax <- 80      ## max simulation time (about first half of logis)
-# tmax <- 59     ## max simulation time (end of logis)
+tmax <- 80      ## max simulation time 
+# tmax <- 59     ## max simulation time 
 t <- c(tmin:tmax)
 pts <- length(t) ## number of time points
 
-## BMB: use self-naming list from tibble pkg
-true_param <- tibble::lst(log_B=log(B), log_Phi=log(Phi), logY_0=log(Y_0), beta, gamma)
+logit_trans <- function(x){
+  log(x)-log(1-x)
+}
 
-tp_list <-tibble::lst(beta, gamma, N, T_Y, T_B
+
+## BMB: use self-naming list from tibble pkg
+true_param <- tibble::lst(  log_B=log(B)
+                          , log_Phi=log(Phi)
+                          , logY_0=log(Y_0)
+                          , logit_T_B=logit_trans(T_B)
+                          , logit_T_Y=logit_trans(T_Y)
+                          )
+
+tp_list <-tibble::lst(beta, gamma, N, T_B, T_Y
               , I = NY_0
               , R = 0
 )
-                      
+
 ### SIR from macpan
 mc_sir <- mp_tmb_library("starter_models","sir", package = "macpan2")
 
-(mc_sir 
+(mc_sir
   |> mp_tmb_update(
     default = tp_list
     )
+  |> mp_tmb_insert_backtrans(variables = c("beta","gamma","I"), mp_log)
+  |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_log)
   |> mp_tmb_insert(
-      phase = "during"
+    phase = "during"
     , at = Inf
     , expressions = list(
-          pY ~ I/N                          ## Prevalence based on SIR
-        , T_prop ~ (1-pY)*T_B+pY*T_Y        ## Expected test proportion
-        , pos ~ pY*T_Y/T_prop               ## Expected test positivity
-        , OT ~ rbinom(N,T_prop)
-        , OP ~ rbinom(OT,pos)
-        )
+        pY ~ I/N                          ## Prevalence based on SIR
+      , T_prop ~ (1-pY)*T_B+pY*T_Y        ## Expected test proportion
+      , pos ~ pY*T_Y/T_prop               ## Expected test positivity
+      , OT ~ rbinom(N,T_prop)
+      , OP ~ rbinom(OT,pos)
     )
-  )-> sir
+  )
+  ## |> mp_tmb_delete(phase = "before", at = Inf, default = c("beta","gamma","I","T_B","T_Y"))
+)->sir
 
-# sir |> mp_expand()
+sir |> mp_expand()
 
 (sir
   |> mp_simulator(
@@ -104,21 +117,24 @@ print(ggplot(dat)
 
 ### Calibrator in macpan
 ## initial values for simulation
-sp_list <-tibble::lst(beta=beta+0.2, gamma, N, T_Y, T_B
+sp_list <-tibble::lst(beta=beta+0.3, gamma, N, T_B=T_B, T_Y
             , I = NY_0
             , R = 0
 )
 
-sir_sim <- mp_tmb_update(sir,
-  default = sp_list
-)
-sir_sim |> mp_expand()
+sir_sim <- (
+  mp_tmb_update(sir,default = sp_list)
+  |> mp_tmb_insert_backtrans(variables = c("beta","gamma","I"), mp_log)
+  |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_log)
+  )
 
-fit_pars <- c("beta", "gamma", "I", "T_Y", "T_B")
+sir_sim |> mp_default()
+
+fit_pars <- c("log_beta", "log_gamma", "log_I", "log_T_B", "log_T_Y")
 calibrator <- mp_tmb_calibrator(
     sir_sim
   , data = dat
-  , traj = c("OT", "OP", "T_prop", "pos", "pY", "I")
+  , traj = c("OT", "OP", "T_prop", "pos")
   , par = fit_pars,
   , default = list(N = N
                  , R = 0
@@ -129,30 +145,37 @@ calibrator <- mp_tmb_calibrator(
 ## when defining the calibrator)
 calibrator$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum(dbinom(obs_OP, obs_OT, sim_pos)))
 
-print(calibrator)
+calibrator|>print()
 
-## NOT IDEMPOTENT, mutability issues,  etc .... ???
-par_trans <- c(beta = "log", gamma = "log", T_Y = "logit", T_B = "logit", I = "log")
-cal_trans_spec <- mp_trans_pars(sir_sim, par_trans)
+mp_optimize(calibrator,optimizer = "optim", method = "BFGS")
 
-calibrator_trans <- mp_tmb_calibrator(
-    cal_trans_spec
-  , data = dat
-  , traj = c("OT", "OP", "T_prop", "pos", "pY", "I")
-    ## use transformed names
-  , par = mk_par_names(par_trans),
-  , default = list(N = N
-                 , R = 0
-    )
-  , time = mp_sim_bounds(1,tmax,"steps")
-)
-calibrator_trans$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum(dbinom(obs_OP, obs_OT, sim_pos)))
-
-## modify?
-## calibrator_trans <- mp_trans_args(calibrator, par_trans)
+fit<-mp_optimize(calibrator)
+fit$par
+names(fit$par)<-fit_pars
+exp(fit$par)
 
 
-mp_optimize(calibrator_trans)
+
+# ## NOT IDEMPOTENT, mutability issues,  etc .... ???
+# par_trans <- c(beta = "log", gamma = "log", T_Y = "logit", T_B = "logit", I = "log")
+# cal_trans_spec <- mp_trans_pars(sir_sim, par_trans)
+# 
+# calibrator_trans <- mp_tmb_calibrator(
+#     cal_trans_spec
+#   , data = dat
+#   , traj = c("OT", "OP", "T_prop", "pos", "pY", "I")
+#     ## use transformed names
+#   , par = mk_par_names(par_trans),
+#   , default = list(N = N
+#                  , R = 0
+#     )
+#   , time = mp_sim_bounds(1,tmax,"steps")
+# )
+# calibrator_trans$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum(dbinom(obs_OP, obs_OT, sim_pos)))
+# 
+# ## modify?
+# ## calibrator_trans <- mp_trans_args(calibrator, par_trans)
+
 
 #' @param p parameter vector
 #' @param off_par names or indices of parameters to modify
@@ -170,23 +193,31 @@ my_opt <- function(p,
     obj <- mp_tmb(cal)
     if (!is.null(off_par)) p[off_par] <- p[off_par]+off_val
     if (is.character(optimizer)) optimizer <- get(optimizer)
-    fit <- optimizer(p, obj$fn, obj$gr, ...)
+    log_p <- log(p)
+    names(log_p) <- fit_pars
+    fit <- optimizer(log_p, obj$fn, obj$gr, ...)
     if (ret_val == "all") return(fit)
     return(fit[ret_val])
 }
 
-p0 <- unlist(tp_list)[fit_pars]
+
+p0 <- unlist(tp_list)[c("beta","gamma","I","T_B","T_Y")]
+
 my_opt(p0)
+
 my_opt(p0, off_par = "beta", off_val = 0.3, ret_val = "objective")
 
-offvec <- seq(0, 0.3, by = 0.01)
+offvec <- seq(-0.24, 0.6, by = 0.01)
 nllvec <- sapply(offvec, \(x) my_opt(p0, off_par = "beta", off_val = x, ret_val = "objective")[[1]])
 ## max value that's OK
 offvec[which(nllvec>1000)[1] -1 ]
+nllvec
 
 nllvec2 <- sapply(offvec, \(x) my_opt(p0, off_par = "beta", off_val = x,
                                       optimizer = "optim", method = "BFGS",
                                       ret_val = "value")[[1]])
+nllvec2
+
 
 nlfun <- function(par, fn, gr, algorithm = "NLOPT_LD_LBFGS") {
     ## hack around nloptr limitations
