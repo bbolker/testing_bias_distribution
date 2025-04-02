@@ -53,7 +53,6 @@ logit_trans <- function(x){
   log(x)-log(1-x)
 }
 
-
 ## BMB: use self-naming list from tibble pkg
 true_param <- tibble::lst(  log_B=log(B)
                           , log_Phi=log(Phi)
@@ -75,7 +74,7 @@ mc_sir <- mp_tmb_library("starter_models","sir", package = "macpan2")
     default = tp_list
     )
   |> mp_tmb_insert_backtrans(variables = c("beta","gamma","I"), mp_log)
-  |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_log)
+  |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_logit)
   |> mp_tmb_insert(
     phase = "during"
     , at = Inf
@@ -91,6 +90,7 @@ mc_sir <- mp_tmb_library("starter_models","sir", package = "macpan2")
 )->sir
 
 sir |> mp_expand()
+sir |> mp_default()
 
 (sir
   |> mp_simulator(
@@ -125,12 +125,12 @@ sp_list <-tibble::lst(beta=beta+0.3, gamma, N, T_B=T_B, T_Y
 sir_sim <- (
   mp_tmb_update(sir,default = sp_list)
   |> mp_tmb_insert_backtrans(variables = c("beta","gamma","I"), mp_log)
-  |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_log)
+  |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_logit)
   )
 
 sir_sim |> mp_default()
 
-fit_pars <- c("log_beta", "log_gamma", "log_I", "log_T_B", "log_T_Y")
+fit_pars <- c("log_beta", "log_gamma", "log_I", "logit_T_B", "logit_T_Y")
 calibrator <- mp_tmb_calibrator(
     sir_sim
   , data = dat
@@ -147,12 +147,42 @@ calibrator$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum
 
 calibrator|>print()
 
-mp_optimize(calibrator,optimizer = "optim", method = "BFGS")
+#mp_optimize(calibrator,optimizer = "optim", method = "BFGS")
+mp_optimize(calibrator)
+
 
 fit<-mp_optimize(calibrator)
 fit$par
 names(fit$par)<-fit_pars
-exp(fit$par)
+exp(fit$par[1:3])
+(1/(1 + exp(-fit$par[4])))
+(1/(1 + exp(-fit$par[5])))
+
+
+## Look into initial values
+sp_list
+
+(sir_sim
+  |> mp_simulator(
+    time_steps = tmax
+    , outputs = c("pY","T_prop","pos","OT","OP","I")
+  ) 
+  |> mp_trajectory()
+  |> dplyr::select(-c(row, col))
+  |> filter(time>=tmin)
+) -> dat_sim
+
+dat_sim
+
+# (dat_sim
+#   |> pivot_wider(names_from = matrix,values_from = value)
+# ) |> print(n=pts)
+
+print(ggplot(dat)
+      + aes(time, value, color=matrix)
+      + geom_line()
+      + scale_y_log10()
+)
 
 
 
