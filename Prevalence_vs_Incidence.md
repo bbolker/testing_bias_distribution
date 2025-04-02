@@ -23,8 +23,9 @@ $$ \frac{dT}{dt}=\frac{dT}{dY} \frac{dY}{dt}= (-T_B +T_Y)\times \frac{dY}{dt}$$
 $$ \frac{dp}{dt}=\frac{dp}{dY}\frac{dY}{dt}= \frac{\frac{T_B}{T_Y}}{((Y-1)\frac{T_B}{T_Y}-Y)^2}\times\frac{dY}{dt}$$
 
 However, intuitively, a large new infection should somehow boost the test number $OT$ and positive test $OP$ number (within some duration in the future). 
-- 
-- 
 The peak of incidence might not overlap with peak of prevalence, due to recovery process. A draw back using prevalence is that we might not be able to catch this.
 ### Positive tests' impact on dynamic 
-A related question would be if we need to consider impact to infection dynamic of those observed positive tests: if they are positive in test, will they get recovered faster (take medication, treated, hospitalized, etc.) and/or get less infective (self/administrative quarantined, wear masks, extra measurement etc.). But this impact might not be significant if $T_{prop}$ and/or $pos$ are small, thus can be ignored for simplicity.
+A related question would be if we need to consider impact to infection dynamic of those observed positive tests: 
+- If they are positive in test, will they get recovered faster (take medication, treated, hospitalized, etc.) 
+- And/or get less infective (self/administrative quarantined, wear masks, extra measurement etc.). 
+- This impact might not be significant if $T_{prop}$ and/or $pos$ are small, thus can be ignored for simplicity.

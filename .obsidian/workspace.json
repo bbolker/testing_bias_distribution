@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Prevalence vs Incidence.md",
+                "file": "Prevalence_vs_Incidence.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Prevalence vs Incidence"
+              "title": "Prevalence_vs_Incidence"
             }
           }
         ]
@@ -171,6 +171,6 @@
   },
   "active": "3f475e798ba935ec",
   "lastOpenFiles": [
-    "Prevalence vs Incidence.md"
+    "Prevalence_vs_Incidence.md"
   ]
 }
