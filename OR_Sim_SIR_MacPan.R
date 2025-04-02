@@ -43,14 +43,17 @@ NY_0 <- N*Y_0    ## initial number infected
 # r <- log(2)/3    ## growth rate (doubling time = 3)
 beta <- 0.25
 gamma <- 0.1
-tmin <- 30
-tmax <- 80      ## max simulation time 
+tmin <- 20
+tmax <- 60      ## max simulation time 
 # tmax <- 59     ## max simulation time 
 t <- c(tmin:tmax)
 pts <- length(t) ## number of time points
 
 logit_trans <- function(x){
   log(x)-log(1-x)
+}
+logit_backtrans <- function(x){
+  (1/(1 + exp(-x)))
 }
 
 ## BMB: use self-naming list from tibble pkg
@@ -117,7 +120,7 @@ print(ggplot(dat)
 
 ### Calibrator in macpan
 ## initial values for simulation
-sp_list <-tibble::lst(beta=beta+0.3, gamma, N, T_B=T_B, T_Y
+sp_list <-tibble::lst(beta=beta, gamma=gamma-0.09, N, T_B=T_B, T_Y
             , I = NY_0
             , R = 0
 )
@@ -155,34 +158,47 @@ fit<-mp_optimize(calibrator)
 fit$par
 names(fit$par)<-fit_pars
 exp(fit$par[1:3])
-(1/(1 + exp(-fit$par[4])))
-(1/(1 + exp(-fit$par[5])))
-
+logit_backtrans(fit$par[4])
+logit_backtrans(fit$par[5])
 
 ## Look into initial values
-sp_list
+test_list <-tibble::lst(beta=beta, gamma=gamma-0.09, N, T_B=T_B, T_Y
+                      , I = NY_0
+                      , R = 0
+)
 
 (sir_sim
+  |> mp_tmb_update(phase = "during", default = test_list)
+  |> mp_tmb_insert_backtrans(variables = c("beta","gamma","I"), mp_log)
+  |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_logit)
   |> mp_simulator(
     time_steps = tmax
-    , outputs = c("pY","T_prop","pos","OT","OP","I")
+    , outputs = c("pY","OP","OT")
   ) 
   |> mp_trajectory()
   |> dplyr::select(-c(row, col))
   |> filter(time>=tmin)
 ) -> dat_sim
 
-dat_sim
-
 # (dat_sim
 #   |> pivot_wider(names_from = matrix,values_from = value)
 # ) |> print(n=pts)
 
-print(ggplot(dat)
+dat_tp<-filter(dat,matrix=="pY"|matrix=="OP"|matrix=="OT")
+
+print(ggplot(dat_sim)
       + aes(time, value, color=matrix)
+      + geom_line(aes(time, value, color=matrix),data=dat_tp,linetype = 2)
       + geom_line()
       + scale_y_log10()
 )
+
+### Obs: difference between beta+0.25 and beta+0.30 is if the tipping point is contained in the initial simulation
+### Obs: lower the tmin to include the tipping/peak point will fix the indentifiability issue
+### Conjecture: including the peak or have correct tendency make a difference in fitting 
+### similar things happens when tmin=20 to beta+0.45 and beta+0.50
+### A fixable issue??: make sure the initial value for testing at least have the same tendency with data
+
 
 
 
