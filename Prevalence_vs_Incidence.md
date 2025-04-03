@@ -25,7 +25,7 @@ A harmonized uniform testing rate for all active infected population at the mome
 With prevalence, the tendency of $OP$ is synchronized with prevalence $Y(t)$ and so does $OT$ in general as we assume $T_Y > T_B$.
 
 $$ \frac{dT}{dt}=\frac{dT}{dY} \frac{dY}{dt}= (-T_B +T_Y)\times \frac{dY}{dt}$$
-
+ 
 $$ \frac{dp}{dt}=\frac{dp}{dY}\frac{dY}{dt}= \frac{\frac{T_B}{T_Y}}{((Y-1)\frac{T_B}{T_Y}-Y)^2}\times\frac{dY}{dt}$$
 A problem is if patient already tested positives are evenly likely to get tested as new infections. 
 

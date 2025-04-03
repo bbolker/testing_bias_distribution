@@ -20,8 +20,19 @@
               "icon": "lucide-file",
               "title": "Prevalence_vs_Incidence"
             }
+          },
+          {
+            "id": "c3d8bda622ed03bb",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "New tab"
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -169,7 +180,7 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "3f475e798ba935ec",
+  "active": "c3d8bda622ed03bb",
   "lastOpenFiles": [
     "Prevalence_vs_Incidence.md"
   ]
