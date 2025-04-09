@@ -52,6 +52,9 @@ pts <- length(t) ## number of time points
 logit_trans <- function(x){
   log(x)-log(1-x)
 }
+logit_backtrans <- function(x){
+  (1/(1 + exp(-x)))
+}
 
 ## BMB: use self-naming list from tibble pkg
 true_param <- tibble::lst(  log_B=log(B)
@@ -89,8 +92,8 @@ mc_sir <- mp_tmb_library("starter_models","sir", package = "macpan2")
   ## |> mp_tmb_delete(phase = "before", at = Inf, default = c("beta","gamma","I","T_B","T_Y"))
 )->sir
 
-sir |> mp_expand()
-sir |> mp_default()
+# sir |> mp_expand()
+# sir |> mp_default()
 
 (sir
   |> mp_simulator(
@@ -102,7 +105,7 @@ sir |> mp_default()
   |> filter(time>=tmin)
 ) -> dat
 
-dat
+# dat
 # dat$time <- dat$time-tmin+1
 
 (dat
@@ -117,7 +120,7 @@ print(ggplot(dat)
 
 ### Calibrator in macpan
 ## initial values for simulation
-sp_list <-tibble::lst(beta=beta+0.3, gamma, N, T_B=T_B, T_Y
+sp_list <-tibble::lst(beta=beta+0.25, gamma, N, T_B, T_Y
             , I = NY_0
             , R = 0
 )
@@ -155,34 +158,54 @@ fit<-mp_optimize(calibrator)
 fit$par
 names(fit$par)<-fit_pars
 exp(fit$par[1:3])
-(1/(1 + exp(-fit$par[4])))
-(1/(1 + exp(-fit$par[5])))
-
+logit_backtrans(fit$par[4])
+logit_backtrans(fit$par[5])
 
 ## Look into initial values
-sp_list
+test_list <-tibble::lst(beta=beta+0.25, gamma, N, T_B=T_B, T_Y
+                      , I = NY_0
+                      , R = 0
+)
 
 (sir_sim
+  |> mp_tmb_update(phase = "during", default = test_list)
+  |> mp_tmb_insert_backtrans(variables = c("beta","gamma","I"), mp_log)
+  |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_logit)
   |> mp_simulator(
     time_steps = tmax
-    , outputs = c("pY","T_prop","pos","OT","OP","I")
+    , outputs = c("pY","OP","OT")
   ) 
   |> mp_trajectory()
   |> dplyr::select(-c(row, col))
   |> filter(time>=tmin)
 ) -> dat_sim
 
-dat_sim
-
 # (dat_sim
 #   |> pivot_wider(names_from = matrix,values_from = value)
 # ) |> print(n=pts)
+dat_tp<-filter(dat,matrix=="pY"|matrix=="OP"|matrix=="OT")
 
-print(ggplot(dat)
-      + aes(time, value, color=matrix)
+dat_sim <- cbind(dat_sim,model=rep("sim_init",length(dat_sim[,1])))
+dat_tp <- cbind(dat_tp,model=rep("real",length(dat_sim[,1])))
+
+dat_compare<-rbind(dat_sim, dat_tp)
+
+print(ggplot(dat_compare)
+      + aes(time, value, color=matrix, linetype = model)
       + geom_line()
       + scale_y_log10()
 )
+
+### Obs: difference between beta+0.25 and beta+0.30 is if the tipping point is 
+### contained in the initial simulation
+
+### Obs: lower the tmin to include the tipping/peak point will fix the 
+### indentifiability issue
+
+### Conjecture: including the peak or have correct tendency make a difference in fitting 
+### similar things happens when tmin=20 to beta+0.45 and beta+0.50
+### A fixable issue??: make sure the initial value for testing at least have the same tendency with data
+
 
 
 
