@@ -5,6 +5,7 @@ library(purrr)
 library(readr)
 library(dplyr)
 
+## Read in a lits of files and make sure there are no readr “problems”
 navalues <- c("", "NA", "N.R", "not tested", "not available")
 dl <- csvReadList(na = navalues, show_col_types=FALSE)
 warn <- (map(dl, problems)
@@ -13,12 +14,16 @@ warn <- (map(dl, problems)
 stopifnot(nrow(warn)==0)
 
 ## Give data _sets_ short names by flu year.
+## A flu year goes from summer to summer is named after the later year
 names(dl) <- sub(".*_[12][0-9]", "FY", names(dl))
 names(dl) <- sub("/.*", "", names(dl))
 print(names(dl))
 
-## Collect and simplify names of data _fields_
+## Collect and simplify names of data _fields_ using a weird corrections file
+## Should we be using more standard “data dictionary” methods?
+## Note that we are sequentially replacing, and that it seems a bit weird.
 fields <- map(dl, names) |> unname() |> unlist() |> unique()
+print(fields)
 corr <- tsvRead(show_col_types=FALSE)
 print(problems(corr))
 for (r in 1:nrow(corr)){
