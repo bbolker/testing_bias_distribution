@@ -20,19 +20,8 @@
               "icon": "lucide-file",
               "title": "Prevalence_vs_Incidence"
             }
-          },
-          {
-            "id": "c3d8bda622ed03bb",
-            "type": "leaf",
-            "state": {
-              "type": "empty",
-              "state": {},
-              "icon": "lucide-file",
-              "title": "New tab"
-            }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -85,8 +74,7 @@
               "title": "Bookmarks"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
@@ -180,7 +168,7 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "c3d8bda622ed03bb",
+  "active": "c2952aea3da15192",
   "lastOpenFiles": [
     "Prevalence_vs_Incidence.md"
   ]

@@ -3,6 +3,7 @@
 
 ## for now we need a patched version of macpan2
 ## remotes::install_github("canmod/macpan2", ref = "dbinom2")
+## remotes::install_github("canmod/macpan2")
 
 ### ??? p_simulator dependence of "DEoptim" 
 # install.packages("DEoptim")
@@ -92,7 +93,8 @@ mc_sir <- mp_tmb_library("starter_models","sir", package = "macpan2")
   ## |> mp_tmb_delete(phase = "before", at = Inf, default = c("beta","gamma","I","T_B","T_Y"))
 )->sir
 
-# sir |> mp_expand()
+sir |> mp_expand()
+
 # sir |> mp_default()
 
 (sir
@@ -120,10 +122,33 @@ print(ggplot(dat)
 
 ### Calibrator in macpan
 ## initial values for simulation
-sp_list <-tibble::lst(beta=beta+0.25, gamma, N, T_B, T_Y
-            , I = NY_0
-            , R = 0
+sp_list <-tibble::lst(beta, gammam, St, It, N, T_B, T_Y)
+
+### Change simulation sir model
+(mc_sir
+  |> mp_tmb_update(
+    default = sp_list
+  )
+  |> mp_tmb_insert_backtrans(variables = c("beta","gamma","St","It"), mp_log)
+  |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_logit)
+  |> mp_tmb_insert(
+    phase = "during"
+    , at = Inf
+    , expressions = list(
+      pY ~ I/N                          ## Prevalence based on SIR
+      , T_prop ~ (1-pY)*T_B+pY*T_Y        ## Expected test proportion
+      , pos ~ pY*T_Y/T_prop               ## Expected test positivity
+      , OT ~ rbinom(N,T_prop)
+      , OP ~ rbinom(OT,pos)
+    )
+  )
+  ## |> mp_tmb_delete(phase = "before", at = Inf, default = c("beta","gamma","I","T_B","T_Y"))
 )
+
+
+
+
+
 
 sir_sim <- (
   mp_tmb_update(sir,default = sp_list)
