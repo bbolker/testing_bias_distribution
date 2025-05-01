@@ -5,7 +5,7 @@ library(purrr)
 library(readr)
 library(dplyr)
 
-## Read in a lits of files and make sure there are no readr “problems”
+## Read in a list of files and make sure there are no readr “problems”
 navalues <- c("", "NA", "N.R", "not tested", "not available")
 dl <- csvReadList(na = navalues, show_col_types=FALSE)
 warn <- (map(dl, problems)
@@ -22,13 +22,18 @@ print(names(dl))
 ## Collect and simplify names of data _fields_ using a weird corrections file
 ## Should we be using more standard “data dictionary” methods?
 ## Note that we are sequentially replacing, and that it seems a bit weird.
-fields <- map(dl, names) |> unname() |> unlist() |> unique()
+orig <- fields <- map(dl, names) |> unname() |> unlist() |> unique()
 print(fields)
 corr <- tsvRead(show_col_types=FALSE)
 print(problems(corr))
 for (r in 1:nrow(corr)){
 	fields <- sub(corr[[r, "pat"]], corr[[r, "rep"]], fields)
 }
+
+tsvSave(data.frame(orig, fields) 
+	|> filter(orig != fields)
+	|> arrange(fields)
+)
 
 testFields <- grep("_tests", fields, value=TRUE)
 ## testFields <- sub("_tests", "", testFields)
@@ -42,4 +47,4 @@ tsvSave(data.frame(pos), ext="pos.Rout.tsv")
 totFields <- sub("_tests", "", totFields)
 tot <- totFields |> unique() |> sort()
 tsvSave(data.frame(tot), ext="tot.Rout.tsv")
- 
+
