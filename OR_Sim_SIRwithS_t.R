@@ -122,20 +122,21 @@ print(ggplot(dat)
 
 ### Calibrator in macpan
 ## initial values for simulation
-sp_list <-tibble::lst(beta, gammam, St, It, N, T_B, T_Y)
+
+sp_list <-tibble::lst(beta, gamma, N, T_B, T_Y, S=N-NY_0, I=NY_0)
 
 ### Change simulation sir model
 (mc_sir
   |> mp_tmb_update(
     default = sp_list
   )
-  |> mp_tmb_insert_backtrans(variables = c("beta","gamma","St","It"), mp_log)
+  |> mp_tmb_insert_backtrans(variables = c("beta","gamma","S","I"), mp_log)
   |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_logit)
   |> mp_tmb_insert(
     phase = "during"
     , at = Inf
     , expressions = list(
-      pY ~ I/N                          ## Prevalence based on SIR
+      pY ~ I/N                            ## Prevalence based on SIR
       , T_prop ~ (1-pY)*T_B+pY*T_Y        ## Expected test proportion
       , pos ~ pY*T_Y/T_prop               ## Expected test positivity
       , OT ~ rbinom(N,T_prop)
@@ -143,18 +144,18 @@ sp_list <-tibble::lst(beta, gammam, St, It, N, T_B, T_Y)
     )
   )
   ## |> mp_tmb_delete(phase = "before", at = Inf, default = c("beta","gamma","I","T_B","T_Y"))
-)
+) -> sir_sim
 
 
 
 
 
 
-sir_sim <- (
-  mp_tmb_update(sir,default = sp_list)
-  |> mp_tmb_insert_backtrans(variables = c("beta","gamma","I"), mp_log)
-  |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_logit)
-  )
+# sir_sim <- (
+#   mp_tmb_update(sir,default = sp_list)
+#   |> mp_tmb_insert_backtrans(variables = c("beta","gamma","I"), mp_log)
+#   |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_logit)
+#   )
 
 sir_sim |> mp_default()
 
