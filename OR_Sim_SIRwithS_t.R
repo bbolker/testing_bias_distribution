@@ -211,28 +211,30 @@ logit_backtrans(fit$par[6])
 
 
 ## Look into initial values
-test_list <-tibble::lst(beta=beta+0.25, gamma, N, T_B=T_B, T_Y
-                      , I = NY_0
-                      , R = 0
-)
+# test_list <-tibble::lst(beta=beta+0.25, gamma, N, T_B=T_B, T_Y
+#                       , I = NY_0
+#                       , R = 0
+# )
+test_list <- sp_list
 
 (sir_sim
   |> mp_tmb_update(phase = "during", default = test_list)
-  |> mp_tmb_insert_backtrans(variables = c("beta","gamma","I"), mp_log)
+  |> mp_tmb_insert_backtrans(variables = c("beta","gamma","S","I"), mp_log)
   |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_logit)
   |> mp_simulator(
-    time_steps = tmax
+    time_steps = tmax-tmin+1
     , outputs = c("pY","OP","OT")
   ) 
   |> mp_trajectory()
   |> dplyr::select(-c(row, col))
-  |> filter(time>=tmin)
+  # |> filter(time>=tmin)
 ) -> dat_sim
 
 # (dat_sim
 #   |> pivot_wider(names_from = matrix,values_from = value)
 # ) |> print(n=pts)
 dat_tp<-filter(dat,matrix=="pY"|matrix=="OP"|matrix=="OT")
+dat_sim$time<-dat_sim$time+tmin-1
 
 dat_sim <- cbind(dat_sim,model=rep("sim_init",length(dat_sim[,1])))
 dat_tp <- cbind(dat_tp,model=rep("real",length(dat_sim[,1])))
