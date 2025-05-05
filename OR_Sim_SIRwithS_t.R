@@ -100,7 +100,7 @@ sir |> mp_expand()
 (sir
   |> mp_simulator(
       time_steps = tmax
-    , outputs = c("pY","T_prop","pos","OT","OP","I")
+    , outputs = c("pY","T_prop","pos","OT","OP","I","S")
   ) 
   |> mp_trajectory()
   |> dplyr::select(-c(row, col))
@@ -123,7 +123,23 @@ print(ggplot(dat)
 ### Calibrator in macpan
 ## initial values for simulation
 
-sp_list <-tibble::lst(beta, gamma, N, T_B, T_Y, S=N-NY_0, I=NY_0)
+### Assume we know St
+S <- dat[2,]$value
+
+### approximation of hat{I} inferred from first data point:
+OT <- dat[which(dat$time==tmin & dat$matrix=="OT"),]$value
+OP <- dat[which(dat$time==tmin & dat$matrix=="OP"),]$value
+hat_T <- OT/N
+hat_p <- OP/OT
+hat_Y <- (hat_p*hat_T)/T_Y
+
+I <- hat_Y*N
+
+### In fitting, should check if S+I >=1
+
+### What if we don't know S???
+### How can we detect S???
+sp_list <-tibble::lst(beta, gamma, N, T_B, T_Y, S, I)
 
 ### Change simulation sir model
 (mc_sir
@@ -143,11 +159,18 @@ sp_list <-tibble::lst(beta, gamma, N, T_B, T_Y, S=N-NY_0, I=NY_0)
       , OP ~ rbinom(OT,pos)
     )
   )
+  |> mp_tmb_update(
+    phase = "before"
+    , at = 7
+    , expressions = list(
+      R ~ N - S -I
+    )
+  )
   ## |> mp_tmb_delete(phase = "before", at = Inf, default = c("beta","gamma","I","T_B","T_Y"))
 ) -> sir_sim
 
 
-
+sir_sim
 
 
 
@@ -157,9 +180,9 @@ sp_list <-tibble::lst(beta, gamma, N, T_B, T_Y, S=N-NY_0, I=NY_0)
 #   |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_logit)
 #   )
 
-sir_sim |> mp_default()
 
-fit_pars <- c("log_beta", "log_gamma", "log_I", "logit_T_B", "logit_T_Y")
+
+fit_pars <- c("log_beta", "log_gamma", "log_S","log_I", "logit_T_B", "logit_T_Y")
 calibrator <- mp_tmb_calibrator(
     sir_sim
   , data = dat
@@ -168,7 +191,6 @@ calibrator <- mp_tmb_calibrator(
   , default = list(N = N
                  , R = 0
     )
-  , time = mp_sim_bounds(1,tmax,"steps")
 )
 ## modify likelihood function (eventually we'll have mp_binom() so we can do this
 ## when defining the calibrator)
@@ -183,9 +205,10 @@ mp_optimize(calibrator)
 fit<-mp_optimize(calibrator)
 fit$par
 names(fit$par)<-fit_pars
-exp(fit$par[1:3])
-logit_backtrans(fit$par[4])
+exp(fit$par[1:4])
 logit_backtrans(fit$par[5])
+logit_backtrans(fit$par[6])
+
 
 ## Look into initial values
 test_list <-tibble::lst(beta=beta+0.25, gamma, N, T_B=T_B, T_Y
