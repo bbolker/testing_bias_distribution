@@ -129,17 +129,22 @@ S <- dat[2,]$value
 ### approximation of hat{I} inferred from first data point:
 OT <- dat[which(dat$time==tmin & dat$matrix=="OT"),]$value
 OP <- dat[which(dat$time==tmin & dat$matrix=="OP"),]$value
+
+hat_T_Y <- T_Y
+
 hat_T <- OT/N
 hat_p <- OP/OT
-hat_Y <- (hat_p*hat_T)/T_Y
+hat_Y <- (hat_p*hat_T)/hat_T_Y
 
-I <- hat_Y*N
+hat_I <- hat_Y*N
 
 ### In fitting, should check if S+I >=1
 
 ### What if we don't know S???
+# it will only affect the scaling 
 ### How can we detect S???
-sp_list <-tibble::lst(beta, gamma, N, T_B, T_Y, S, I)
+
+sp_list <-tibble::lst(beta, gamma, N, T_B, T_Y, S, I=hat_I)
 
 ### Change simulation sir model
 (mc_sir
@@ -163,24 +168,19 @@ sp_list <-tibble::lst(beta, gamma, N, T_B, T_Y, S, I)
     phase = "before"
     , at = 7
     , expressions = list(
-      R ~ N - S -I
+      R ~ N - S - I
     )
   )
   ## |> mp_tmb_delete(phase = "before", at = Inf, default = c("beta","gamma","I","T_B","T_Y"))
 ) -> sir_sim
 
-
 sir_sim
-
-
 
 # sir_sim <- (
 #   mp_tmb_update(sir,default = sp_list)
 #   |> mp_tmb_insert_backtrans(variables = c("beta","gamma","I"), mp_log)
 #   |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_logit)
 #   )
-
-
 
 fit_pars <- c("log_beta", "log_gamma", "log_S","log_I", "logit_T_B", "logit_T_Y")
 calibrator <- mp_tmb_calibrator(
@@ -196,16 +196,18 @@ calibrator <- mp_tmb_calibrator(
 ## when defining the calibrator)
 calibrator$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum(dbinom(obs_OP, obs_OT, sim_pos)))
 
-calibrator|>print()
+#calibrator|>print()
 
 #mp_optimize(calibrator,optimizer = "optim", method = "BFGS")
-mp_optimize(calibrator)
+#mp_optimize(calibrator)
 
 
 fit<-mp_optimize(calibrator)
-fit$par
+
 names(fit$par)<-fit_pars
+
 exp(fit$par[1:4])
+
 logit_backtrans(fit$par[5])
 logit_backtrans(fit$par[6])
 
@@ -230,6 +232,13 @@ test_list <- sp_list
   # |> filter(time>=tmin)
 ) -> dat_sim
 
+sim_vals <- (calibrator
+             |> mp_trajectory()
+             |> filter(matrix == "OP"|matrix == "OT"|matrix=="pY")
+)
+
+sim_vals
+
 # (dat_sim
 #   |> pivot_wider(names_from = matrix,values_from = value)
 # ) |> print(n=pts)
@@ -238,14 +247,16 @@ dat_sim$time<-dat_sim$time+tmin-1
 
 dat_sim <- cbind(dat_sim,model=rep("sim_init",length(dat_sim[,1])))
 dat_tp <- cbind(dat_tp,model=rep("real",length(dat_sim[,1])))
+sim_vals <- cbind(sim_vals,model=rep("optim",length(sim_vals[,1])))
 
-dat_compare<-rbind(dat_sim, dat_tp)
+dat_compare<-rbind(dat_sim, dat_tp,sim_vals[,-3:-4])
 
 print(ggplot(dat_compare)
       + aes(time, value, color=matrix, linetype = model)
       + geom_line()
       + scale_y_log10()
 )
+
 
 ### Obs: difference between beta+0.25 and beta+0.30 is if the tipping point is 
 ### contained in the initial simulation
