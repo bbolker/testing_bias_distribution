@@ -104,9 +104,14 @@ sir |> mp_expand()
   ) 
   |> mp_trajectory()
   |> dplyr::select(-c(row, col))
-  |> filter(time>=tmin)
-) -> dat
+  
+) -> dat_all
 
+dat<- (dat_all|> filter(time>=tmin)
+)
+
+dat_all[197,]
+dat_all[198,]
 # dat
 # dat$time <- dat$time-tmin+1
 
@@ -124,7 +129,7 @@ print(ggplot(dat)
 ## initial values for simulation
 
 ### Assume we know St
-S <- dat[2,]$value
+S <- dat_all[198,]$value
 hat_S <- S*(1-0.4)
 
 ### approximation of hat{I} inferred from first data point:
@@ -150,7 +155,7 @@ if(hat_S+hat_I>N){
 # it will only affect the scaling 
 ### How can we detect S???
 
-sp_list <-tibble::lst(beta=beta+0.4, gamma+0.1, N, T_B, T_Y=hat_T_Y, S=hat_S, I=hat_I)
+sp_list <-tibble::lst(beta=beta+0.4, gamma=gamma+0.1, N, T_B, T_Y=hat_T_Y, S=hat_S, I=hat_I)
 
 ### Change simulation sir model
 (mc_sir
@@ -207,14 +212,16 @@ names(fit$par)<-fit_pars
 print(fit)
 
 
-exp(fit$par[1:4])
+fit_bk<-c(exp(fit$par[1]),exp(fit$par[2]),N=N,logit_backtrans(fit$par[5]),logit_backtrans(fit$par[6]),exp(fit$par[3]),exp(fit$par[4]))
 
-logit_backtrans(fit$par[5])
-logit_backtrans(fit$par[6])
+names(fit_bk)<-names(sp_list)
+fit_bklist<-as.list(append(fit_bk,fit$par))
 
+# print(fit_bk)
 
 ## Look into initial values
 test_list <- sp_list
+
 
 (sir_sim
   |> mp_tmb_update(phase = "during", default = test_list)
@@ -224,7 +231,7 @@ test_list <- sp_list
     time_steps = tmax-tmin+1
     , outputs = c(  "OP"
                   , "OT"
-                  #, "pY"
+                  , "pY"
                   )
   ) 
   |> mp_trajectory()
@@ -232,35 +239,55 @@ test_list <- sp_list
   # |> filter(time>=tmin)
 ) -> dat_sim
 
-sim_vals <- (calibrator
-             |> mp_trajectory()
-             |> filter(matrix == "OP"|matrix == "OT")
+
+# (sir_sim
+#   |> mp_tmb_update(phase = "during", default = fit_bklist)
+# )
+
+(sir_sim|> mp_tmb_update(phase = "during", default = fit_bklist)
+        |> mp_simulator(
+            time_steps = tmax-tmin+1
+            , outputs = c(  "OP"
+                          , "OT"
+                          , "pY"
+                          )
+             ) 
+)->sir_optim
+sim_vals <-(sir_optim|> mp_trajectory()
+              |> dplyr::select(-c(row, col))
+             # |> filter(time>=tmin)
 )
-# |matrix=="pY"
-# print(sim_vals)
+mp_default(sir_optim)
+
+
+sir_optim
+fit_bklist
+sim_vals[1,]
 
 # (dat_sim
 #   |> pivot_wider(names_from = matrix,values_from = value)
 # ) |> print(n=pts)
-dat_tp<-filter(dat,matrix=="OP"|matrix=="OT")
+dat_tp<-filter(dat,matrix=="OP"|matrix=="OT"|matrix=="pY")
+
 dat_sim$time<-dat_sim$time+tmin-1
+sim_vals$time<-sim_vals$time+tmin-1
 
 dat_sim <- cbind(dat_sim,model=rep("sim_init",length(dat_sim[,1])))
 dat_tp <- cbind(dat_tp,model=rep("real",length(dat_tp[,1])))
 sim_vals <- cbind(sim_vals,model=rep("optim",length(sim_vals[,1])))
 
-dat_compare<-rbind(dat_sim,dat_tp,sim_vals[,-3:-4])
+dat_compare<-rbind(dat_sim,dat_tp,sim_vals)
 
 fit_curve <- (ggplot(dat_compare)
       + aes(x=time, y=value, color=matrix, linetype = model)
       + geom_line()
       + geom_point(data=dat_tp,aes(shape="real"))
       + scale_y_log10()
-      + scale_colour_manual(values = c("blue", "red"))
-      + scale_shape_manual(values = c(1,2,3))
+      #+ scale_colour_manual(values = c("blue", "red", "black"))
+      + scale_linetype_manual(values = c(1,2,3))
 )
+print(fit_curve)
 ggsave("new_mech_curve.png",plot=fit_curve, path = "./pix", width=3200,height=1800,units="px")
-
 
 ### Obs: difference between beta+0.25 and beta+0.30 is if the tipping point is 
 ### contained in the initial simulation
@@ -394,14 +421,18 @@ ggsave("new_mech_curve.png",plot=fit_curve, path = "./pix", width=3200,height=18
 # ??? time argument of mp_tmb_calibrator
 
 fit_tp_traj <- mp_trajectory(calibrator)
-# fit_tp_traj
 # ggplot(fit_tp_traj, aes(time, value, color=matrix)) +
 #     geom_line() +
 #     scale_y_log10() +
 #     geom_point(data = dat, aes(x = time),size=0.8)
+mp_tmb_coef(calibrator) 
+dat_tp[1,]$value*N
+sim_vals[1,]$value*N
+fit_bklist$I
+
 fit_tp_result <- (mp_tmb_coef(calibrator,conf.int = TRUE) 
                   |> select(-c("term", "type","row","col","std.error"))
-                  |> cbind(true_value=c(beta=beta,gamma=gamma,S=S,I=dat[1,]$value,T_B=T_B,T_Y=T_Y)
+                  |> cbind(true_value=c(beta=beta,gamma=gamma,S=S,I=dat_all[197,]$value,T_B=T_B,T_Y=T_Y)
 )
                   )
 print(fit_tp_result)
@@ -425,6 +456,7 @@ fit_compare <- ggplot(fit_tp_result, aes(y = mat)) +
     geom_pointrange(aes(x = estimate, xmin = conf.low, xmax = conf.high)) +
     geom_point(aes(x=true_value), colour = "red") +
     facet_wrap(~mat, ncol = 1, scale  = "free")
+print(fit_compare)
 ggsave("new_mech_fit.png",plot=fit_compare, path = "./pix", width=1800,height=3200,units="px")
 
 ### does not work with beta+0.2
