@@ -125,12 +125,14 @@ print(ggplot(dat)
 
 ### Assume we know St
 S <- dat[2,]$value
+hat_S <- S*(1-0.4)
 
 ### approximation of hat{I} inferred from first data point:
 OT <- dat[which(dat$time==tmin & dat$matrix=="OT"),]$value
 OP <- dat[which(dat$time==tmin & dat$matrix=="OP"),]$value
 
-hat_T_Y <- T_Y
+print(T_Y)
+hat_T_Y <- T_Y+0.2
 
 hat_T <- OT/N
 hat_p <- OP/OT
@@ -139,12 +141,16 @@ hat_Y <- (hat_p*hat_T)/hat_T_Y
 hat_I <- hat_Y*N
 
 ### In fitting, should check if S+I >=1
+if(hat_S+hat_I>N){
+  print("initial S+I value larger than N")
+} else {"check"}
+
 
 ### What if we don't know S???
 # it will only affect the scaling 
 ### How can we detect S???
 
-sp_list <-tibble::lst(beta, gamma, N, T_B, T_Y, S, I=hat_I)
+sp_list <-tibble::lst(beta=beta+0.4, gamma+0.1, N, T_B, T_Y=hat_T_Y, S=hat_S, I=hat_I)
 
 ### Change simulation sir model
 (mc_sir
@@ -174,13 +180,7 @@ sp_list <-tibble::lst(beta, gamma, N, T_B, T_Y, S, I=hat_I)
   ## |> mp_tmb_delete(phase = "before", at = Inf, default = c("beta","gamma","I","T_B","T_Y"))
 ) -> sir_sim
 
-sir_sim
-
-# sir_sim <- (
-#   mp_tmb_update(sir,default = sp_list)
-#   |> mp_tmb_insert_backtrans(variables = c("beta","gamma","I"), mp_log)
-#   |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_logit)
-#   )
+# print(sir_sim) 
 
 fit_pars <- c("log_beta", "log_gamma", "log_S","log_I", "logit_T_B", "logit_T_Y")
 calibrator <- mp_tmb_calibrator(
@@ -203,8 +203,9 @@ calibrator$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum
 
 
 fit<-mp_optimize(calibrator)
-
 names(fit$par)<-fit_pars
+print(fit)
+
 
 exp(fit$par[1:4])
 
@@ -213,10 +214,6 @@ logit_backtrans(fit$par[6])
 
 
 ## Look into initial values
-# test_list <-tibble::lst(beta=beta+0.25, gamma, N, T_B=T_B, T_Y
-#                       , I = NY_0
-#                       , R = 0
-# )
 test_list <- sp_list
 
 (sir_sim
@@ -225,7 +222,10 @@ test_list <- sp_list
   |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_logit)
   |> mp_simulator(
     time_steps = tmax-tmin+1
-    , outputs = c("pY","OP","OT")
+    , outputs = c(  "OP"
+                  , "OT"
+                  #, "pY"
+                  )
   ) 
   |> mp_trajectory()
   |> dplyr::select(-c(row, col))
@@ -234,28 +234,32 @@ test_list <- sp_list
 
 sim_vals <- (calibrator
              |> mp_trajectory()
-             |> filter(matrix == "OP"|matrix == "OT"|matrix=="pY")
+             |> filter(matrix == "OP"|matrix == "OT")
 )
-
-sim_vals
+# |matrix=="pY"
+# print(sim_vals)
 
 # (dat_sim
 #   |> pivot_wider(names_from = matrix,values_from = value)
 # ) |> print(n=pts)
-dat_tp<-filter(dat,matrix=="pY"|matrix=="OP"|matrix=="OT")
+dat_tp<-filter(dat,matrix=="OP"|matrix=="OT")
 dat_sim$time<-dat_sim$time+tmin-1
 
 dat_sim <- cbind(dat_sim,model=rep("sim_init",length(dat_sim[,1])))
-dat_tp <- cbind(dat_tp,model=rep("real",length(dat_sim[,1])))
+dat_tp <- cbind(dat_tp,model=rep("real",length(dat_tp[,1])))
 sim_vals <- cbind(sim_vals,model=rep("optim",length(sim_vals[,1])))
 
-dat_compare<-rbind(dat_sim, dat_tp,sim_vals[,-3:-4])
+dat_compare<-rbind(dat_sim,dat_tp,sim_vals[,-3:-4])
 
-print(ggplot(dat_compare)
-      + aes(time, value, color=matrix, linetype = model)
+fit_curve <- (ggplot(dat_compare)
+      + aes(x=time, y=value, color=matrix, linetype = model)
       + geom_line()
+      + geom_point(data=dat_tp,aes(shape="real"))
       + scale_y_log10()
+      + scale_colour_manual(values = c("blue", "red"))
+      + scale_shape_manual(values = c(1,2,3))
 )
+ggsave("new_mech_curve.png",plot=fit_curve, path = "./pix", width=3200,height=1800,units="px")
 
 
 ### Obs: difference between beta+0.25 and beta+0.30 is if the tipping point is 
@@ -299,73 +303,73 @@ print(ggplot(dat_compare)
 #' @param optimizer name (or symbol) of optimizer function
 #' @param ret_val "all" to return full list, character vector to return subset of list
 #' @param ... additional arguments (e.g. method for optim)
-my_opt <- function(p,
-                   off_par = NULL,
-                   off_val = 0,
-                   cal = calibrator,
-                   optimizer = "nlminb",
-                   ret_val = "par", ...) {
-    obj <- mp_tmb(cal)
-    if (!is.null(off_par)) p[off_par] <- p[off_par]+off_val
-    if (is.character(optimizer)) optimizer <- get(optimizer)
-    log_p <- log(p)
-    names(log_p) <- fit_pars
-    fit <- optimizer(log_p, obj$fn, obj$gr, ...)
-    if (ret_val == "all") return(fit)
-    return(fit[ret_val])
-}
-
-
-p0 <- unlist(tp_list)[c("beta","gamma","I","T_B","T_Y")]
-
-my_opt(p0)
-
-my_opt(p0, off_par = "beta", off_val = 0.3, ret_val = "objective")
-
-offvec <- seq(-0.24, 0.6, by = 0.01)
-nllvec <- sapply(offvec, \(x) my_opt(p0, off_par = "beta", off_val = x, ret_val = "objective")[[1]])
-## max value that's OK
-offvec[which(nllvec>1000)[1] -1 ]
-nllvec
-
-nllvec2 <- sapply(offvec, \(x) my_opt(p0, off_par = "beta", off_val = x,
-                                      optimizer = "optim", method = "BFGS",
-                                      ret_val = "value")[[1]])
-nllvec2
-
-
-nlfun <- function(par, fn, gr, algorithm = "NLOPT_LD_LBFGS") {
-    ## hack around nloptr limitations
-    fn0 <- function(x) fn(x)
-    gr0 <- function(x) gr(x)
-    fit <- suppressWarnings(nloptr(x0 = par, eval_f = fn0, eval_grad_f = gr0, opts = list(algorithm = algorithm)))
-    return(list(par = fit$solution, value = fit$objective, convergence = fit$status))
-}
-
-my_opt(p0, optimizer = "nlfun", ret_val = "all")
-
-nllvec3 <- sapply(offvec, \(x) my_opt(p0, off_par = "beta", off_val = x,
-                                      optimizer = "nlfun",
-                                      ret_val = "value")[[1]])
-
+# my_opt <- function(p,
+#                    off_par = NULL,
+#                    off_val = 0,
+#                    cal = calibrator,
+#                    optimizer = "nlminb",
+#                    ret_val = "par", ...) {
+#     obj <- mp_tmb(cal)
+#     if (!is.null(off_par)) p[off_par] <- p[off_par]+off_val
+#     if (is.character(optimizer)) optimizer <- get(optimizer)
+#     log_p <- log(p)
+#     names(log_p) <- fit_pars
+#     fit <- optimizer(log_p, obj$fn, obj$gr, ...)
+#     if (ret_val == "all") return(fit)
+#     return(fit[ret_val])
+# }
+# 
+# 
+# p0 <- unlist(tp_list)[c("beta","gamma","I","T_B","T_Y")]
+# 
+# my_opt(p0)
+# 
+# my_opt(p0, off_par = "beta", off_val = 0.3, ret_val = "objective")
+# 
+# offvec <- seq(-0.24, 0.6, by = 0.01)
+# nllvec <- sapply(offvec, \(x) my_opt(p0, off_par = "beta", off_val = x, ret_val = "objective")[[1]])
+# ## max value that's OK
+# offvec[which(nllvec>1000)[1] -1 ]
+# nllvec
+# 
+# nllvec2 <- sapply(offvec, \(x) my_opt(p0, off_par = "beta", off_val = x,
+#                                       optimizer = "optim", method = "BFGS",
+#                                       ret_val = "value")[[1]])
+# nllvec2
+# 
+# 
+# nlfun <- function(par, fn, gr, algorithm = "NLOPT_LD_LBFGS") {
+#     ## hack around nloptr limitations
+#     fn0 <- function(x) fn(x)
+#     gr0 <- function(x) gr(x)
+#     fit <- suppressWarnings(nloptr(x0 = par, eval_f = fn0, eval_grad_f = gr0, opts = list(algorithm = algorithm)))
+#     return(list(par = fit$solution, value = fit$objective, convergence = fit$status))
+# }
+# 
+# my_opt(p0, optimizer = "nlfun", ret_val = "all")
+# 
+# nllvec3 <- sapply(offvec, \(x) my_opt(p0, off_par = "beta", off_val = x,
+#                                       optimizer = "nlfun",
+#                                       ret_val = "value")[[1]])
+# 
+# # fit_tp <- mp_optimize(calibrator)
+# 
 # fit_tp <- mp_optimize(calibrator)
-
-fit_tp <- mp_optimize(calibrator)
-
-cmp_par <- function(fit, true = unlist(tp_list),
-                    pars = fit_pars) {
-    data.frame(est = setNames(fit$par, pars),
-               true = true[pars])
-}
-
-cmp_par(fit_tp)
+# 
+# cmp_par <- function(fit, true = unlist(tp_list),
+#                     pars = fit_pars) {
+#     data.frame(est = setNames(fit$par, pars),
+#                true = true[pars])
+# }
+# 
+# cmp_par(fit_tp)
 
 ## BMB: what was this for??                    , control=list(iter.max=10000, eval.max=10000))
 
-print(fit_tp)
-
-fit_loglik <- fit_tp$objective
-print(fit_loglik)
+# print(fit_tp)
+# 
+# fit_loglik <- fit_tp$objective
+# print(fit_loglik)
 
 ## optim fit?
 
@@ -391,16 +395,17 @@ print(fit_loglik)
 
 fit_tp_traj <- mp_trajectory(calibrator)
 # fit_tp_traj
-ggplot(fit_tp_traj, aes(time, value, color=matrix)) +
-    geom_line() +
-    scale_y_log10() +
-    geom_point(data = dat, aes(x = time),size=0.8)
-
+# ggplot(fit_tp_traj, aes(time, value, color=matrix)) +
+#     geom_line() +
+#     scale_y_log10() +
+#     geom_point(data = dat, aes(x = time),size=0.8)
 fit_tp_result <- (mp_tmb_coef(calibrator,conf.int = TRUE) 
                   |> select(-c("term", "type","row","col","std.error"))
-                  |> cbind(true_value=unlist(tp_list)[fit_pars])
+                  |> cbind(true_value=c(beta=beta,gamma=gamma,S=S,I=dat[1,]$value,T_B=T_B,T_Y=T_Y)
+)
                   )
 print(fit_tp_result)
+
 
 ## one way to present results ...
 # results <- tidy(fit2, conf.int = TRUE) |> full_join(data.frame(term = names(true_param), true.value = true_param),
@@ -416,23 +421,24 @@ print(fit_tp_result)
 ## (results are too precise, and range among true values is too large,
 ## to be able to see the confidence intervals if we plot everything on
 ## the same scale, so divide into separately scaled facets)
-ggplot(fit_tp_result, aes(y = mat)) +
+fit_compare <- ggplot(fit_tp_result, aes(y = mat)) +
     geom_pointrange(aes(x = estimate, xmin = conf.low, xmax = conf.high)) +
     geom_point(aes(x=true_value), colour = "red") +
     facet_wrap(~mat, ncol = 1, scale  = "free")
+ggsave("new_mech_fit.png",plot=fit_compare, path = "./pix", width=1800,height=3200,units="px")
 
 ### does not work with beta+0.2
 ## false convergence (8)
 
-p0 <- unlist(tp_list)[fit_pars]
-tmb_obj <- mp_tmb(calibrator)
-## nlminb and optim have different argument names but args 1, 2, 3 are
-## starting value, objective function, gradient fn in both cases
-(pars0 <- with(tmb_obj, nlminb(p0, fn, gr))$par)
-(pars1 <- with(tmb_obj, optim (p0, fn, gr, method = "BFGS"))$par)
-(pars2 <- with(tmb_obj, optim (p0+c(0.3, 0, 0, 0, 0), fn, gr, method = "BFGS"))$par)
-(pars3 <- with(tmb_obj, nlminb(p0+c(0.3, 0, 0, 0, 0), fn, gr))$par)
-
-(pmat <- cbind(pars0, pars1, pars2, pars3))
-pmat - pmat[,1]
-
+# p0 <- unlist(tp_list)[fit_pars]
+# tmb_obj <- mp_tmb(calibrator)
+# ## nlminb and optim have different argument names but args 1, 2, 3 are
+# ## starting value, objective function, gradient fn in both cases
+# (pars0 <- with(tmb_obj, nlminb(p0, fn, gr))$par)
+# (pars1 <- with(tmb_obj, optim (p0, fn, gr, method = "BFGS"))$par)
+# (pars2 <- with(tmb_obj, optim (p0+c(0.3, 0, 0, 0, 0), fn, gr, method = "BFGS"))$par)
+# (pars3 <- with(tmb_obj, nlminb(p0+c(0.3, 0, 0, 0, 0), fn, gr))$par)
+# 
+# (pmat <- cbind(pars0, pars1, pars2, pars3))
+# pmat - pmat[,1]
+# 
