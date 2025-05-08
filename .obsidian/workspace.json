@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Prevalence_vs_Incidence.md",
+                "file": "New_fitting_mechineary.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Prevalence_vs_Incidence"
+              "title": "New_fitting_mechineary"
             }
           }
         ]
@@ -165,14 +165,28 @@
       "canvas:Create new canvas": false,
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
-      "command-palette:Open command palette": false
+      "command-palette:Open command palette": false,
+      "webpage-html-export:Export Vault to HTML": false
     }
   },
   "active": "e93a214b4166a1fe",
   "lastOpenFiles": [
+    "docs/New_fitting_mechineary.pdf",
+    "New_fitting_mechineary.md",
+    "docs/lib/metadata.json",
+    "docs/lib/fonts/MathJax_Vector-Bold.woff",
+    "docs/lib/fonts/MathJax_Vector-Regular.woff",
+    "docs/lib/fonts/MathJax_Typewriter-Regular.woff",
+    "docs/lib/fonts/MathJax_Script-Regular.woff",
+    "docs/lib/fonts/MathJax_SansSerif-Italic.woff",
+    "docs/lib/fonts/MathJax_SansSerif-Bold.woff",
+    "docs/lib/fonts/MathJax_SansSerif-Regular.woff",
+    "docs/lib/fonts/MathJax_Fraktur-Bold.woff",
+    "docs/lib/fonts/MathJax_Fraktur-Regular.woff",
+    "docs/lib/media/6155340132a851f6089e.svg",
+    "Prevalence_vs_Incidence.md",
     "New fitting mechanism.md",
     "pix/new_mech_fit.png",
-    "Prevalence_vs_Incidence.md",
     "OR_Sim.md",
     "or.md",
     "simple.md",
