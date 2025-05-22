@@ -48,8 +48,8 @@ The fitting has successfully converge close enough for $\beta, \gamma, T_Y, T_B$
 
 Fitted parameters comparing with "real" values and 95% CI:
 ![[new_mech_fit.png]]
-==(Fixed) Not very close with $I_0$, maybe due to randomness of Binomial distribution at low value? For Macpan the $I_0$ is not the first line of output in simulation.
-==
+
+
 
 
 Fitted curves:
