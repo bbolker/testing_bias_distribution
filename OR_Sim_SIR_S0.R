@@ -110,8 +110,6 @@ sir |> mp_expand()
 dat<- (dat_all|> filter(time>=tmin)
 )
 
-dat_all[197,]
-dat_all[198,]
 # dat
 # dat$time <- dat$time-tmin+1
 
@@ -129,7 +127,7 @@ print(ggplot(dat)
 ## initial values for simulation
 
 ### Assume we know St
-S <- dat_all[198,]$value
+S <- dat_all[which(dat_all$time==tmin-1 & dat_all$matrix=="S"),]$value
 hat_S <- S*(1-0.4)
 
 ### approximation of hat{I} inferred from first data point:
