@@ -18,7 +18,11 @@ This leads to one more degree of freedom(now 6, previously 5 as we use $I(0)=I_0
 	- Bijection with the odds $B=\frac{T_B}{1-T_B}$
 - $T_Y$ as the positive testing probability, i.e. probability of positive people being tested.
 	- Currently assumed to be a constant.
-	- Current Odds ratio $\Phi$ between $T_B$ and $T_Y$ is also assumed to be a constant: $$\Phi=\frac{\frac{T_Y}{1-T_Y}}{\frac{T_B}{1-T_B}}$$
+	- Current Odds ratio $\Phi$ between $T_B$ and $T_Y$ is also assumed to be a constant:
+
+	$$ x = 3 $$
+
+	$$\Phi=\frac{\frac{T_Y}{1-T_Y}}{\frac{T_B}{1-T_B}}$$
 - $S_0$ as the starting point of $S$ for fitting.
 - $I_0$ as the starting point of $I$ for fitting.
 
