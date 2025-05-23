@@ -7,10 +7,10 @@ This is not ideal:
 
 As JD suggested, $S_t$ at any time $t$ should only affect the scaling of the outbreak size since its value only scales the susceptible pool, not the tendency.
 Therefore, we can assume $S(t_{min})=S_0$ while $t_{min}$ remains unknown and trying to fit the $S_0$ to some level.
-Similarly I use notation $I(t_{min})=I_0$ and $R(t_{min})=R_0$
-We still need $I_0$ and induce $R_0=N-S_0-I_0$ as the as start parameter for the simulation of fitting.
+Similarly I use notation $I(t_{min})=I_0$
+We still need $I_0$ and induce $R(0)=N-S_0-I_0$ as the as start parameter for the simulation of fitting.
 
-This leads to one more degree of freedom(now 6, previously 5 as we use $I(0)=I_0$ and naturally assume $R(0)=0$) in our fitting mechanism.
+This leads to one more degree of freedom(now 6, previously 5 as we use $I(0)=I_0$ and naturally assume $S_0=1-I_0$) in our fitting mechanism.
 - $\beta$ as the transmission rate of underlying SIR model
 - $\gamma$ as the recovery rate of underlying SIR model
 - $T_B$ as the baseline testing probability, i.e. probability of negative people being tested.
