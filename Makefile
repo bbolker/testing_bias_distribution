@@ -8,6 +8,10 @@ Ignore = target.mk
 
 ######################################################################
 
+## mpFitting.html: mpFitting.md
+
+######################################################################
+
 ## log-diff_cdf-log_simp.png
 ## log-diff_simp-log_simp.png
 ## Test_positivity_vs_test_proportion_phi_inc.png
@@ -29,6 +33,9 @@ testing_distrib.html: testing_distrib.rmd
 
 %.html: %.rmd
 	echo "rmarkdown::render(\"$<\")" | R --slave
+
+%.html: %.md
+	$(pandocs)
 
 %.html: %.qmd
 	quarto render $<
