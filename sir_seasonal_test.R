@@ -62,7 +62,7 @@ R_0 <- 10000-S_0-I_0
                                   ) 
                    )
   |> mp_simulator(
-                    time_steps = 2000
+                    time_steps = 1000
                   , outputs = c ("I","beta","S")
                   )
   |> mp_trajectory()

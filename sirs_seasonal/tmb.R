@@ -2,11 +2,11 @@ library(macpan2)
 
 ## flow diagram specification
 flows = list(
-    time ~ time+1
-  , beta ~ (1/2)*(cos((time-1)*2*pi/(period))+1)*(beta_0) 
+    beta ~ (1/2)*(cos((time)*2*pi/(period))+1)*(beta_0) 
   , mp_per_capita_flow("S", "I", "beta * I / N", "infection")
   , mp_per_capita_flow("I", "R", "gamma", "recovery")
   , mp_per_capita_flow("R", "S", "phi", "waning_immunity")
+  , time ~ time + 1
 )
 
 ## default values for quantities required to run simulations
