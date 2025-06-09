@@ -2,7 +2,7 @@ library(macpan2)
 
 ## flow diagram specification
 flows = list(
-    beta ~ (1/2)*(cos((time)*2*pi/(period))+1)*(beta_0) 
+    beta ~ beta_low+(1/2)*(cos((time)*2*pi/(period))+1)*(beta_high-beta_low) 
   , mp_per_capita_flow("S", "I", "beta * I / N", "infection")
   , mp_per_capita_flow("I", "R", "gamma", "recovery")
   , mp_per_capita_flow("R", "S", "phi", "waning_immunity")
@@ -11,11 +11,12 @@ flows = list(
 
 ## default values for quantities required to run simulations
 default = list(
-    beta_0 = 0.2    ## peak transmission rate for each season
+    beta_high = 0.2 ## Highest transmission rate for each season
+  , beta_low = 0.02 ## Lowest transmission rate for each season
   , period = 365/2  ## period of each season 
   , gamma = 0.05    ## recovery rate
-  , pi = 3.141593   ## pi value for seasonal transmission
-  , phi = 0.01      ## immunity wanning rate
+  , pi = pi         ## pi value for seasonal transmission
+  , phi = 0.01      ## immunity waning rate
   , N = 10000       ## total population size (constant in this model)
   , I = 1           ## initial number of infectious individuals
   , R = 0           ## initial number of recovered individuals
