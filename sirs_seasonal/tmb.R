@@ -5,7 +5,7 @@ flows = list(
     beta ~ beta_low+(1/2)*(cos((time_step(0))*2*pi/(period))+1)*(beta_high-beta_low) 
   , mp_per_capita_flow("S", "I", "beta * I / N", "infection")
   , mp_per_capita_flow("I", "R", "gamma", "recovery")
-  , mp_per_capita_flow("R", "S", "phi", "waning_immunity")
+  , mp_per_capita_flow("R", "S", "eta", "waning_immunity")
 )
 
 ## default values for quantities required to run simulations
@@ -15,7 +15,7 @@ default = list(
   , period = 365/2  ## period of each season 
   , gamma = 0.05    ## recovery rate
   , pi = pi         ## pi value for seasonal transmission
-  , phi = 0.01      ## immunity waning rate
+  , eta = 0.01      ## immunity waning rate
   , N = 10000       ## total population size (constant in this model)
   , I = 1           ## initial number of infectious individuals
   , R = 0           ## initial number of recovered individuals
