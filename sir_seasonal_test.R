@@ -91,6 +91,8 @@ R_0 <- 10000-S_0-I_0
 
 ### Ture parameters
 ## Initial true values:
+set.seed(25623)
+
 T_B <- 0.02               ## uninfected testing prob
 T_Y <- 0.5                ## infected testing prob
 B <- T_B/(1-T_B)          ## baseline odds of testing
@@ -111,9 +113,9 @@ beta_low <- 0.05   ## Lowest seasonal beta value
 gamma <- 0.1       ## Recovery rate
 eta <- 0.02        ## Immunity waning rate
 period <- 365/2    ## seasonal period
-tmin <- 365*5      ## start when arrive at the stable phase
-tmax <- 365*7      ## 2 years, 4 period observation 
-# tmax <- 59     ## max simulation time 
+tmin <- 365*5+1    ## start when arrive at the stable phase
+tmax <- 365*7+1    ## 2 years, 4 period observation 
+# tmax <- 59       ## max simulation time 
 t <- c(tmin:tmax)
 pts <- length(t) ## number of time points
 
@@ -169,7 +171,7 @@ sirs_seasonal |> mp_expand()
 (sirs_seasonal
   |> mp_simulator(
     time_steps = tmax
-    , outputs = c("pY","T_prop","pos","OT","OP","I","S")
+    , outputs = c("pY","T_prop","pos","OT","OP","I","S","beta")
   ) 
   |> mp_trajectory()
   |> dplyr::select(-c(row, col))
@@ -230,10 +232,13 @@ hat_Y <- (hat_p*hat_T)/hat_T_Y
 
 hat_I <- hat_Y*N
 
+I_real <- dat_all[which(dat_all$time==tmin-1 & dat_all$matrix=="I"),]$value
+
 ### In fitting, should check if S+I >=1
 if(hat_S+hat_I>N){
   print("initial S+I value larger than N")
 } else {"check"}
+
 
 ### starting values for fitting
 # print(tp_list)
@@ -244,9 +249,9 @@ sp_list <-tibble::lst(  beta_low=beta_low
                       , eta=eta
                       , N=N
                       , T_B=T_B
-                      , T_Y=hat_T_Y
-                      , S=hat_S
-                      , I=hat_I
+                      , T_Y=T_Y
+                      , S=S
+                      , I=I_real
                       )
 
 ### Change simulation model
@@ -284,7 +289,6 @@ fit_pars <- c(  "log_beta_low"
               , "log_gamma"
               , "log_eta"
               , "log_period"
-              , "log_S"
               , "log_I"
               , "logit_T_B"
               , "logit_T_Y"
@@ -301,7 +305,7 @@ calibrator <- mp_tmb_calibrator(
 ## when defining the calibrator)
 calibrator$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum(dbinom(obs_OP, obs_OT, sim_pos)))
 
-calibrator|>print()
+# calibrator|>print()
 
 #mp_optimize(calibrator,optimizer = "optim", method = "BFGS")
 #mp_optimize(calibrator)
@@ -310,8 +314,6 @@ calibrator|>print()
 fit<-mp_optimize(calibrator)
 names(fit$par)<-fit_pars
 print(fit)
-exp(fit$par)
-eta
 
 fit_bk<-c( exp(fit$par[1])
           ,exp(fit$par[2])
@@ -319,20 +321,19 @@ fit_bk<-c( exp(fit$par[1])
           ,exp(fit$par[3])
           ,exp(fit$par[4])
           ,N=N
+          ,logit_backtrans(fit$par[7])
           ,logit_backtrans(fit$par[8])
-          ,logit_backtrans(fit$par[9])
+          ,S=S
           ,exp(fit$par[6])
-          ,exp(fit$par[7])
           )
 names(fit_bk)<-names(sp_list)
 # sp_list
 # fit$par
 fit_bklist<-as.list(append(fit_bk,fit$par))
 
-
-fit_bklist
 print(fit_bk)
 
+### Simulate the optimized fit
 (sirs_seasonal_sim
   |> mp_tmb_update(phase = "during", default = fit_bklist)
   |> mp_simulator(
@@ -340,39 +341,91 @@ print(fit_bk)
     , outputs = c(  "OP"
                   , "OT"
                   , "pY"
-                  , "S"
+                  , "T_prop"
+                  , "pos"
     )
   ) 
 )->sirs_optim
 
-sim_vals <-(sirs_optim|> mp_trajectory()
+dat_optim <-(sirs_optim|> mp_trajectory()
             |> dplyr::select(-c(row, col))
             # |> filter(time>=tmin)
 )
 # mp_default(sirs_optim)
 
+### Simulate at the true value
+(sirs_seasonal_sim
+  |> mp_tmb_update(phase = "during", default = sp_list)
+  |> mp_simulator(
+    time_steps = tmax-tmin+1
+    , outputs = c(  "OP"
+                  , "OT"
+                  , "pY"
+                  , "T_prop"
+                  , "pos"
+                  , "S"
+                  , "I"
+                  , "beta"
+    )
+  ) 
+  |> mp_trajectory()
+  |> dplyr::select(-c(row, col))
+  # |> filter(time>=tmin)
+) -> dat_truesim
 
-sirs_optim
-fit_bklist
-sim_vals[1,]
+(dat_optim
+  |> pivot_wider(names_from="matrix",values_from="value")
+)-> dat_optim_longer
 
-# (dat_sim
-#   |> pivot_wider(names_from = matrix,values_from = value)
-# ) |> print(n=pts)
+(dat_truesim 
+  |> pivot_wider(names_from="matrix",values_from="value")
+)-> dat_truesim_longer
+
+dat_real<-filter(dat,matrix=="OP"|matrix=="OT")
+(dat_real 
+  |> pivot_wider(names_from="matrix",values_from="value")
+)-> dat_real_longer
+
+names(dat_real_longer)[2:3]<-c("OT_obs", "OP_obs")
+
+df_obj_init<-cbind(dat_truesim_longer,dat_real_longer[,2:3])
+
+cbind(dat_truesim[1:6,], dat[1:6,])
+
+sirs_seasonal
+sirs_seasonal_sim
+
+##### Beta(t) problem????
+
+(df_obj_init
+  |> mutate(lik=-dbinom(OT_obs,N,T_prop,log=TRUE)-dbinom(OP_obs,OT_obs,pos,log = TRUE))
+)$lik |> sum()
+
+df_obj_optim<-cbind(dat_optim_longer,dat_real_longer[,2:3])
+(df_obj_optim
+  |> mutate(lik=-dbinom(OT_obs,N,T_prop,log=TRUE)-dbinom(OP_obs,OT_obs,pos,log = TRUE))
+)$lik |> sum()
+
+
+fit$objective
+
 dat_tp<-filter(dat,matrix=="OP"|matrix=="OT"|matrix=="pY"|matrix=="S")
 
-# dat_sim$time<-dat_sim$time+tmin-1
-sim_vals$time<-sim_vals$time+tmin-1
+dat_optim<-filter(dat_optim,matrix=="OP"|matrix=="OT"|matrix=="pY"|matrix=="S")
+dat_truesim<-filter(dat_truesim,matrix=="OP"|matrix=="OT"|matrix=="pY"|matrix=="S")
 
-# dat_sim <- cbind(dat_sim,model=rep("sim_init",length(dat_sim[,1])))
+dat_optim$time<-dat_optim$time+tmin-1
+dat_truesim$time<-dat_truesim$time+tmin-1
+
+dat_truesim <- cbind(dat_truesim,model=rep("sim_init",length(dat_truesim[,1])))
 dat_tp <- cbind(dat_tp,model=rep("real",length(dat_tp[,1])))
-sim_vals <- cbind(sim_vals,model=rep("optim",length(sim_vals[,1])))
+dat_optim <- cbind(dat_optim,model=rep("optim",length(dat_optim[,1])))
 
-dat_compare<-rbind(dat_tp,sim_vals)
+dat_compare<-rbind(dat_tp,dat_truesim,dat_optim)
 fit_curve <- (ggplot(dat_compare)
               + aes(x=time, y=value, color=matrix, linetype = model)
               + geom_line()
-              #+ geom_point(data=dat_tp,aes(shape="real"))
+              #+ geom_point(data=dat_tp,aes(shape="real"),alpha=0.1)
               + scale_y_log10()
               #+ scale_colour_manual(values = c("blue", "red", "black"))
               + scale_linetype_manual(values = c(1,2,3))
@@ -380,7 +433,6 @@ fit_curve <- (ggplot(dat_compare)
 print(fit_curve)
 
 dat_tp[1:5,]
-sim_vals[1:5,]
 
 fit_tp_result <- (mp_tmb_coef(calibrator,conf.int = TRUE) 
                   |> select(-c("term", "type","row","col","std.error"))
@@ -389,7 +441,6 @@ fit_tp_result <- (mp_tmb_coef(calibrator,conf.int = TRUE)
                                         , gamma = gamma
                                         , eta = eta
                                         , period = period
-                                        , S=S
                                         , I=dat_all[which(dat_all$time==tmin-1 & dat_all$matrix=="I"),]$value
                                         , T_B=T_B
                                         , T_Y=T_Y)
@@ -401,4 +452,5 @@ fit_compare <- ggplot(fit_tp_result, aes(y = mat)) +
   geom_point(aes(x=true_value), colour = "red") +
   facet_wrap(~mat, ncol = 1, scale  = "free")
 print(fit_compare)
-
+### still $time_step$ is a problem: which beta value are we starting for?
+### time_step off by 1 problem!!!!
