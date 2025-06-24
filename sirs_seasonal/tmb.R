@@ -2,7 +2,7 @@ library(macpan2)
 
 ## flow diagram specification
 flows = list(
-    beta ~ beta_low+(1/2)*(cos((time_step(0))*2*pi/(period))+1)*(beta_high-beta_low) 
+    beta ~ beta_low+(1/2)*(cos((time_step(0)+phase)*2*pi/(period))+1)*(beta_high-beta_low) 
   , mp_per_capita_flow("S", "I", "beta * I / N", "infection")
   , mp_per_capita_flow("I", "R", "gamma", "recovery")
   , mp_per_capita_flow("R", "S", "eta", "waning_immunity")
@@ -19,7 +19,8 @@ default = list(
   , N = 10000       ## total population size (constant in this model)
   , I = 1           ## initial number of infectious individuals
   , R = 0           ## initial number of recovered individuals
-  , time = 0        ## time variable for the time varying beta
+  , phase = 0       ## the phase t of time varying beta(t) at the current time
+                    ## can only be positive integer
 )
 
 ## compute the initial number of susceptible individuals

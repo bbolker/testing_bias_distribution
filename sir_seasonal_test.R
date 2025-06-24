@@ -113,7 +113,7 @@ beta_low <- 0.05   ## Lowest seasonal beta value
 gamma <- 0.1       ## Recovery rate
 eta <- 0.02        ## Immunity waning rate
 period <- 365/2    ## seasonal period
-tmin <- 365*5+1    ## start when arrive at the stable phase
+tmin <- 365*5-40    ## start when arrive at the stable phase
 tmax <- 365*7+1    ## 2 years, 4 period observation 
 # tmax <- 59       ## max simulation time 
 t <- c(tmin:tmax)
@@ -212,7 +212,7 @@ print(ggplot(dat_ratio)
 S <- dat_all[which(dat_all$time==tmin-1 & dat_all$matrix=="S"),]$value
 
 ## hat_S as the starting point
-hat_S <- S*(1)
+hat_S <- S*(1-0.4)
 
 print(S)
 print(hat_S)
@@ -223,7 +223,7 @@ OP <- dat[which(dat$time==tmin & dat$matrix=="OP"),]$value
 
 print(T_Y)
 ### we don't know the true T_Y but have some estimation
-hat_T_Y <- T_Y
+hat_T_Y <- T_Y+0.2
 
 ### Inferred value from assumptions
 hat_T <- OT/N
@@ -239,19 +239,19 @@ if(hat_S+hat_I>N){
   print("initial S+I value larger than N")
 } else {"check"}
 
-
 ### starting values for fitting
 # print(tp_list)
-sp_list <-tibble::lst(  beta_low=beta_low
-                      , beta_high=beta_high
-                      , period=period
-                      , gamma=gamma
-                      , eta=eta
+sp_list <-tibble::lst(  beta_low=beta_low-0.02
+                      , beta_high=beta_high+0.1
+                      , period=period-10
+                      , gamma=gamma+0.2
+                      , eta=eta+0.02
                       , N=N
-                      , T_B=T_B
-                      , T_Y=T_Y
-                      , S=S
-                      , I=I_real
+                      , T_B=T_B+0.04
+                      , T_Y=hat_T_Y
+                      , S=hat_S
+                      , I=hat_I
+                      , phase=20
                       )
 
 ### Change simulation model
@@ -289,9 +289,11 @@ fit_pars <- c(  "log_beta_low"
               , "log_gamma"
               , "log_eta"
               , "log_period"
+              , "log_S"
               , "log_I"
               , "logit_T_B"
               , "logit_T_Y"
+              , "phase"
               )
 
 calibrator <- mp_tmb_calibrator(
@@ -314,6 +316,7 @@ calibrator$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum
 fit<-mp_optimize(calibrator)
 names(fit$par)<-fit_pars
 print(fit)
+fit$objective
 
 fit_bk<-c( exp(fit$par[1])
           ,exp(fit$par[2])
@@ -321,17 +324,25 @@ fit_bk<-c( exp(fit$par[1])
           ,exp(fit$par[3])
           ,exp(fit$par[4])
           ,N=N
-          ,logit_backtrans(fit$par[7])
           ,logit_backtrans(fit$par[8])
-          ,S=S
+          ,logit_backtrans(fit$par[9])
           ,exp(fit$par[6])
+          ,exp(fit$par[7])
+          ,fit$par[10]
           )
 names(fit_bk)<-names(sp_list)
+
 # sp_list
 # fit$par
 fit_bklist<-as.list(append(fit_bk,fit$par))
 
 print(fit_bk)
+S
+I_real
+###Really sensitive to the period and phase of the time varying beta
+### period -10,+5
+### phase must be accurate: fixed
+
 
 ### Simulate the optimized fit
 (sirs_seasonal_sim
@@ -354,8 +365,25 @@ dat_optim <-(sirs_optim|> mp_trajectory()
 # mp_default(sirs_optim)
 
 ### Simulate at the true value
+
+true_list <-tibble::lst(  beta_low=beta_low
+                        , beta_high=beta_high
+                        , period=period
+                        , gamma=gamma
+                        , eta=eta
+                        , N=N
+                        , T_B=T_B
+                        , T_Y=T_Y
+                        , S=S
+                        , I=I_real
+)
+
+
+
 (sirs_seasonal_sim
-  |> mp_tmb_update(phase = "during", default = sp_list)
+  |> mp_tmb_update(phase = "during", default = true_list)
+  |> mp_tmb_insert_backtrans(variables = c("beta_low","beta_high","gamma","eta","period","S","I"), mp_log)
+  |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_logit)
   |> mp_simulator(
     time_steps = tmax-tmin+1
     , outputs = c(  "OP"
@@ -391,9 +419,9 @@ names(dat_real_longer)[2:3]<-c("OT_obs", "OP_obs")
 df_obj_init<-cbind(dat_truesim_longer,dat_real_longer[,2:3])
 
 cbind(dat_truesim[1:6,], dat[1:6,])
-
-sirs_seasonal
-sirs_seasonal_sim
+ 
+# sirs_seasonal
+# sirs_seasonal_sim
 
 ##### Beta(t) problem????
 
@@ -441,6 +469,7 @@ fit_tp_result <- (mp_tmb_coef(calibrator,conf.int = TRUE)
                                         , gamma = gamma
                                         , eta = eta
                                         , period = period
+                                        , S=S
                                         , I=dat_all[which(dat_all$time==tmin-1 & dat_all$matrix=="I"),]$value
                                         , T_B=T_B
                                         , T_Y=T_Y)
