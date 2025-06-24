@@ -454,3 +454,4 @@ fit_compare <- ggplot(fit_tp_result, aes(y = mat)) +
 print(fit_compare)
 ### still $time_step$ is a problem: which beta value are we starting for?
 ### time_step off by 1 problem!!!!
+### What if fitting S and I?
