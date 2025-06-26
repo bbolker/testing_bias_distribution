@@ -2,7 +2,7 @@ library(macpan2)
 
 ## flow diagram specification
 flows = list(
-    beta ~ beta_low+(1/2)*(cos((time_step(0)+phase)*2*pi/(period))+1)*(beta_high-beta_low) 
+    beta ~ beta_low+(1/2)*(cos((time_step(0)+phase)*2*pi/period)+1)*(beta_high-beta_low) 
   , mp_per_capita_flow("S", "I", "beta * I / N", "infection")
   , mp_per_capita_flow("I", "R", "gamma", "recovery")
   , mp_per_capita_flow("R", "S", "eta", "waning_immunity")
