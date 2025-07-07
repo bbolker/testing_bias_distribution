@@ -90,7 +90,7 @@ R_0 <- mp_default_list(sir_season)$N-S_0-I_0
 
 ### Ture parameters
 ## Initial true values:
-set.seed(25615)
+set.seed(21253)
 
 T_B <- 0.02               ## uninfected testing prob
 T_Y <- 0.5                ## infected testing prob
@@ -320,6 +320,30 @@ calibrator$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum
 # obj$env$map
 
 fit<-mp_optimize(calibrator)
+
+#### Profiling
+proffun <- function(..., plot.it = TRUE) {
+  pp <- mp_tmb_profile(calibrator, "log_beta_low", trace = FALSE, ...)
+  minval <- min(pp$value, na.rm = TRUE)
+  pp <- transform(pp, value = value - minval)
+  attr(pp, "minval") <- minval
+  if (plot.it) plot(value ~ params, pp, type = "b")
+  invisible(pp)
+}
+tmbobj <- mp_tmb(calibrator)
+mp_parameterization(calibrator)
+par(las=1, bty = "l")
+proffun()
+
+## can plot over a wider range:
+pp4 <- proffun(ytol = 4)
+## don't know why profile gets wonky there, or why upper end of params range doesn't go farther
+
+pp5 <- proffun(ytol = Inf, parm.range = c(0.5, 4.5), maxit = 1e5)
+
+
+
+
 names(fit$par)<-fit_pars
 print(fit)
 fit$objective
@@ -342,6 +366,7 @@ names(fit_bk)<-names(sp_list)
 print(fit_bk)
 beta_low
 S
+hat_S
 I_real
 
 fit_bklist<-as.list(append(fit_bk,fit$par))
