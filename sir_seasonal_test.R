@@ -101,7 +101,7 @@ print(B)
 print(Phi)
 
 Y_0 <- 1e-4      ## initial prevalence
-N <- 1e4         ## pop size
+N <- 1e5         ## pop size
 NY_0 <- N*Y_0    ## initial number infected
 
 mp_default(sir_season)$matrix
@@ -113,7 +113,7 @@ gamma <- 0.1       ## Recovery rate
 eta <- 0.02        ## Immunity waning rate
 period <- 365/2    ## seasonal period
 tmin <- 365*5-40    ## start when arrive at the stable phase
-tmax <- 365*7+1    ## 2 years, 4 period observation 
+tmax <- 365*6+1    ## 2 years, 4 period observation 
 # tmax <- 59       ## max simulation time 
 t <- c(tmin:tmax)
 pts <- length(t) ## number of time points
@@ -211,7 +211,7 @@ print(ggplot(dat_ratio)
 S <- dat_all[which(dat_all$time==tmin-1 & dat_all$matrix=="S"),]$value
 
 ## hat_S as the starting point
-hat_S <- S*(1-0.4)
+hat_S <- S*(1-0.2)
 
 print(S)
 print(hat_S)
@@ -242,7 +242,7 @@ if(hat_S+hat_I>N){
 # print(tp_list)
 sp_list <-tibble::lst(  beta_low=beta_low-0.02
                       , beta_high=beta_high+0.1
-                      , period=period-10
+                      , period=period-5
                       , gamma=gamma+0.2
                       , eta=eta+0.02
                       , N=N
@@ -525,4 +525,4 @@ fit_compare <- ggplot(fit_tp_result, aes(y = mat)) +
   geom_point(aes(x=true_value), colour = "red") +
   facet_wrap(~mat, ncol = 1, scale  = "free")
 print(fit_compare)
-ggsave("10000Fit.png", plot=fit_compare, path = "./pix", width=1000, height=3000, units="px")
+ggsave("1e5Fit.png", plot=fit_compare, path = "./pix", width=1000, height=3000, units="px")
