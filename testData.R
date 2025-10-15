@@ -2,9 +2,9 @@ library(splines)
 library(glmmTMB)
 
 set.seed(1001)
-n <- 100
+n <- 1000
 a <- 1
-b <- 1
+b <- 3
 c <- 1
 d <- 2
 x <- sort(rexp(n))
