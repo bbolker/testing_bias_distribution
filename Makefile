@@ -49,6 +49,12 @@ Sources += betaParams.md simple.md README.md
 
 ######################################################################
 
+Sources += testData.md
+testData.Rout: testData.R
+	$(pipeR)
+
+######################################################################
+
 ## If people don't object to having make install makestuff, you can activate the 00.stamp line below and this stuff will work.
 ## Or we could make more simple rules like those above
 
