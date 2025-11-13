@@ -22,7 +22,7 @@ people in the population (2) tests done (3) cases reported?
 
 Most generally/mechanistically, on any day we have some number of people
 who are on day $\tau$ of their infectious period. On a given day, an
-infectious ($I$) person may be subclinical (asymptomatic or so mildly
+infectious ($I$) person may be sub-clinical (asymptomatic or so mildly
 symptomatic that they don't report symptoms); mild; severe
 (hospitalized); or very severe (ICU/ventilator). The progression among
 these stages will be different for different people (although in general
@@ -63,7 +63,7 @@ Now let's consider that in general we test people in (approximate) order
 of their probability of infection (ignoring tests skipped because of
 constraints). We can think about a distribution in the population of
 probability of infection (higher for known contacts of infected people,
-travellers from high-risk areas, etc.), and a distribution in the
+travelers from high-risk areas, etc.), and a distribution in the
 probability of testing (which ideally lines up with the risk). We could
 think about having two distributions, but these can't really be
 separated (FIXME: explain better!).

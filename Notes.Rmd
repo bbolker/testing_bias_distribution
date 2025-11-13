@@ -67,7 +67,7 @@ All formula is write as function prop_pos_test_new on `testing_funs.R`.
 
 [`Logspace_comparing_methods.R`](Logspace_comparing_methods.R): Comparing numerical result of methods on log space. Log-space Difference (heat-map color) are function of prevalence (y-axis), $\phi$(x-axis) and testing proportion-test_prop(group). For now, the differences are magnitude/absolute value, signs are considered due to log-space calculation, but temporarily ignored.
 
-Difference of $log(x)-log(y)=0$ cases is highlighted by manually assign some value ($45$ in [`./pix/log-diff_cdf-log_simp.png`](./pix/log-diff_cdf-log_simp.png) or $40$ in [`./pix/log-diff_simp-log_simp.png`](./pix/log-diff_simp-log_simp.png)). These difference by definition is -Inf but could leads to confusion with the "real gray area" (NaN, caused by numerical flow of methods) in heat-map.
+Difference of $log(x)-log(y)=0$ cases is highlighted by manually assign some value ($45$ in [`./pix/log-diff_cdf-log_simp.png`](./pix/log-diff_cdf-log_simp.png) or $40$ in [`./pix/log-diff_simp-log_simp.png`](./pix/log-diff_simp-log_simp.png)). These difference by definition is -Inf but could leads to confusion with the "real gray area" (NaN, caused by numerical overflow of methods) in heat-map.
 
 [`betaParams.md`](betaParams.md): (TO DO?) @dushoff 's suggestion to consider other parameterization of beta distribution shape parameter.
 
