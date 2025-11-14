@@ -13,12 +13,22 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "outputs/Notes.md",
+                "file": "CMS.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Notes"
+              "title": "CMS"
+            }
+          },
+          {
+            "id": "779be01bd0c3cdb5",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "New tab"
             }
           }
         ]
@@ -160,6 +170,7 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "bases:Create new base": false,
       "switcher:Open quick switcher": false,
       "graph:Open graph view": false,
       "canvas:Create new canvas": false,
@@ -171,6 +182,8 @@
   },
   "active": "e93a214b4166a1fe",
   "lastOpenFiles": [
+    "CMS.md",
+    "outputs/Notes.md",
     "docs/New_fitting_mechineary.pdf",
     "betaParams.md",
     "mpFitting.md",
