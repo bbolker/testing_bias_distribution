@@ -19,6 +19,7 @@
               },
               "icon": "lucide-file",
               "title": "CMS"
+<<<<<<< HEAD
             }
           },
           {
@@ -29,6 +30,8 @@
               "state": {},
               "icon": "lucide-file",
               "title": "New tab"
+=======
+>>>>>>> origin/main
             }
           }
         ]
@@ -182,7 +185,10 @@
   },
   "active": "e93a214b4166a1fe",
   "lastOpenFiles": [
+<<<<<<< HEAD
     "CMS.md",
+=======
+>>>>>>> origin/main
     "outputs/Notes.md",
     "docs/New_fitting_mechineary.pdf",
     "betaParams.md",
