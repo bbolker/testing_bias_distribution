@@ -445,7 +445,7 @@ calculation, but temporarily ignored.</p>
 cases is highlighted by manually assign some value (<span class="math inline">\(45\)</span> in <a href="./pix/log-diff_cdf-log_simp.png"><code>./pix/log-diff_cdf-log_simp.png</code></a>
 or <span class="math inline">\(40\)</span> in <a href="./pix/log-diff_simp-log_simp.png"><code>./pix/log-diff_simp-log_simp.png</code></a>).
 These difference by definition is -Inf but could leads to confusion with
-the “real gray area” (NaN, caused by numerical flow of methods) in
+the “real gray area” (NaN, caused by numerical overflow of methods) in
 heat-map.</p>
 <p><a href="betaParams.md"><code>betaParams.md</code></a>: (TO DO?)
 <span class="citation">@dushoff</span> ’s suggestion to consider other
@@ -577,7 +577,7 @@ bound.</li>
 </ul>
 <p>Consider we can observe testing positivity <span class="math inline">\(P\)</span> and testing proportion <span class="math inline">\(T\)</span> from data. Try to interpret previous
 function for <span class="math inline">\(B\)</span> (thus <span class="math inline">\(b\)</span>) as a function depend on <span class="math inline">\(T\)</span>, <span class="math inline">\(Y\)</span>, <span class="math inline">\(\Phi\)</span>.</p>
-<p><strong>(To be discussed)</strong> <span class="math inline">\(B\)</span> can be seen as the behavioralfactor
+<p><strong>(To be discussed)</strong> <span class="math inline">\(B\)</span> can be seen as the behavioral factor
 reflect public and administrative reaction to the endemic. They
 partially observe <span class="math inline">\(Y\)</span>, and the
 testing probability is also limited by testing availability reflected by
@@ -795,7 +795,7 @@ P^{*}\)</span>.</p>
 testing proportion</p></li>
 <li><p><span class="math inline">\(P^{*}\)</span> is the observed
 testing positivity</p></li>
-<li><p>For observed number of test, we assume: <span class="math display">\[ NT^{*} \sim \text{Binom}(N \tilde{T},
+<li><p>For observed number of test, we assume: <span class="math display">\[ NT^{*} \sim \text{Binom}(N,
 \tilde{T})\]</span></p></li>
 <li><p>For observed number of positive test, we assume <span class="math display">\[N T^{*} P^{*} \sim
 \text{Binom}(NT^{*},\tilde{P})\]</span></p></li>
@@ -825,7 +825,8 @@ for HR method.</li>
 </ul>
 <div id="new-fitting-based-on-positive-and-negative-tests" class="section level3">
 <h3>New fitting based on positive and negative tests</h3>
-<p>Converted based on <a href="OR_Sim.md"><code>OR_Sim.md</code></a></p>
+<p>Converted based on <a href="OR_Sim.md"><code>OR_Sim.md</code></a>,
+realization code is recorded on <a href="OR_Sim.R"><code>OR_Sim.R</code></a>.</p>
 <p>If we don’t allow for false readings, then</p>
 <ul>
 <li><p>For Exponential growth model, prevalence at time <span class="math inline">\(t\)</span> is <span class="math display">\[Y(t)=\text{min}(Y_0 e^{rt},1)\]</span> to make

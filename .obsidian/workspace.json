@@ -1,37 +1,38 @@
 {
   "main": {
-    "id": "8e77751803d42249",
+    "id": "edcc774612af89cb",
     "type": "split",
     "children": [
       {
-        "id": "4b71eab363ef9a74",
+        "id": "497ed72f6fd0372b",
         "type": "tabs",
         "children": [
           {
-            "id": "e93a214b4166a1fe",
+            "id": "c04f59416d81e0a0",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "CMS.md",
+                "file": "mpFitting.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "CMS"
-<<<<<<< HEAD
+              "title": "mpFitting"
             }
           },
           {
-            "id": "779be01bd0c3cdb5",
+            "id": "6c5ca3f7ae38988d",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "README.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
-=======
->>>>>>> origin/main
+              "title": "README"
             }
           }
         ]
@@ -40,15 +41,15 @@
     "direction": "vertical"
   },
   "left": {
-    "id": "cf865f8007c8046b",
+    "id": "af4350102e254cd7",
     "type": "split",
     "children": [
       {
-        "id": "fc9ba485a09f1771",
+        "id": "b26813148e04b5f3",
         "type": "tabs",
         "children": [
           {
-            "id": "c2952aea3da15192",
+            "id": "023b91985fc9a8b7",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
@@ -61,7 +62,7 @@
             }
           },
           {
-            "id": "9a501a0326f33ea6",
+            "id": "78c1ce7536444e59",
             "type": "leaf",
             "state": {
               "type": "search",
@@ -78,7 +79,7 @@
             }
           },
           {
-            "id": "a7ce36cadd8c3e47",
+            "id": "4d4fcd17aaa25bf4",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
@@ -94,20 +95,20 @@
     "width": 200
   },
   "right": {
-    "id": "1ad5b3d62f94d028",
+    "id": "514c3285828f425b",
     "type": "split",
     "children": [
       {
-        "id": "f97a2b9f21be4b30",
+        "id": "b93b63bef58c3ca3",
         "type": "tabs",
         "children": [
           {
-            "id": "fcb92603164d44b8",
+            "id": "04af7e9e8fc553a9",
             "type": "leaf",
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Prevalence vs Incidence.md",
+                "file": "CMS.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -117,25 +118,25 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Prevalence vs Incidence"
+              "title": "Backlinks for CMS"
             }
           },
           {
-            "id": "5a66718d4f1f2c41",
+            "id": "12d251f53780da71",
             "type": "leaf",
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Prevalence vs Incidence.md",
+                "file": "CMS.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from Prevalence vs Incidence"
+              "title": "Outgoing links from CMS"
             }
           },
           {
-            "id": "870e0293d60d2888",
+            "id": "78a1ba24a306dca2",
             "type": "leaf",
             "state": {
               "type": "tag",
@@ -150,18 +151,18 @@
             }
           },
           {
-            "id": "bba67dc4924422d5",
+            "id": "8667a55f8a411d7e",
             "type": "leaf",
             "state": {
               "type": "outline",
               "state": {
-                "file": "Prevalence vs Incidence.md",
+                "file": "CMS.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Prevalence vs Incidence"
+              "title": "Outline of CMS"
             }
           }
         ]
@@ -173,43 +174,45 @@
   },
   "left-ribbon": {
     "hiddenItems": {
-      "bases:Create new base": false,
       "switcher:Open quick switcher": false,
       "graph:Open graph view": false,
       "canvas:Create new canvas": false,
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
+      "bases:Create new base": false,
       "webpage-html-export:Export Vault to HTML": false
     }
   },
-  "active": "e93a214b4166a1fe",
+  "active": "c04f59416d81e0a0",
   "lastOpenFiles": [
-<<<<<<< HEAD
-    "CMS.md",
-=======
->>>>>>> origin/main
-    "outputs/Notes.md",
-    "docs/New_fitting_mechineary.pdf",
-    "betaParams.md",
-    "mpFitting.md",
     "or.md",
     "OR_Sim.md",
     "Prevalence_vs_Incidence.md",
     "README.md",
     "simple.md",
-    "docs/mpFitting.html",
-    "New_fitting_mechineary.md",
-    "docs/lib/metadata.json",
-    "docs/lib/fonts/MathJax_Vector-Bold.woff",
-    "docs/lib/fonts/MathJax_Vector-Regular.woff",
-    "docs/lib/fonts/MathJax_Typewriter-Regular.woff",
-    "docs/lib/fonts/MathJax_Script-Regular.woff",
-    "docs/lib/fonts/MathJax_SansSerif-Italic.woff",
-    "docs/lib/fonts/MathJax_SansSerif-Bold.woff",
-    "docs/lib/fonts/MathJax_SansSerif-Regular.woff",
-    "docs/lib/media/6155340132a851f6089e.svg",
-    "New fitting mechanism.md",
-    "pix/new_mech_fit.png"
+    "mpFitting.md",
+    "betaParams.md",
+    "CMS.md",
+    "pandoc78ec797c38a8.html",
+    "Notes.knit.md",
+    "testing_distrib.html",
+    "testing_distrib.knit.md",
+    "testing_distrib_files/figure-html/ci-plot-1.png",
+    "testing_distrib_files/figure-html/rtmb-prof-plot-1.png",
+    "testing_distrib_cache/html/rtmb-prof_610ff96a034fae6814eea2716024821c.rdx",
+    "testing_distrib_cache/html/rtmb-prof_610ff96a034fae6814eea2716024821c.rdb",
+    "testing_distrib_cache/html/rtmb-prof_610ff96a034fae6814eea2716024821c.RData",
+    "testing_distrib_files/figure-html/plots2-1.png",
+    "testing_distrib_files/figure-html/plots1-1.png",
+    "testing_distrib_files/figure-html/plots0-1.png",
+    "testing_distrib_files/figure-html/corr_example-1.png",
+    "testing_distrib_files/figure-html/phi_corr-1.png",
+    "testing_distrib_cache/html/num_corr_6dc55055c2517813df4bec73355f46b0.rdx",
+    "testing_distrib_cache/html/num_corr_6dc55055c2517813df4bec73355f46b0.rdb",
+    "testing_distrib_cache/html/num_corr_6dc55055c2517813df4bec73355f46b0.RData",
+    "testing_distrib_cache/html/__packages",
+    "testing_distrib_cache/html",
+    "testing_distrib_files/figure-html/fig1-1.png"
   ]
 }

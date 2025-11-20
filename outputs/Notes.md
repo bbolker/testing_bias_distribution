@@ -65,7 +65,7 @@ All formula is write as function prop_pos_test_new on `testing_funs.R`.
 
 [`Logspace_comparing_methods.R`](Logspace_comparing_methods.R): Comparing numerical result of methods on log space. Log-space Difference (heat-map color) are function of prevalence (y-axis), $\phi$(x-axis) and testing proportion-test_prop(group). For now, the differences are magnitude/absolute value, signs are considered due to log-space calculation, but temporarily ignored.
 
-Difference of $log(x)-log(y)=0$ cases is highlighted by manually assign some value ($45$ in [`./pix/log-diff_cdf-log_simp.png`](./pix/log-diff_cdf-log_simp.png) or $40$ in [`./pix/log-diff_simp-log_simp.png`](./pix/log-diff_simp-log_simp.png)). These difference by definition is -Inf but could leads to confusion with the "real gray area" (NaN, caused by numerical flow of methods) in heat-map.
+Difference of $log(x)-log(y)=0$ cases is highlighted by manually assign some value ($45$ in [`./pix/log-diff_cdf-log_simp.png`](./pix/log-diff_cdf-log_simp.png) or $40$ in [`./pix/log-diff_simp-log_simp.png`](./pix/log-diff_simp-log_simp.png)). These difference by definition is -Inf but could leads to confusion with the "real gray area" (NaN, caused by numerical overflow of methods) in heat-map.
 
 [`betaParams.md`](betaParams.md): (TO DO?) @dushoff 's suggestion to consider other parameterization of beta distribution shape parameter.
 
@@ -141,7 +141,7 @@ For simplicity we denote $B=e^{-b}$ and $\Phi=e^{-\phi}$, then we have $$ T_B=1-
 
 Consider we can observe testing positivity $P$ and testing proportion $T$ from data. Try to interpret previous function for $B$ (thus $b$) as a function depend on $T$, $Y$, $\Phi$.
 
-**(To be discussed)** $B$ can be seen as the behavioralfactor reflect public and administrative reaction to the endemic. They partially observe $Y$, and the testing probability is also limited by testing availability reflected by $T$. While $\Phi$ (thus $\phi$) is more about medical/biological factor of the infection and testing strategy, like the severity/clarity of the symptoms and if the test focus on high risk people.
+**(To be discussed)** $B$ can be seen as the behavioral factor reflect public and administrative reaction to the endemic. They partially observe $Y$, and the testing probability is also limited by testing availability reflected by $T$. While $\Phi$ (thus $\phi$) is more about medical/biological factor of the infection and testing strategy, like the severity/clarity of the symptoms and if the test focus on high risk people.
 
 **(To be discussed)** Interpretation of $B(T,Y,\Phi)$:
 
@@ -286,7 +286,7 @@ We can then generate the data: time series for observed testing number $N T^{*}$
 
 -   $P^{*}$ is the observed testing positivity
 
--   For observed number of test, we assume: $$ NT^{*} \sim \text{Binom}(N \tilde{T}, \tilde{T})$$
+-   For observed number of test, we assume: $$ NT^{*} \sim \text{Binom}(N, \tilde{T})$$
 
 -   For observed number of positive test, we assume $$N T^{*} P^{*} \sim \text{Binom}(NT^{*},\tilde{P})$$
 
@@ -310,7 +310,7 @@ Trying to find the best fit combination of ($\hat{B}$, $\hat{\Phi}$, $\hat{r}$ a
 
 ### New fitting based on positive and negative tests
 
-Converted based on [`OR_Sim.md`](OR_Sim.md)
+Converted based on [`OR_Sim.md`](OR_Sim.md), realization code is recorded on [`OR_Sim.R`](OR_Sim.R).
 
 If we don't allow for false readings, then
 
