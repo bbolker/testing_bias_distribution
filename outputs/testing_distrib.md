@@ -10,14 +10,9 @@ editor_options:
     wrap: 72
 ---
 
-```{r pkgs,message=FALSE,echo=FALSE}
-library(tidyverse)
-library(ggplot2); theme_set(theme_bw())
-library(viridis)
-library(bbmle)
-library(RTMB)
-source("testing_funs.R")
-options(bitmapType='cairo')
+
+```
+## Warning: 程序包'RTMB'是用R版本4.4.3 来建造的
 ```
 
 ## Introduction
@@ -142,28 +137,16 @@ mean of $i$ \ldots
 
 ## Graphical example
 
-```{r fig1-calcs, echo = FALSE}
-## SZ: gamma = -log(1-phi)
-## SZ: a = i/gamma, b = (1-i)/gamma, so if we want a = 1, b=3 with i = 0.25, gamma =  0.25, phi = 0.2211992
-incid <- 0.1
-testprop <- 0.2
-lwr <- qbeta(0.75, 1, 3)
-qq <- integrate(\(x) dbeta(x, 1, 3)*x, lwr, 1)$value
-```
+
 
 Suppose the population incidence is 25% and we test 25% of the
 population. Our $\phi$ parameter is 0.2211992 (dispersion of the Beta
 are 0.25 and shape parameters of the Beta are {1, 3}). The lower bound
-of the upper 25% tail is `r round(lwr, 3)`; the integral of $x$ under
-that portion of the curve is `r round(qq, 3)`, so the test positivity is
+of the upper 25% tail is 0.37; the integral of $x$ under
+that portion of the curve is 0.132, so the test positivity is
 `round(qq/0.25)`.
 
-```{r fig1, echo = FALSE}
-par(las=1, yaxs = "i",xaxs = "i")
-cc <- curve(dbeta(x, 1, 3), from =0, to = 1, xlab = "prob(infected)", ylab = "prob density")
-cc2 <- curve(dbeta(x, 1, 3), from = lwr, to = 1, add = TRUE)
-polygon(c(cc2$x, rev(cc2$x)), c(rep(0, length(cc2$x)), rev(cc2$y)), col = "gray")
-```
+![](D:/GitHub/testing_bias_distribution/outputs/testing_distrib_files/figure-html/fig1-1.png)<!-- -->
 
 ## Correlation
 
@@ -189,24 +172,10 @@ testing probability is ($(1-t)\cdot 0^2 + t \cdot 1^2 = t$); the
 variance of infection probability is the variance of the Beta
 distribution.
 
-```{r num_corr, cache=TRUE, echo = FALSE}
-## numerical test of 'interesting' case
-num_cor <- function(i, t, phi, n = 1e5) {
-    gamma <- -log(1-phi)
-    a <- i/gamma; b <- (1-i)/gamma
-    lwr <- qbeta(t, a, b, lower.tail = FALSE)
-    x <- rbeta(n, a, b)
-    y <- as.numeric(x>lwr)
-    cc <- cor.test(x,y)
-    data.frame(cor = cc$estimate, lwr=cc$conf.int[1], upr = cc$conf.int[2])
-}
-phivec <- seq(0.1, 0.95, by = 0.05)
-set.seed(101)
-numcor <- (purrr::map_dfr(phivec, \(p) num_cor(i=0.1, t=0.01, phi=p))
-    |> mutate(phi=phivec, .before = 1))
-```
 
-```{r phi_corr}
+
+
+``` r
 inf_test_corr <- function(i, t, phi) {
     gamma <- -log(1-phi)
     a <- i/gamma; b <- (1-i)/gamma
@@ -222,13 +191,26 @@ cordf <- data.frame(i = rep(c(0.25, 0.1), c(nn, 2*nn)),
                     t = rep(c(0.25, 0.05, 0.01), each = nn),
                     phi = rep(phivec, 3))
 cordf$cor <- with(cordf, inf_test_corr(i,t,phi))
+```
+
+```
+## Warning in qbeta(t, a, b, lower.tail = FALSE): 产生了NaNs
+```
+
+``` r
 cordf$cat <- with(cordf, sprintf("i = %1.2f, t = %1.2f", i, t))
 cordf$cat <- factor(cordf$cat, levels = unique(cordf$cat))
 ggplot(cordf, aes(phi, cor, colour = cat)) + geom_line() +
     geom_pointrange(data = numcor, aes(y=cor, ymin = lwr, ymax = upr),
                     colour = "blue", size = 0.1)
+```
 
 ```
+## Warning: Removed 6 rows containing missing values or values outside the scale range
+## (`geom_line()`).
+```
+
+![](D:/GitHub/testing_bias_distribution/outputs/testing_distrib_files/figure-html/phi_corr-1.png)<!-- -->
 
 -   ?? Is it true that correlation *decreases* with large $\phi$ when
     testing and prevalence are low ... ?? (Seems too large an effect to
@@ -245,7 +227,8 @@ ggplot(cordf, aes(phi, cor, colour = cat)) + geom_line() +
 Graphical example of decrease in correlation from $\phi=0.75$ to
 $\phi=0.9$ with $t=0.05$, $i=0.2$:
 
-```{r corr_example}
+
+``` r
 draw_example <- function(i, t, phi, fill = "red", add = FALSE,
                          alpha = 1, ...) {
     gamma <- -log(1-phi)
@@ -265,12 +248,15 @@ draw_example(i=0.2, t=0.05, phi = 0.9, ylim = c(0, 7), add = TRUE, col = "blue",
              fill = "blue", alpha = 0.5)
 ```
 
+![](D:/GitHub/testing_bias_distribution/outputs/testing_distrib_files/figure-html/corr_example-1.png)<!-- -->
+
 Could the change in the *variance* of the Beta distribution be driving
 these effects? (See if covariance is a monotonic function of $\phi$?)
 
 ## Numerical examples
 
-```{r plots0}
+
+``` r
 par(las=1,bty="l")
 curve(prop_pos_test(i=0.01,t=0.001,x),from=0.001,to=0.999,
       xlab=expression("testing focus"~(phi)),
@@ -280,10 +266,13 @@ curve(prop_pos_test(i=0.01,t=0.001,x),from=0.001,to=0.999,
 abline(h=0.01,lty=2)
 ```
 
+![](D:/GitHub/testing_bias_distribution/outputs/testing_distrib_files/figure-html/plots0-1.png)<!-- -->
+
 What happens as we test more people than are actually infected in the
 population?
 
-```{r plots1}
+
+``` r
 par(las=1,bty="l")
 curve(prop_pos_test(t=x,i=0.01,phi=0.5),
       from=0.001, to=0.4,log="x",xlab="proportion tested",
@@ -292,7 +281,10 @@ curve(prop_pos_test(t=x,i=0.01,phi=0.5),
 abline(v=0.01,lty=2)
 ```
 
-```{r plots2}
+![](D:/GitHub/testing_bias_distribution/outputs/testing_distrib_files/figure-html/plots1-1.png)<!-- -->
+
+
+``` r
 dd <- (expand.grid(time=1:25,phi=c(0.001,0.2,0.5,0.8,0.999))
     %>% as_tibble()
     %>% mutate(inc=0.001*exp(log(2)/3*time),
@@ -311,6 +303,8 @@ print(ggplot(dd,aes(time,value,col=phi,group=phi))
   + scale_colour_viridis_c()
 )
 ```
+
+![](D:/GitHub/testing_bias_distribution/outputs/testing_distrib_files/figure-html/plots2-1.png)<!-- -->
 
 **FIXME:** direct labels? drop incidence and testing, include as
 reference-slope lines?
@@ -348,7 +342,8 @@ When is $\phi$ identifiable?
 MLE: want to estimate $i_0$, $r$ (growth rate of prevalence), and
 $\phi$. We know $t(\tau)$ and $c(\tau)$ (no time lags yet!)
 
-```{r testsim}
+
+``` r
 ## t (test vector) and c (confirmation vector) are defined; tau is a time vector
 set.seed(101)
 ## scalar parameters
@@ -373,12 +368,21 @@ mle_out<- mle2(c~dbinom(prob=prop_pos_test_new(plogis(logit_i_0)*exp(r*tau), t, 
               data= list(tau=dd$tau, c=dd$c, t=dd$t, N=true_pars["N"]),
               control=list(maxit=1000)
 )
+```
+
+```
+## Warning in stats::dbinom(x = x, size = size, prob = prob, log = log):
+## 产生了NaNs
+```
+
+``` r
 mle_est0 <- coef(mle_out)
 ```
 
 ## RTMB version
 
-```{r rtmb-fit}
+
+``` r
 tmbdat <- list(tau=dd$tau, c=dd$c, t=dd$t, N=true_pars["N"])
 pars <- list(logit_i_0=qlogis(true_pars["i_0"]),
              r=true_pars["r"], plogis_phi=plogis(true_pars["phi"]) )
@@ -390,6 +394,13 @@ nllfun <- function(pars) {
 }
 ff <- MakeADFun(nllfun, pars, silent = TRUE)
 ff$fn()
+```
+
+```
+## [1] 4058.523
+```
+
+``` r
 fit <- with(ff, nlminb(pars, fn, gr))
 
 ## run tmbprofile on a selected set of parameters, combine results,
@@ -414,11 +425,13 @@ tmbprof2 <- function(obj, pars, conf.level = 0.95, ...) {
 }
 ```
 
-```{r rtmb-prof, cache = TRUE}
+
+``` r
 prof <- tmbprof2(ff, c("logit_i_0", "r", "plogis_phi"), ystep = 0.01)
 ```
 
-```{r rtmb-ci}
+
+``` r
 true_vec <- unlist(sapply(pars, unname))
 citab <- (attr(prof, "ci")
     |> mutate(est = fit$par[.data$var],
@@ -428,7 +441,8 @@ citab <- (attr(prof, "ci")
 )
 ```
 
-```{r rtmb-prof-plot}
+
+``` r
 ggplot(prof, aes(.focal, value)) +
     geom_line() + facet_wrap(~var, scale = "free_x") +
     geom_hline(yintercept = 1.96, lty = 2) +
@@ -436,18 +450,31 @@ ggplot(prof, aes(.focal, value)) +
     theme(panel.spacing = grid::unit(0, "lines"))
 ```
 
-```{r}
+![](D:/GitHub/testing_bias_distribution/outputs/testing_distrib_files/figure-html/rtmb-prof-plot-1.png)<!-- -->
+
+
+``` r
 knitr::kable(citab)
 ```
 
-```{r ci-plot}
+
+
+|var        |        est|       true|      lower|      upper|
+|:----------|----------:|----------:|----------:|----------:|
+|logit_i_0  | -9.3133416| -9.2102404| -9.8106774| -8.1010632|
+|r          |  0.2328689|  0.2310491|  0.1877328|  0.2703343|
+|plogis_phi | -0.2983247|  0.6224593| -1.0402324|        Inf|
+
+
+``` r
 ggplot(citab, aes(est, var)) +
     geom_pointrange(aes(xmin=lower, xmax = upper)) +
     geom_point(aes(x=true), colour = "red", size = 4) +
     facet_wrap(~var, scale = "free", ncol = 1) +
     labs(y = "", x = "")
-
 ```
+
+![](D:/GitHub/testing_bias_distribution/outputs/testing_distrib_files/figure-html/ci-plot-1.png)<!-- -->
 
 (run multiple sims for RMSE/coverage/bias/etc.? compare against naive
 estimates, uncorrecting for testing bias?

@@ -100,6 +100,7 @@ fig_logdiff_cdf_log <- (
   + scale_fill_viridis_c(expand=c(0,0))
   + ggtitle("log-space diff between cdf and log_simp")
 )
+#fig_logdiff_cdf_log
 ggsave("log-diff_cdf-log_simp.png",plot=fig_logdiff_cdf_log, path = "./pix", width=3200,height=1800,units="px")
 
 
@@ -116,11 +117,13 @@ ggsave("log-diff_simp-log.png",plot=fig_logdiff_simp_log, path = "./pix", width=
 fig_logdiff_est_log <-(
   ggplot(dd,aes(phi,inc,fill=diff_est_log,group=test_prop))
   + geom_raster()
-  + facet_wrap(~test_prop,scale="free",labeller = label_both)
+  + labs(x=bquote(phi), y=bquote(Y), fill=bquote("log diff of"~bar(P)))
+  + facet_wrap(~test_prop,scale="free",labeller = label_bquote(T~"="~.(test_prop)))
   # + scale_y_log10()
   + scale_fill_viridis_c(expand=c(0,0))
-  + ggtitle("log-space diff between est and log_simp")
+  + ggtitle("log-space diff between Linear Est and R output")
 )
+fig_logdiff_est_log
 ggsave("log-diff_est-log.png",plot=fig_logdiff_est_log, path = "./pix", width=3200,height=1800,units="px")
 
 #### need to investigate more: what happens to a phi=0.99 case  
@@ -154,7 +157,7 @@ exp(val_log(0.8,0.97,0.001)[4])
 ## using both simp and log simp could somehow catch the difference
 ## However, for phi=0.99 very extreme case, even log(qbeta) gets solid zero
 
-## very extreme case have positivity=i，since the log(1-qb)=-Inf
+## very extreme case have positivity=io<since the log(1-qb)=-Inf
 ## cdf method will give "solid" zero for that case (log=-Inf)
 
 dd_est <- (expand.grid(test_prop=c(0.05),#,0.0012,0.0015,0.002,0.005,0.01,0.05,0.1,0.25),

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "mpFitting.md",
+                "file": "CMS.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "mpFitting"
+              "title": "CMS"
             }
           },
           {
@@ -35,7 +35,8 @@
               "title": "README"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -184,35 +185,38 @@
       "webpage-html-export:Export Vault to HTML": false
     }
   },
-  "active": "c04f59416d81e0a0",
+  "active": "6c5ca3f7ae38988d",
   "lastOpenFiles": [
+    "CMS.md",
+    "pix/beta_phi001.png",
+    "pix/beta_phi095.png",
+    "Beta Graphs.R",
+    "outputs/testing_distrib.md",
+    "pandoc2e8779c132.html",
+    "testing_distrib.knit.md",
+    "outputs/testing_distrib_files/figure-html/ci-plot-1.png",
+    "outputs/testing_distrib_files/figure-html/rtmb-prof-plot-1.png",
+    "testing_distrib_cache/html/rtmb-prof_0166ca492e35aa32d991f2434d063e5c.rdx",
+    "testing_distrib_cache/html/rtmb-prof_0166ca492e35aa32d991f2434d063e5c.rdb",
+    "testing_distrib_cache/html/rtmb-prof_0166ca492e35aa32d991f2434d063e5c.RData",
+    "outputs/testing_distrib_files/figure-html/plots2-1.png",
+    "outputs/testing_distrib_files/figure-html/plots1-1.png",
+    "outputs/testing_distrib_files/figure-html/plots0-1.png",
+    "outputs/testing_distrib_files/figure-html/corr_example-1.png",
+    "outputs/testing_distrib_files/figure-html/phi_corr-1.png",
+    "testing_distrib_cache/html/num_corr_f81fd6be9a339b3686d3dec35adf77b5.rdx",
+    "testing_distrib_cache/html/num_corr_f81fd6be9a339b3686d3dec35adf77b5.rdb",
+    "testing_distrib_cache/html/num_corr_f81fd6be9a339b3686d3dec35adf77b5.RData",
+    "testing_distrib_cache/html/__packages",
+    "testing_distrib_cache/html",
+    "outputs/testing_distrib_files/figure-html/fig1-1.png",
+    "mpFitting.md",
     "or.md",
     "OR_Sim.md",
     "Prevalence_vs_Incidence.md",
     "README.md",
     "simple.md",
-    "mpFitting.md",
     "betaParams.md",
-    "CMS.md",
-    "pandoc78ec797c38a8.html",
-    "Notes.knit.md",
-    "testing_distrib.html",
-    "testing_distrib.knit.md",
-    "testing_distrib_files/figure-html/ci-plot-1.png",
-    "testing_distrib_files/figure-html/rtmb-prof-plot-1.png",
-    "testing_distrib_cache/html/rtmb-prof_610ff96a034fae6814eea2716024821c.rdx",
-    "testing_distrib_cache/html/rtmb-prof_610ff96a034fae6814eea2716024821c.rdb",
-    "testing_distrib_cache/html/rtmb-prof_610ff96a034fae6814eea2716024821c.RData",
-    "testing_distrib_files/figure-html/plots2-1.png",
-    "testing_distrib_files/figure-html/plots1-1.png",
-    "testing_distrib_files/figure-html/plots0-1.png",
-    "testing_distrib_files/figure-html/corr_example-1.png",
-    "testing_distrib_files/figure-html/phi_corr-1.png",
-    "testing_distrib_cache/html/num_corr_6dc55055c2517813df4bec73355f46b0.rdx",
-    "testing_distrib_cache/html/num_corr_6dc55055c2517813df4bec73355f46b0.rdb",
-    "testing_distrib_cache/html/num_corr_6dc55055c2517813df4bec73355f46b0.RData",
-    "testing_distrib_cache/html/__packages",
-    "testing_distrib_cache/html",
-    "testing_distrib_files/figure-html/fig1-1.png"
+    "Notes.knit.md"
   ]
 }
