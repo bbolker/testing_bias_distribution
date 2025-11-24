@@ -95,12 +95,17 @@ An alternative numeric approach we have tried, is to use linear estimation as $Q
 
 Pros and Cons
 - ($+$) Testing process is characterized by one parameter $\phi$
-- ($-$) Hard to interpret, measure and change $\phi$ (
+- ($+$) Simple and interpretable mechanism with flexibility
+- ($-$) Highly rely on the assumption for testing priority
+	- Might only proper for limited number of tests
+- ($-$) Hard to interpret, measure and change $\phi$ in real-world
 	- Can only get from fitting
-	- Not ideal for fitting a changing $\phi$ 
+	- Not idea for fitting a changing $\phi$ 
 	- Hard to Modeling testing policy change
 - ($-$) Numerical overflow 
 - ($-$) Performance concern for fitting data to dynamics
 	- Prevalence $Y$ changing will change the distribution
+
+## Bottom-Up approaches
 ### Hazard Rate Model
 ### Odd Ratio Model
