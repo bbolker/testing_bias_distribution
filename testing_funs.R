@@ -203,3 +203,40 @@ Pfun_HR <- function(V,test_prop,Phi,debug=F){
   }
 }
 Pfun_HR <- Vectorize(Pfun_HR,c("V","test_prop","Phi"))
+
+
+## For Odds ratio idea
+Phi_convert_OR <- function(lambda){
+  Phi <- exp(lambda)
+  return(Phi)
+}
+
+lambda_convert_OR <- function(Phi){
+  lambda <- log(Phi)
+  return(lambda)
+}
+
+Bfun_OR <- function(V,test_prop,Phi,debug=F){
+  if (Phi<1) {
+    if (debug==T) cat("Error: Phi=",Phi,"does not satisfy the feasible condition for T=",test_prop," and V=",V,"\n")
+    return(NaN)
+  } else {
+    X <- (test_prop-V)*Phi+test_prop+V-1
+    B <- (X+sqrt(X^2+4*test_prop*(1-test_prop)*Phi))/(2*(1-test_prop)*Phi)
+    return(B)
+  }
+}
+Bfun_OR <- Vectorize(Bfun_OR,c("V","test_prop","Phi"))
+
+Pfun_OR <- function(V,test_prop,Phi,debug=F){
+  if (Phi<1) {
+    if (debug==T) cat("Error: Phi=",Phi,"does not satisfy the feasible condition for T=",test_prop," and V=",V,"\n")
+    return(NaN)
+  } else {
+    X <- (test_prop-V)*Phi+test_prop+V-1
+    P <- V/test_prop*(1-(2*(1-test_prop)/(sqrt(X^2+4*test_prop*(1-test_prop)*Phi)+2*(1-test_prop))))
+    #P <- 2*(1-test_prop)/(sqrt(X^2+4*test_prop*(1-test_prop)*Phi)+2*(1-test_prop))
+    return(P)
+  }
+}
+Pfun_OR <- Vectorize(Pfun_OR,c("V","test_prop","Phi"))

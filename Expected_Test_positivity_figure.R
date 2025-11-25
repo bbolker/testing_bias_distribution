@@ -47,21 +47,22 @@ ggsave("test_positivity_vs_test_proportion-phi.png",plot=fig_pos_vs_test_prop, p
 
 
 dd3 <- (expand.grid(phi=c(0.001,0.01,0.05,0.1,0.2,0.5,0.9,0.95,0.99),
-                    test_prop=seq(from=0.01,to=0.99,by=0.01),
-                    prev=c(0.001,0.005,0.01,0.02,0.05,0.10,0.25,0.5))
+                    prev=seq(from=0.01,to=0.99,by=0.01),
+                    test_prop=c(0.001,0.005,0.01,0.05,0.10,0.2,0.5,0.9))
         %>% as_tibble()
         %>% mutate(pos_prop=prop_pos_test_new(prev,test_prop,phi,method="est"))
-        %>% mutate(ratio=test_prop/pos_prop)
+        #%>% mutate(ratio=test_prop/pos_prop)
 )
 
 
-fig_pos_vs_test_prop <- (
-  ggplot(dd3,aes(test_prop,ratio,col=prev,group=phi))
+fig_pos_vs_prev <- (
+  ggplot(dd3,aes(prev,pos_prop,col=test_prop,group=phi))
   + geom_point(size=0.5)
+  + labs(x=bquote(Y), y=bquote(bar(P)), col=bquote(T))
   + facet_wrap(~phi,scale="free",labeller = label_bquote(phi~"="~.(phi)))
   # + scale_y_log10()
   + scale_colour_viridis_c(trans="log10", breaks = brkvec)
-  + ggtitle("test Positivity vs test proportion, grouped by phi, colored by prevalence")
+  + ggtitle(bquote(bar(P)~" vs "~ Y ~", grouped by"~phi~", colored by"~T))
 )
-fig_pos_vs_test_prop
-ggsave("test_positivity_vs_test_proportion-phi.png",plot=fig_pos_vs_test_prop, path = "./pix", width=3200,height=1800,units="px")
+fig_pos_vs_prev
+ggsave("test_positivity_vs_prev-phi.png",plot=fig_pos_vs_prev, path = "./pix", width=3200,height=1800,units="px")

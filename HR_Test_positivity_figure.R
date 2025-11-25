@@ -28,6 +28,7 @@ figHR_pos_vs_phi <- (
   + scale_colour_viridis_c(trans="log10", breaks = brkvec)
   + ggtitle("test positivity vs phi, grouped by testing proportion, colored by prevalence")
 )
+#figHR_pos_vs_phi
 ggsave("HR_test_positivity_vs_phi-test_prop.png",plot=figHR_pos_vs_phi, path = "./pix", width=3200,height=1800,units="px")
 
 # figHR_TB_vs_phi <- (
@@ -70,7 +71,7 @@ figHR_pos_vs_test_prop <- (
   + scale_colour_viridis_c(trans="log10", breaks = brkvec)
   + ggtitle("test Positivity vs test proportion, grouped by phi, colored by prevalence")
 )
-ggsave("HR_test_positivity_vs_test_proportion-phi.png",plot=figHR_pos_vs_test_prop, path = "./pix", width=3200,height=1800,units="px")
+#ggsave("HR_test_positivity_vs_test_proportion-phi.png",plot=figHR_pos_vs_test_prop, path = "./pix", width=3200,height=1800,units="px")
 
 
 #### Heatmap
@@ -89,4 +90,51 @@ figHR_heatmap <- (
   + scale_fill_viridis_c()
   + ggtitle("HR Heatmap: test proportion vs Phi, grouped by prev, colored by positivity")
 )
-ggsave("HR_heatmap.png",plot=figHR_heatmap, path = "./pix", width=3200,height=1800,units="px")
+#ggsave("HR_heatmap.png",plot=figHR_heatmap, path = "./pix", width=3200,height=1800,units="px")
+
+
+dd4 <- (expand.grid(eta=c(0,0.001,0.005,0.01,0.05,0.1,0.5,1,5),
+                    prev=seq(from=0.001,to=0.999,by=0.001),
+                    test_prop=c(0.001,0.005,0.01,0.05,0.10,0.2,0.5,0.9))
+        %>% as_tibble()
+        %>% mutate(Phi=exp(-eta))
+        %>% mutate(pos_prop=Pfun_HR(prev,test_prop,Phi))
+        #%>% mutate(ratio=test_prop/pos_prop)
+)
+
+HRfig_pos_vs_prev <- (
+  ggplot(dd4,aes(prev,pos_prop,col=test_prop,group=eta))
+  + geom_point(size=0.5)
+  + labs(x=bquote(Y), y=bquote(bar(P)), col=bquote(T))
+  + facet_wrap(~eta,scale="free",labeller = label_bquote(eta~"="~.(eta)))
+  # + scale_y_log10()
+  + scale_colour_viridis_c(trans="log10", breaks = brkvec)
+  + ggtitle(bquote(bar(P)~" vs "~ Y ~", grouped by"~eta~", colored by"~T))
+)
+HRfig_pos_vs_prev
+#ggsave("HR_pos_vs_prev-phi.png",plot=HRfig_pos_vs_prev, path = "./pix", width=3200,height=1800,units="px")
+
+ddOR <- (expand.grid(lambda=c(0,0.001,0.005,0.01,0.05,0.1,0.5,1,5),
+                     prev=seq(from=0.001,to=0.999,by=0.001),
+                     test_prop=c(0.001,0.005,0.01,0.05,0.1,0.2,0.5,0.9))
+        %>% as_tibble()
+        %>% mutate(Phi=exp(lambda))
+        %>% mutate(pos_prop=Pfun_OR(prev,test_prop,Phi))
+        #%>% mutate(ratio=test_prop/pos_prop)
+)
+ddOR[1:10,]
+#dd4$pos_prop
+ORfig_pos_vs_prev <- (
+  ggplot(ddOR,aes(prev,pos_prop,col=test_prop,group=lambda))
+  + geom_point(size=0.5)
+  + labs(x=bquote(Y), y=bquote(bar(P)), col=bquote(T))
+  + facet_wrap(~lambda,scale="free",labeller = label_bquote(lambda~"="~.(lambda)))
+  # + scale_y_log10()
+  + ylim(0,1)
+  + scale_colour_viridis_c(trans="log10", breaks = brkvec)
+  + ggtitle(bquote(bar(P)~" vs "~ Y ~", grouped by"~lambda~", colored by"~T))
+)
+ORfig_pos_vs_prev
+ggsave("OR_pos_vs_prev-phi.png",plot=HRfig_pos_vs_prev, path = "./pix", width=3200,height=1800,units="px")
+
+

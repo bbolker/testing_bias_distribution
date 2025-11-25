@@ -17,22 +17,20 @@ A key reason for such difficulty is that, we usually are only able to observe ca
 One common approach assumes prevalence is equal to test positivity, which is the proportion of positive cases among all tested cases. 
 Such assumptions implicitly indicates that the tests are distributed totally, uniformly random to the whole population.
 
-But in real-world, most tests is not distributed at random, and how test is distributed should affect prevalence and positivity directly and significantly.
+But in real-world, most tests are not distributed at random, and how tests are distributed should affect prevalence and positivity directly and significantly.
 
-On the other hand, infected people with symptoms is more likely to search medical care and be tested. 
+On the other hand, infected people with symptoms is more likely to search medical care and to be tested. 
 More specifically, the more severe the symptoms, the more likely someone is to be tested.
 While for many infectious disease like influenza, sub-clinical cases might be dominant in the infected population, but might rarely being tested.
 
-Testing will also depend on how they got infected, e.g. imported cases and close contacts of high profile infection like COVID, are more likely to be tested. 
+Testing will also depend on how they got infected, e.g. imported cases and close contacts of high-profile infection like COVID, are more likely to be tested. 
 On contrast, an asymptomatic, community-infected person could never be tested.
-
-A common 
 
 Therefore, we might want to consider more carefully why and how people are getting tested when estimating prevalence from surveillance data.
 There are many factors might related to the testing and prevalence relation, like
 - Delay among infection, being infectious and being tested
 - Heterogeneity in testing behavior and test policies
-- Impact of public awareness and medical
+- Impact of public awareness and medical resources
 But here we focus on building basic, simple models for testing mechanic and priority on homogeneous population as a starting point.
 
 The 3 models we discussed today, is focused on modelling test mechanics and priority with simple, uniform approaches characterized just by 1 to 2 parameters, that connect **prevalence** $Y$ to
@@ -66,8 +64,8 @@ We could think about having two distributions, but these can’t really be separ
 	- Its dispersion $\phi=1-e^{-\frac{1}{a+b}}$ that characterize the "testing focus"
 	- Such that $$a=\frac{-Y}{ln(1-\phi)}, b=\frac{1-Y}{ln(1-\phi)}$$
 If we always test 'from the top down', i.e. calculate the mean value of the top fraction $T/N$ of the population distribution,
-- As $\phi \rightarrow 1$ we end up with point masses $1-Y$ on 0 and $Y$ on 1, correspond to perfect-target testing (cases=$\min(T,Y)$)
-- As $\phi \rightarrow 0$ we end up with a point mass on $Y$, correspond to purely random testing (cases=$\textrm{Binomial}(i,T)$). 
+- As $\phi \rightarrow 1$ we end up with point masses $1-Y$ on 0 and $Y$ on 1, correspond to perfect-target testing ($PTN=\min(T,Y)$)
+- As $\phi \rightarrow 0$ we end up with a point mass on $Y$, correspond to purely random testing ($PTN=\textrm{Binomial}(Y,TN)$). 
 
 Example beta-curve $Y=0.25, \phi=0.01$![[beta_phi001.png]]
 Example beta-curve $Y=0.25, \phi=0.95$![[beta_phi095.png]]
@@ -97,11 +95,11 @@ Pros and Cons
 - ($+$) Testing process is characterized by one parameter $\phi$
 - ($+$) Simple and interpretable mechanism with flexibility
 - ($-$) Highly rely on the assumption for testing priority
-	- Might only proper for limited number of tests
+	- Might only be proper for limited number of tests
 - ($-$) Hard to interpret, measure and change $\phi$ in real-world
 	- Can only get from fitting
-	- Not idea for fitting a changing $\phi$ 
-	- Hard to Modeling testing policy change
+	- Not ideal for fitting a changing $\phi$ 
+	- Hard to model testing policy change
 - ($-$) Numerical overflow 
 - ($-$) Performance concern for fitting data to dynamics
 	- Prevalence $Y$ changing will change the distribution
