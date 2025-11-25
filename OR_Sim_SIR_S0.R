@@ -44,9 +44,9 @@ NY_0 <- N*Y_0    ## initial number infected
 # r <- log(2)/3    ## growth rate (doubling time = 3)
 beta <- 0.25
 gamma <- 0.1
-tmin <- 30
+tmin <- 50
 tmax <- 80      ## max simulation time 
-# tmax <- 59     ## max simulation time 
+#tmax <- 59     ## max simulation time 
 t <- c(tmin:tmax)
 pts <- length(t) ## number of time points
 
@@ -115,7 +115,24 @@ dat<- (dat_all|> filter(time>=tmin)
 
 (dat
   |> pivot_wider(names_from = matrix,values_from = value)
-) |> print(n=pts)
+) -> dat_fit
+#dat_pall[1,]
+(dat_all
+  |> pivot_wider(names_from = matrix,values_from = value)
+) -> dat_pall
+
+
+model_curve<-(ggplot() + theme_bw()
+  + geom_line(data = dat_pall, aes(time,I,color="I(t)"))
+  + geom_line(data = dat_pall, aes(time,OT,color="OT(t)"))
+  + geom_line(data = dat_pall, aes(time,OP,color="OP(t)"))
+  + geom_point(data = dat_fit, aes(time,OT,color="OT(t)",shape="Fitted data"))
+  + geom_point(data = dat_fit, aes(time,OP,color="OP(t)",shape="Fitted data"))
+  + labs(x="time t", y="Case Count")
+)
+print(model_curve)
+ggsave("BasicSIR_ModelCurve.png",plot=model_curve, path = "./pix", width=1600,height=900,units="px")
+
 
 print(ggplot(dat)
  	+ aes(time, value, color=matrix)
@@ -128,7 +145,7 @@ print(ggplot(dat)
 
 ### Assume we know St
 S <- dat_all[which(dat_all$time==tmin-1 & dat_all$matrix=="S"),]$value
-hat_S <- S*(1-0.4)
+hat_S <- S*(1-0.2)
 
 ### approximation of hat{I} inferred from first data point:
 OT <- dat[which(dat$time==tmin & dat$matrix=="OT"),]$value
@@ -215,7 +232,7 @@ fit_bk<-c(exp(fit$par[1]),exp(fit$par[2]),N=N,logit_backtrans(fit$par[5]),logit_
 names(fit_bk)<-names(sp_list)
 fit_bklist<-as.list(append(fit_bk,fit$par))
 
-# print(fit_bk)
+print(fit_bk)
 
 ## Look into initial values
 test_list <- sp_list
@@ -275,7 +292,6 @@ dat_tp <- cbind(dat_tp,model=rep("real",length(dat_tp[,1])))
 sim_vals <- cbind(sim_vals,model=rep("optim",length(sim_vals[,1])))
 
 dat_compare<-rbind(dat_sim,dat_tp,sim_vals)
-
 fit_curve <- (ggplot(dat_compare)
       + aes(x=time, y=value, color=matrix, linetype = model)
       + geom_line()
@@ -430,17 +446,16 @@ fit_bklist$I
 
 fit_tp_result <- (mp_tmb_coef(calibrator,conf.int = TRUE) 
                   |> select(-c("term", "type","row","col","std.error"))
-                  |> cbind(true_value=c(beta=beta,gamma=gamma,S=S,I=dat_all[197,]$value,T_B=T_B,T_Y=T_Y)
+                  |> cbind(true_value=c(beta=beta,gamma=gamma,S=S,I=dat_all[337,]$value,T_B=T_B,T_Y=T_Y)
 )
                   )
+
 print(fit_tp_result)
-
-
 ## one way to present results ...
 # results <- tidy(fit2, conf.int = TRUE) |> full_join(data.frame(term = names(true_param), true.value = true_param),
 #               by = "term") |>
 #     select(term, estimate, true.value, conf.low, conf.high)
-
+#dat_fit
 
 ## one way to show the results ...
 # knitr::kable(results, digits = 3)
@@ -455,7 +470,7 @@ fit_compare <- ggplot(fit_tp_result, aes(y = mat)) +
     geom_point(aes(x=true_value), colour = "red") +
     facet_wrap(~mat, ncol = 1, scale  = "free")
 print(fit_compare)
-ggsave("new_mech_fit.png",plot=fit_compare, path = "./pix", width=1800,height=3200,units="px")
+ggsave("new_mech_fit.png",plot=fit_compare, path = "./pix", width=1800,height=2400,units="px")
 
 ### does not work with beta+0.2
 ## false convergence (8)

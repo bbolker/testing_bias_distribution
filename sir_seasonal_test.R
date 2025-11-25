@@ -195,6 +195,7 @@ print(ggplot(dat_count)
       + aes(time, value, color=matrix)
       + geom_line()
       + scale_y_log10()
+      + labs(x="time t",y="Log(Case Count)",color="color")
 )
 
 print(ggplot(dat_ratio)
@@ -527,11 +528,9 @@ Prev_curve <- (ggplot(dat_optim_B)
 print(Prev_curve)
 
 
-
-
 fit_tp_result <- (mp_tmb_coef(calibrator,conf.int = TRUE) 
                   |> select(-c("term", "type","row","col","std.error"))
-                  |> cbind(true_value=c( phase=-41
+                  |> cbind(true_value=c( phase=-41+fit_bk[3]
                                         , beta_low = beta_low
                                         , beta_high = beta_high
                                         , gamma = gamma
@@ -550,4 +549,4 @@ fit_compare <- ggplot(fit_tp_result, aes(y = mat)) +
   geom_point(aes(x=true_value), colour = "red") +
   facet_wrap(~mat, ncol = 1, scale  = "free")
 print(fit_compare)
-ggsave("1e5Fit.png", plot=fit_compare, path = "./pix", width=1000, height=3000, units="px")
+ggsave("1e5Fit.png", plot=fit_compare, path = "./pix", width=1200, height=2000, units="px")
