@@ -245,7 +245,7 @@ We can use this expression to substitute $B$ as constant (or solve $B=B(T,Y,\Phi
 
 Only add(+sqrt) solution is feasible since $B>0$ as odds. Minus(-sqrt) solution is always negative.$$B=\frac{X + \sqrt{X^2+4T(1-T)\Phi}}{2(1-T)\Phi}$$ - (TO DO??) How $B$, thus $T_B$ change as a function of $T,Y,\Phi$?
 
-Then the testing positivity $P$ can be expressed as: $$P=\frac{Y T_Y}{T}=\frac{Y}{T}\frac{B\Phi}{1+B\Phi}=\frac{Y}{T}\frac{X+\sqrt{X^2+4T(1-T)\Phi}}{X+\sqrt{X^2+4T(1-T)\Phi}+2(1-T)}$$ $$=\frac{Y}{T}(1+\frac{2(1-T)}{\sqrt{X^2+4T(1-T)\Phi}})^{-1}=\frac{Y}{T}(1-\frac{2(1-T)}{\sqrt{X^2+4T(1-T)\Phi}+2(1-T)})$$
+Then the testing positivity $P$ can be expressed as: $$P=\frac{Y T_Y}{T}=\frac{Y}{T}\frac{B\Phi}{1+B\Phi}=\frac{Y}{T}\frac{X+\sqrt{X^2+4T(1-T)\Phi}}{X+\sqrt{X^2+4T(1-T)\Phi}+2(1-T)}$$ $$=\frac{Y}{T}(1+\frac{2(1-T)}{X+\sqrt{X^2+4T(1-T)\Phi}})^{-1}$$
 
 [`or_mac.rmd`](or_mac.rmd): @dushoff description with preliminary calculation on maxima.
 

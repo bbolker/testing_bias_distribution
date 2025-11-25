@@ -234,7 +234,8 @@ Pfun_OR <- function(V,test_prop,Phi,debug=F){
     return(NaN)
   } else {
     X <- (test_prop-V)*Phi+test_prop+V-1
-    P <- V/test_prop*(1-(2*(1-test_prop)/(sqrt(X^2+4*test_prop*(1-test_prop)*Phi)+2*(1-test_prop))))
+    B <- (X+sqrt(X^2+4*test_prop*(1-test_prop)*Phi))/(2*(1-test_prop)*Phi)
+    P <- V/test_prop*B*Phi/(1+B*Phi)
     #P <- 2*(1-test_prop)/(sqrt(X^2+4*test_prop*(1-test_prop)*Phi)+2*(1-test_prop))
     return(P)
   }
