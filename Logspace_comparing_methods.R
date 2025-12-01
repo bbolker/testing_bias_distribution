@@ -77,9 +77,9 @@ abs_log_sub <- Vectorize(abs_log_sub,c("x","y"))
 abs_log_sub(simp_p,log_simp_p)
 ## Heat map generating
 ## integration "int" method seems failed for some extreme values: generate infinite values?
-dd <- (expand.grid(test_prop=c(0.001,0.0012,0.0015,0.002,0.005,0.01,0.05,0.1,0.25),
-                   phi=seq(from=0.01,to=0.99,by=0.01),
-                   inc=seq(from=0.01,to=0.99,by=0.01))
+dd <- (expand.grid(test_prop=c(0.001,0.01,0.1,0.25),
+                   phi=seq(from=0.01,to=0.99,by=0.005),
+                   inc=seq(from=0.01,to=0.99,by=0.005))
        %>% as_tibble()
        #%>% mutate(pos_prop_int=prop_pos_test_new(inc,test_prop,phi,method="int"))
        %>% mutate(pos_prop_cdf=prop_pos_test_new(inc,test_prop,phi,method="cdf"))
@@ -92,16 +92,16 @@ dd <- (expand.grid(test_prop=c(0.001,0.0012,0.0015,0.002,0.005,0.01,0.05,0.1,0.2
        %>% mutate(diff_est_log=abs_log_sub(pos_prop_log,pos_prop_est))
        )
 
-fig_logdiff_cdf_log <- (
-  ggplot(dd,aes(phi,inc,fill=diff_cdf_log,group=test_prop))
-  + geom_raster()
-  + facet_wrap(~test_prop,scale="free",labeller = label_both)
-  # + scale_y_log10()
-  + scale_fill_viridis_c(expand=c(0,0))
-  + ggtitle("log-space diff between cdf and log_simp")
-)
+# fig_logdiff_cdf_log <- (
+#   ggplot(dd,aes(phi,inc,fill=diff_cdf_log,group=test_prop))
+#   + geom_raster()
+#   + facet_wrap(~test_prop,scale="free",labeller = label_both)
+#   # + scale_y_log10()
+#   + scale_fill_viridis_c(expand=c(0,0))
+#   + ggtitle("log-space diff between cdf and log_simp")
+# )
 #fig_logdiff_cdf_log
-ggsave("log-diff_cdf-log_simp.png",plot=fig_logdiff_cdf_log, path = "./pix", width=3200,height=1800,units="px")
+#ggsave("log-diff_cdf-log_simp.png",plot=fig_logdiff_cdf_log, path = "./pix", width=3200,height=1800,units="px")
 
 
 fig_logdiff_simp_log <-(
@@ -112,13 +112,13 @@ fig_logdiff_simp_log <-(
   + scale_fill_viridis_c(expand=c(0,0))
   + ggtitle("log-space diff between simp and log_simp")
 )
-ggsave("log-diff_simp-log.png",plot=fig_logdiff_simp_log, path = "./pix", width=3200,height=1800,units="px")
+# ggsave("log-diff_simp-log.png",plot=fig_logdiff_simp_log, path = "./pix", width=3200,height=1800,units="px")
 
 fig_logdiff_est_log <-(
   ggplot(dd,aes(phi,inc,fill=diff_est_log,group=test_prop))
   + geom_raster()
-  + labs(x=bquote(phi), y=bquote(Y), fill=bquote("log diff of"~bar(P)))
-  + facet_wrap(~test_prop,scale="free",labeller = label_bquote(T~"="~.(test_prop)))
+  + labs(x=bquote("Testing Focus Parameter"~phi), y=bquote("Prevalence"~Y), fill=bquote("log difference of \nexpected positivity"~bar(P)))
+  + facet_wrap(~test_prop,scale="free",labeller = label_bquote("Testing Proportion"~T~"="~.(test_prop)))
   # + scale_y_log10()
   + scale_fill_viridis_c(expand=c(0,0))
   + ggtitle("log-space diff between Linear Est and R output")

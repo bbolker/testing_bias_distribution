@@ -93,7 +93,7 @@ figHR_heatmap <- (
 #ggsave("HR_heatmap.png",plot=figHR_heatmap, path = "./pix", width=3200,height=1800,units="px")
 
 
-dd4 <- (expand.grid(eta=c(0,0.001,0.005,0.01,0.05,0.1,0.5,1,5),
+dd4 <- (expand.grid(eta=c(0,0.001,0.01,0.1),
                     prev=seq(from=0.001,to=0.999,by=0.001),
                     test_prop=c(0.001,0.005,0.01,0.05,0.10,0.2,0.5,0.9))
         %>% as_tibble()
@@ -105,16 +105,16 @@ dd4 <- (expand.grid(eta=c(0,0.001,0.005,0.01,0.05,0.1,0.5,1,5),
 HRfig_pos_vs_prev <- (
   ggplot(dd4,aes(prev,pos_prop,col=test_prop,group=eta))
   + geom_point(size=0.5)
-  + labs(x=bquote(Y), y=bquote(bar(P)), col=bquote(T))
-  + facet_wrap(~eta,scale="free",labeller = label_bquote(eta~"="~.(eta)))
+  + labs(x=bquote("Prevalence"~Y), y=bquote("Expected Positivit"~bar(P)), col=bquote("Testing Proportion"~T))
+  + facet_wrap(~eta,scale="free",labeller = label_bquote("Infection Hazard Offset"~eta~"="~.(eta)))
   # + scale_y_log10()
   + scale_colour_viridis_c(trans="log10", breaks = brkvec)
-  + ggtitle(bquote(bar(P)~" vs "~ Y ~", grouped by"~eta~", colored by"~T))
+  + ggtitle(bquote("Expected Positivity"~bar(P)~" vs Prevalence"~ Y ~", Grouped by Infection Hazard Offset"~eta~", Colored by Testing Proportion"~T))
 )
 HRfig_pos_vs_prev
-#ggsave("HR_pos_vs_prev-phi.png",plot=HRfig_pos_vs_prev, path = "./pix", width=3200,height=1800,units="px")
+ggsave("HR_pos_vs_prev-phi.png",plot=HRfig_pos_vs_prev, path = "./pix", width=3200,height=1800,units="px")
 
-ddOR <- (expand.grid(lambda=c(0,0.01,0.05,0.1,0.5,1,2,5,10),
+ddOR <- (expand.grid(lambda=c(0,0.5,1,5),
                      prev=seq(from=0.001,to=0.999,by=0.001),
                      test_prop=c(0.001,0.005,0.01,0.05,0.1,0.2,0.5,0.9))
         %>% as_tibble()
@@ -123,18 +123,18 @@ ddOR <- (expand.grid(lambda=c(0,0.01,0.05,0.1,0.5,1,2,5,10),
         %>% mutate(pos_prop=Pfun_OR(prev,test_prop,Phi))
         #%>% mutate(ratio=test_prop/pos_prop)
 )
-ddOR[1,]
+# ddOR[1,]
 
 #dd4$pos_prop
 ORfig_pos_vs_prev <- (
   ggplot(ddOR,aes(prev,pos_prop,col=test_prop,group=lambda))
   + geom_point(size=0.3)
-  + labs(x=bquote(Y), y=bquote(bar(P)), col=bquote(T))
-  + facet_wrap(~lambda,scale="free",labeller = label_bquote(lambda~"="~.(lambda)))
+  + labs(x=bquote("Prevalence"~Y), y=bquote("Expected Positivit"~bar(P)), col=bquote("Testing Proportion"~T))
+  + facet_wrap(~lambda,scale="free",labeller = label_bquote("log(Odds Ratio)"~lambda~"="~.(lambda)))
   # + scale_y_log10()
   + ylim(0,1)
   + scale_colour_viridis_c(trans="log10", breaks = brkvec)
-  + ggtitle(bquote(bar(P)~" vs "~ Y ~", grouped by"~lambda~", colored by"~T))
+  + ggtitle(bquote("Expected Positivity"~bar(P)~" vs Prevalence"~ Y ~", Grouped by log(Odds Ratio)"~lambda~", Colored by Testing Proportion"~T))
 )
 ORfig_pos_vs_prev
 ggsave("OR_pos_vs_prev-phi.png",plot=ORfig_pos_vs_prev, path = "./pix", width=3200,height=1800,units="px")
