@@ -21,6 +21,10 @@ fig_pos_vs_phi <- (
   # + scale_y_log10()
   + scale_colour_viridis_c(trans="log10", breaks = brkvec)
   + ggtitle("test positivity vs phi, grouped by testing proportion, colored by prevalence")
+  + theme(axis.title.x = element_text(size = 14), # X-axis title font size
+          axis.text.x = element_text(size = 12), # X-axis label font size
+          axis.title.y = element_text(size = 14), # Y-axis title font size
+          axis.text.y = element_text(size = 12)) # Y-axis label font size
 )
 fig_pos_vs_phi
 ggsave("test_positivity_vs_phi-test_prop.png",plot=fig_pos_vs_phi, path = "./pix", width=3200,height=1800,units="px")
@@ -41,6 +45,11 @@ fig_pos_vs_test_prop <- (
   # + scale_y_log10()
   + scale_colour_viridis_c(trans="log10", breaks = brkvec)
   + ggtitle(bquote(bar(P)~" vs "~ T ~", grouped by"~phi~", colored by"~Y))
+  + theme(axis.title.x = element_text(size = 14), # X-axis title font size
+          axis.text.x = element_text(size = 12), # X-axis label font size
+          axis.title.y = element_text(size = 14), # Y-axis title font size
+          axis.text.y = element_text(size = 12)) # Y-axis label font size
+  
 )
 fig_pos_vs_test_prop
 ggsave("test_positivity_vs_test_proportion-phi.png",plot=fig_pos_vs_test_prop, path = "./pix", width=3200,height=1800,units="px")
@@ -64,6 +73,13 @@ fig_pos_vs_prev <- (
   + ylim(0,1)
   + scale_colour_viridis_c(trans="log10", breaks = brkvec)
   + ggtitle(bquote("Expected Positivity"~bar(P)~" vs Prevalence"~ Y ~", Grouped by Testing Focus"~phi~", Colored by Testing Proportion"~T))
+  + theme(axis.title.x = element_text(size = 18), # X-axis title font size
+          axis.text.x = element_text(size = 16), # X-axis label font size
+          axis.title.y = element_text(size = 18), # Y-axis title font size
+          axis.text.y = element_text(size = 16), # Y-axis label font size
+          plot.title = element_text(size = 18), # Plot title font size
+          legend.title = element_text(size = 18),
+          strip.text = element_text(size = 16))
   )
 fig_pos_vs_prev
-ggsave("test_positivity_vs_prev-phi.png",plot=fig_pos_vs_prev, path = "./pix", width=3200,height=1800,units="px")
+ggsave("test_positivity_vs_prev-phi.png",plot=fig_pos_vs_prev, path = "./pix", width=4000,height=2000,units="px")

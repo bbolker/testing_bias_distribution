@@ -546,7 +546,17 @@ fit_tp_result <- (mp_tmb_coef(calibrator,conf.int = TRUE)
 print(fit_tp_result)
 fit_compare <- ggplot(fit_tp_result, aes(y = mat)) +
   geom_pointrange(aes(x = estimate, xmin = conf.low, xmax = conf.high)) +
-  geom_point(aes(x=true_value), colour = "red") +
-  facet_wrap(~mat, ncol = 1, scale  = "free")
+  geom_point(aes(x=true_value), colour = "red",size=2) +
+  labs(x=bquote("Value"), y=bquote("Parameters"))+
+  facet_wrap(~mat, ncol = 1, scale  = "free") +
+  scale_y_discrete( breaks=c("beta_high","beta_low","period","phase","eta","gamma","I","S","T_B","T_Y")
+                   ,labels=c(bquote(beta["high"]),bquote(beta["low"]),bquote(tau),bquote(psi),bquote(eta),bquote(gamma),bquote(I["init"]),bquote(S["init"]),bquote(T[B]),bquote(T[Y]))) +
+  theme(
+    strip.background = element_blank(),
+    strip.text.x = element_blank(),
+    axis.title.x = element_text(size = 18), # X-axis label font size
+    #axis.title.y = element_text(size = 18), # Y-axis title font size
+    axis.text.y = element_text(size = 16), # Y-axis label font size
+  )
 print(fit_compare)
-ggsave("1e5Fit.png", plot=fit_compare, path = "./pix", width=1200, height=2000, units="px")
+ggsave("1e5Fit.png", plot=fit_compare, path = "./pix", width=1800, height=2100, units="px")

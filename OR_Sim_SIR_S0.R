@@ -128,10 +128,10 @@ model_curve<-(ggplot() + theme_bw()
   + geom_line(data = dat_pall, aes(time,OP,color="OP(t)"))
   + geom_point(data = dat_fit, aes(time,OT,color="OT(t)",shape="Fitted data"))
   + geom_point(data = dat_fit, aes(time,OP,color="OP(t)",shape="Fitted data"))
-  + labs(x="time t", y="Case Count")
+  + labs(x="Time t", y="Case Count")
 )
 print(model_curve)
-ggsave("BasicSIR_ModelCurve.png",plot=model_curve, path = "./pix", width=1600,height=900,units="px")
+ggsave("BasicSIR_ModelCurve.png",plot=model_curve, path = "./pix", width=1800,height=900,units="px")
 
 
 print(ggplot(dat)
@@ -467,10 +467,19 @@ print(fit_tp_result)
 ## the same scale, so divide into separately scaled facets)
 fit_compare <- ggplot(fit_tp_result, aes(y = mat)) +
     geom_pointrange(aes(x = estimate, xmin = conf.low, xmax = conf.high)) +
-    geom_point(aes(x=true_value), colour = "red") +
-    facet_wrap(~mat, ncol = 1, scale  = "free")
+    geom_point(aes(x=true_value), colour = "red",size=2) +
+    labs(x=bquote("Value"), y=bquote("Parameters"))+
+    facet_wrap(~mat, ncol = 1, scale  = "free") +
+    scale_y_discrete(breaks=c("beta","gamma","I","S","T_B","T_Y"),labels=c(bquote(beta),bquote(gamma),bquote(I["init"]),bquote(S["init"]),bquote(T[B]),bquote(T[Y]))) +
+    theme(
+      strip.background = element_blank(),
+      strip.text.x = element_blank(),
+      axis.title.x = element_text(size = 18), # X-axis label font size
+      #axis.title.y = element_text(size = 18), # Y-axis title font size
+      axis.text.y = element_text(size = 16), # Y-axis label font size
+      )
 print(fit_compare)
-ggsave("new_mech_fit.png",plot=fit_compare, path = "./pix", width=1800,height=2400,units="px")
+ggsave("new_mech_fit.png",plot=fit_compare, path = "./pix", width=1800,height=2100,units="px")
 
 ### does not work with beta+0.2
 ## false convergence (8)

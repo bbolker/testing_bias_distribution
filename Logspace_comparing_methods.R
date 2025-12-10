@@ -117,14 +117,21 @@ fig_logdiff_simp_log <-(
 fig_logdiff_est_log <-(
   ggplot(dd,aes(phi,inc,fill=diff_est_log,group=test_prop))
   + geom_raster()
-  + labs(x=bquote("Testing Focus Parameter"~phi), y=bquote("Prevalence"~Y), fill=bquote("log difference of \nexpected positivity"~bar(P)))
+  + labs(x=bquote("Testing Focus Parameter"~phi), y=bquote("Prevalence"~Y), fill=bquote("log-Difference of \nExpected Positivity"~bar(P)))
   + facet_wrap(~test_prop,scale="free",labeller = label_bquote("Testing Proportion"~T~"="~.(test_prop)))
   # + scale_y_log10()
   + scale_fill_viridis_c(expand=c(0,0))
-  + ggtitle("log-space diff between Linear Est and R output")
+  + ggtitle("Numerical Underflow: log-space Diff between Linear Est and R qbeta output")
+  + theme(axis.title.x = element_text(size = 18), # X-axis title font size
+          axis.text.x = element_text(size = 16), # X-axis label font size
+          axis.title.y = element_text(size = 18), # Y-axis title font size
+          axis.text.y = element_text(size = 16), # Y-axis label font size
+          plot.title = element_text(size = 18), # Plot title font size
+          legend.title = element_text(size = 18),
+          strip.text = element_text(size = 16))
 )
 fig_logdiff_est_log
-ggsave("log-diff_est-log.png",plot=fig_logdiff_est_log, path = "./pix", width=3200,height=1800,units="px")
+ggsave("log-diff_est-log.png",plot=fig_logdiff_est_log, path = "./pix", width=4000,height=2000,units="px")
 
 #### need to investigate more: what happens to a phi=0.99 case  
 prop_pos_test_new(0.5,0.001,0.97,method = "cdf",debug = T)

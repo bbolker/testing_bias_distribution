@@ -110,9 +110,16 @@ HRfig_pos_vs_prev <- (
   # + scale_y_log10()
   + scale_colour_viridis_c(trans="log10", breaks = brkvec)
   + ggtitle(bquote("Expected Positivity"~bar(P)~" vs Prevalence"~ Y ~", Grouped by Infection Hazard Offset"~eta~", Colored by Testing Proportion"~T))
+  + theme(axis.title.x = element_text(size = 18), # X-axis title font size
+          axis.text.x = element_text(size = 16), # X-axis label font size
+          axis.title.y = element_text(size = 18), # Y-axis title font size
+          axis.text.y = element_text(size = 16), # Y-axis label font size
+          plot.title = element_text(size = 18), # Plot title font size
+          legend.title = element_text(size = 18),
+          strip.text = element_text(size = 16))
 )
 HRfig_pos_vs_prev
-ggsave("HR_pos_vs_prev-phi.png",plot=HRfig_pos_vs_prev, path = "./pix", width=3200,height=1800,units="px")
+ggsave("HR_pos_vs_prev-phi.png",plot=HRfig_pos_vs_prev, path = "./pix", width=4000,height=2000,units="px")
 
 ddOR <- (expand.grid(lambda=c(0,0.5,1,5),
                      prev=seq(from=0.001,to=0.999,by=0.001),
@@ -135,8 +142,15 @@ ORfig_pos_vs_prev <- (
   + ylim(0,1)
   + scale_colour_viridis_c(trans="log10", breaks = brkvec)
   + ggtitle(bquote("Expected Positivity"~bar(P)~" vs Prevalence"~ Y ~", Grouped by log(Odds Ratio)"~lambda~", Colored by Testing Proportion"~T))
+  + theme(axis.title.x = element_text(size = 18), # X-axis title font size
+          axis.text.x = element_text(size = 16), # X-axis label font size
+          axis.title.y = element_text(size = 18), # Y-axis title font size
+          axis.text.y = element_text(size = 16), # Y-axis label font size
+          plot.title = element_text(size = 18), # Plot title font size
+          legend.title = element_text(size = 18),
+          strip.text = element_text(size = 16))
 )
 ORfig_pos_vs_prev
-ggsave("OR_pos_vs_prev-phi.png",plot=ORfig_pos_vs_prev, path = "./pix", width=3200,height=1800,units="px")
+ggsave("OR_pos_vs_prev-phi.png",plot=ORfig_pos_vs_prev, path = "./pix", width=4000,height=2000,units="px")
 
 
