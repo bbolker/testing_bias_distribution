@@ -8,6 +8,11 @@ Ignore = target.mk
 
 ######################################################################
 
+## meet 2025 Dec 11 (Thu)
+
+sir_seasonal_test.Rout: sir_seasonal_test.R
+	$(pipeR)
+
 ## mpFitting.html: mpFitting.md
 
 ######################################################################
