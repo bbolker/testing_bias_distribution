@@ -22,7 +22,7 @@ library(viridis)
 
 options(macpan2_verbose = FALSE)
 
-my_sir_dir = file.path(getwd(), "sirs_seasonal")
+my_sir_dir = file.path("sirs_seasonal")
 # mp_model_starter("sir", my_sir_dir)
 sir_season = mp_tmb_library(my_sir_dir)
 
@@ -124,14 +124,6 @@ logit_trans <- function(x){
 logit_backtrans <- function(x){
   (1/(1 + exp(-x)))
 }
-
-## BMB: use self-naming list from tibble pkg
-# true_param <- tibble::lst(    log_B=log(B)
-#                             , log_Phi=log(Phi)
-#                             , logY_0=log(Y_0)
-#                             , logit_T_B=logit_trans(T_B)
-#                             , logit_T_Y=logit_trans(T_Y)
-# )
 
 tp_list <-tibble::lst(  beta_low
                       , beta_high

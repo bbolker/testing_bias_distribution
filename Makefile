@@ -10,10 +10,32 @@ Ignore = target.mk
 
 ## meet 2025 Dec 11 (Thu)
 
-sir_seasonal_test.Rout: sir_seasonal_test.R
+Ignore += pix/
+## Richard and Ben
+sir_seasonal_test.Rout: sir_seasonal_test.R sirs_seasonal/tmb.R
+	$(pipeR)
+
+Sources += floating.md
+
+## Try to simulate with macpan
+simTest.Rout: simTest.R
 	$(pipeR)
 
 ## mpFitting.html: mpFitting.md
+
+######################################################################
+
+subdirs += sevilla
+
+sirFuns.Rout: sirFuns.R
+	$(pipeR)
+
+## sirSimp.Rout: sirSimp.R sirFuns.rda
+sirSimp.Rout: sirSimp.R sirFuns.rda
+	$(pipeR)
+
+sirSimp.tplot.Rout: testplot.R  sirSimp.rds
+	$(pipeR)
 
 ######################################################################
 
