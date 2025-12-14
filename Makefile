@@ -135,6 +135,8 @@ betaIllus.Rout: betaIllus.R
 
 ######################################################################
 
+Ignore += $(subdirs)
+
 ### Makestuff
 
 Sources += Makefile
