@@ -136,6 +136,7 @@ betaIllus.Rout: betaIllus.R
 ######################################################################
 
 Ignore += $(subdirs)
+alldirs += $(subdirs)
 
 ### Makestuff
 
