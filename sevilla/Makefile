@@ -10,6 +10,7 @@ vim_session:
 
 ######################################################################
 
+Sources += $(wildcard *.R)
 autopipeR = TRUE
 
 ## test.Rout: test.R sirFuns.R
