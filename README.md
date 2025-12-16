@@ -23,5 +23,7 @@ Related projects. It's not super-clear we have any of sufficient interest, but J
 -   [`Average_i-phi_idea.R`](Average_i-phi_idea.R): RZhao 's Unsuccessful experiments. Will try something else but please ignore this for now.
 -   [`HR_Test_positivity_figure`](HR_Test_positivity_figure): Hazard Ratio model's test positivity curves as a function of testing Risk offsets \Phi, testing proportion T, prevalence V
 
+* conceptNotes.md from JD in Sevilla
+
 ### In Pix
 (TO DO)
