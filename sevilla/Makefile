@@ -37,6 +37,8 @@ impmakeR += sirdata
 ######################################################################
 
 ## Add variation in testing propensity 
+## varfit has no odds for I and then just divides the probability!
+## Best case, and still not working as well as before.
 impmakeR += vardata
 ## base.vardata.Rout: vardata.R base.params.R
 %.vardata.Rout: vardata.R %.params.rda sirFuns.rda
@@ -44,7 +46,7 @@ impmakeR += vardata
 
 ## Plot the scenario
 ## bigpop.varplot.Rout: varplot.R bigpop.params.R
-%.varplot.Rout: varplot.R %.vardata.rds
+%.varplot.Rout: varplot.R %.vardata.rda
 	$(pipeR)
 ## A nice first cut, lots of complexity
 
