@@ -129,8 +129,11 @@ orGrid.Rout: orGrid.R
 
 ######################################################################
 
-## Beta illustrations
+## Calculate best hazard for fixed hazard ratio?
+mathHazard.Rout: mathHazard.R
+	$(pipeR)
 
+## Beta illustrations
 betaIllus.Rout: betaIllus.R
 
 ######################################################################
