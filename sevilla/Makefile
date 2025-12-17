@@ -9,17 +9,26 @@ vim_session:
 	bash -cl "vmt"
 
 ######################################################################
+## Trying to rebuild here with a binomial pathway, and hazard ratios.
+## At some point move the good stuff to a new directory (floating/?)
+
+######################################################################
+## Emergency stuff for talk
+## All broken because I split sirFuns to make poisFuns.R
+## Ah, let's fix it.
+
+sirPois.Rout: env.R sirFuns.rda poisFuns.rda
 
 Sources += $(wildcard *.R)
 autopipeR = TRUE
 
 ## test.Rout: test.R sirFuns.R
-test.Rout: test.R sirFuns.rda
+test.Rout: test.R sirPois.rda
 
 ## Very simple SIR with Poisson observation
 impmakeR += sirdata
 ## base.sirdata.Rout: sirdata.R base.params.R
-%.sirdata.Rout: sirdata.R %.params.rda sirFuns.rda
+%.sirdata.Rout: sirdata.R %.params.rda sirPois.rda
 	$(pipeR)
 
 ## Plot it
@@ -28,8 +37,8 @@ impmakeR += sirdata
 	$(pipeR)
 
 ## Fit it?
-## base.sirfit.Rout: sirfit.R %.sirdata.rds sirFuns.R
-%.sirfit.Rout: sirfit.R %.sirdata.rds sirFuns.rda %.params.rda
+## base.sirfit.Rout: sirfit.R %.sirdata.rds sirPois.R
+%.sirfit.Rout: sirfit.R %.sirdata.rds sirPois.rda %.params.rda
 	$(pipeR)
 
 ## K, boom. That worked great.
@@ -41,7 +50,7 @@ impmakeR += sirdata
 ## Best case, and still not working as well as before.
 impmakeR += vardata
 ## base.vardata.Rout: vardata.R base.params.R
-%.vardata.Rout: vardata.R %.params.rda sirFuns.rda
+%.vardata.Rout: vardata.R %.params.rda sirPois.rda
 	$(pipeR)
 
 ## Plot the scenario
@@ -52,28 +61,28 @@ impmakeR += vardata
 
 ## Can we fit it with a floating baseline? Yes! 
 ## But this is a fairly cherry-picked case
-## bigpop.varfit.Rout: varfit.R vardata.R sirFuns.R
-## bigpop.varfit.Rout: varfit.R vardata.R sirFuns.R
-%.varfit.Rout: varfit.R %.vardata.rds sirFuns.rda %.params.rda
+## bigpop.varfit.Rout: varfit.R vardata.R sirPois.R
+## bigpop.varfit.Rout: varfit.R vardata.R sirPois.R
+%.varfit.Rout: varfit.R %.vardata.rds sirPois.rda %.params.rda
 	$(pipeR)
 impmakeR += varfit
 
 ## Do a mixed fit.
-## bigpop.mixed.Rout: sirfit.R vardata.R sirFuns.R
-%.mixed.Rout: sirfit.R %.vardata.rds sirFuns.rda %.params.rda
+## bigpop.mixed.Rout: sirfit.R vardata.R sirPois.R
+%.mixed.Rout: sirfit.R %.vardata.rds sirPois.rda %.params.rda
 	$(pipeR)
 impmakeR += mixed
 
 ## Plot a fitted model
 ## bigpop.varcomp.Rout: compPlot.R bigpop.params.R
 ## base.varcomp.Rout: compPlot.R 
-%.varcomp.Rout: compPlot.R %.params.rda %.varfit.rds sirFuns.rda
+%.varcomp.Rout: compPlot.R %.params.rda %.varfit.rds sirPois.rda
 	$(pipeR)
 
 ## We can use the same code to plot the naive fit
 ## bigpop.mixcomp.Rout: compPlot.R
 ## base.mixcomp.Rout: compPlot.R
-%.mixcomp.Rout: compPlot.R %.params.rda %.mixed.rds sirFuns.rda
+%.mixcomp.Rout: compPlot.R %.params.rda %.mixed.rds sirPois.rda
 	$(pipeR)
 
 ## Or also try to make a naive prevalence fit?
