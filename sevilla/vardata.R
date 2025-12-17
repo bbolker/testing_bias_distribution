@@ -25,14 +25,10 @@ epi <- (epi
 	)
 )
 
-## Bifurcate rds and rda; we want to read only rds for fitting (aesthetics)
-## Maybe more general to just a have a service script to data-fy
+saveEnvironment()
+
+## Fitting scripts only get obs
 obs <- (epi |> select(t, pos, neg, pp))
-
-## Should probably add a trimming step to clean the data between plotting and analyzing
-
 summary(obs)
-
 rdsSave(obs)
 
-saveEnvironment()
