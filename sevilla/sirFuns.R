@@ -35,6 +35,6 @@ concernFun <- function(S, I, N, w0, wI, alpha){
 	 return(w0 + wI*x*exp(-alpha*(1-x)))
 }
 
-hazfun <- function()
+## hazfun <- function()
 
 saveEnvironment()

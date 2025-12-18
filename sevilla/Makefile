@@ -28,6 +28,8 @@ sirPois.Rout: env.R sirFuns.rda poisFuns.rda
 Sources += $(wildcard *.R)
 autopipeR = TRUE
 
+## sirFuns.Rout: sirFuns.R
+
 ## test.Rout: test.R sirFuns.R
 test.Rout: test.R sirPois.rda
 
