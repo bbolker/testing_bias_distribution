@@ -12,18 +12,12 @@ epi <- simulate(sirRates
 	, steps=steps
 )
 
-epi <- (epi
-	|> mutate(base=
-)
+## Concern goes up with prevalence, and down with cumulative illness
+epi <- (epi |> mutate(base=concernFun(S, I, N, w0, wI, alpha))
 
 summary(epi)
 
-obs <- (epi
-	|> transmute(t=t
-		, pos = rpois(nrow(epi), rho*I) 
-		, neg = rpois(nrow(epi), sig*S)
-	)
-)
+obs <- testResults(epi, hazfun, pars=list(hr=h))
 
 summary(obs)
 

@@ -30,4 +30,11 @@ simulate <- function(rateFun, states, params, steps) {
 	return(as.data.frame(out))
 }
 
+concernFun <- function(S, I, N, w0, wI, alpha){
+	 x = I/N
+	 return(w0 + wI*x*exp(-alpha*(1-x)))
+}
+
+hazfun <- function()
+
 saveEnvironment()

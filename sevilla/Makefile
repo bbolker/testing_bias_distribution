@@ -12,6 +12,12 @@ vim_session:
 ## Trying to rebuild here with a binomial pathway, and hazard ratios.
 ## At some point move the good stuff to a new directory (floating/?)
 
+sirBin.Rout: env.R sirFuns.rda binFuns.rda
+
+## base.sim.Rout: sim.R base.params.R
+%.sim.Rout: sim.R %.params.rda sirBin.rda
+	$(pipeR)
+
 ######################################################################
 ## Emergency stuff for talk
 ## All broken because I split sirFuns to make poisFuns.R
@@ -102,7 +108,6 @@ msrepo = https://github.com/dushoff
 
 -include makestuff/pipeR.mk
 -include makestuff/pdfpages.mk
-
 
 -include makestuff/git.mk
 -include makestuff/visual.mk

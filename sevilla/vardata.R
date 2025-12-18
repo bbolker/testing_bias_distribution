@@ -9,7 +9,7 @@ set.seed(seed)
 epi <- simulate(sirRates 
 	, states = (list(t=0, S=N-I0, I=I0))
 	, params = (list(beta=beta, D=D, N=N, deltat = deltat))
-	, steps=100
+	, steps=steps
 )
 
 summary(epi)
