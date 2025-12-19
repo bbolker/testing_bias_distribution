@@ -13,13 +13,16 @@ epi <- simulate(sirRates
 )
 
 ## Concern goes up with prevalence, and down with cumulative illness
-epi <- (epi |> mutate(base=concernFun(S, I, N, w0, wI, alpha))
+epi <- (epi 
+	|> mutate(base=concernFun(S, I, N, w0, wI, alpha))
+)
 
 summary(epi)
 
-obs <- testResults(epi, hazfun, pars=list(hr=h))
+obs <- testResults(epi, hazFun, binPick, pars=list(hr=h), N)
 
 summary(obs)
 
 rdsSave(obs)
 
+saveEnvironment()

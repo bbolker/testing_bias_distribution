@@ -13,15 +13,21 @@ vim_session:
 ## At some point move the good stuff to a new directory (floating/?)
 
 sirBin.Rout: env.R sirFuns.rda binFuns.rda
+	$(pipeR)
 
-## base.sim.Rout: sim.R base.params.R
+## Working on the concern scenario on an airplane 2025 Dec 19 (Fri)
+## base.sim.Rout: sim.R base.params.R binFuns.R
 %.sim.Rout: sim.R %.params.rda sirBin.rda
+	$(pipeR)
+
+## So far, the same as obsplot.R
+## base.obs.Rout: obs.R
+%.obs.Rout: obs.R %.sim.rds
 	$(pipeR)
 
 ######################################################################
 ## Emergency stuff for talk
-## All broken because I split sirFuns to make poisFuns.R
-## Ah, let's fix it.
+## Now split between poisson-style (deprecated) and binomial style
 
 sirPois.Rout: env.R sirFuns.rda poisFuns.rda
 

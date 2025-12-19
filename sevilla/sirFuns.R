@@ -35,6 +35,12 @@ concernFun <- function(S, I, N, w0, wI, alpha){
 	 return(w0 + wI*x*exp(-alpha*(1-x)))
 }
 
-## hazfun <- function()
+## A risk fun for additive hazards
+hazFun <- function(b, pars){
+	with(pars, return(data.frame(
+		S = 1-exp(-b)
+		, I = 1-exp(-b-h)
+	)))
+}
 
 saveEnvironment()
