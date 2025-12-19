@@ -12,10 +12,6 @@ epi <- simulate(sirRates
 	, steps=steps
 )
 
-epi <- (epi
-	|> mutate(base=
-)
-
 summary(epi)
 
 obs <- (epi
