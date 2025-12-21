@@ -26,6 +26,19 @@ sirBin.Rout: env.R sirFuns.rda binFuns.rda
 	$(pipeR)
 
 ######################################################################
+
+## Fit simpler things first?
+
+flat.params.Rout: flat.R base.params.rda
+	$(pipeR)
+
+## flat.obs.Rout: 
+## flat.fit.Rout: fit.R
+%.fit.Rout: fit.R binFuns.rda %.obs.rds
+	$(pipeR)
+
+######################################################################
+
 ## Emergency stuff for talk
 ## Now split between poisson-style (deprecated) and binomial style
 

@@ -24,4 +24,24 @@ binPick <- function(N, p, pars){
 	return(rbinom(length(p), N, p))
 }
 
+## HERE: figure out how to calculate likelihood
+## I guess it's all right except we need to pass the right rho?
+## somethin like invHaz(b+h)
+posLike <- function(beta, D, I0, N, h, obs, steps, deltat){
+	epi <- simulate(sirRates 
+		, states = (list(t=0, S=N-I0, I=I0))
+		, params = (list(beta=beta, D=D, N=N, deltat = deltat))
+		, steps=steps
+	)
+	epi <- (epi
+		|> mutate(
+			, pred = rho*I
+			, ll = dpois(obs, pred, log=TRUE)
+		)
+	)
+	# print(epi)
+	return(-sum(epi$ll))
+}
+
+
 saveEnvironment()
