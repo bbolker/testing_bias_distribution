@@ -48,6 +48,9 @@ impmakeR += start
 
 ## Fit test results
 ## flat.testFit.Rout: testFit.R binFuns.R
+## base.testFit.Rout: testFit.R binFuns.R
+%.testFit.Rout: testFit.R sirBin.rda %.sim.rds %.start.rda
+	$(pipeR)
 
 ######################################################################
 

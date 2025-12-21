@@ -10,14 +10,7 @@ obs <- rdsRead()
 
 set.seed(seed)
 
-cn <- 0.2
-
-bstart <- rlnorm(1, log(beta), cn)
-Dstart <- rlnorm(1, log(D), cn)
-Istart <- rlnorm(1, log(I0), cn)
-hstart <- rlnorm(1, log(h), cn)
-
-mod <- mle2(posLike
+mod <- mle2(testLike
 	, start = list(beta=bstart, D=Dstart, I0=Istart, h=hstart)
 	, data = list(obs=rdsRead()
 		, steps=steps, deltat=deltat
