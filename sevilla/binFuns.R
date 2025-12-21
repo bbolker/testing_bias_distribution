@@ -24,12 +24,13 @@ binPick <- function(N, p, pars){
 	return(rbinom(length(p), N, p))
 }
 
-testLike <- function(beta, D, I0, N, h, obs, steps, deltat){
+testLike <- function(beta, D, I0, N, h, obs, steps, deltat, hmult=10){
 	epi <- simulate(sirRates 
 		, states = (list(t=0, S=N-I0, I=I0))
 		, params = (list(beta=beta, D=D, N=N, deltat = deltat))
 		, steps=steps
 	)
+	b <- calcBase(h, N, P, neg, pos, hmult)
 	## What????
 	epi <- (epi
 		|> mutate(
@@ -38,7 +39,6 @@ testLike <- function(beta, D, I0, N, h, obs, steps, deltat){
 	)
 	return(-sum(epi$ll))
 }
-
 
 posLike <- function(beta, D, I0, N, h, obs, steps, deltat){
 	epi <- simulate(sirRates 
@@ -57,5 +57,20 @@ posLike <- function(beta, D, I0, N, h, obs, steps, deltat){
 	return(-sum(epi$ll))
 }
 
+## Calculate the MLE floating baseline given relative hazard
+calcBase <- function(rel, N, P, neg, pos, hmult=10){
+	opt <- function(x, rel, N, P, neg, pos){
+		pN <- 1-exp(-x)
+		pP <- 1-exp(-x-rel)
+		return(
+			(neg/pN - (N-neg)/(1-pN))*(1-pN)
+			+ (pos/pP - (P-pos)/(1-pP))*(1-pP)
+		)
+	}
+	hN <- -log(1-neg/N)/hmult
+	hP <- -log(1-pos/P)*hmult
+	u <- uniroot(opt, c(hN, hP-rel), rel=rel, N=N, P=P, neg=neg, pos=pos)
+	invisible(1-exp(-u$root))
+}
 
 saveEnvironment()
