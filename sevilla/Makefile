@@ -20,22 +20,34 @@ sirBin.Rout: env.R sirFuns.rda binFuns.rda
 %.sim.Rout: sim.R %.params.rda sirBin.rda
 	$(pipeR)
 
-## So far, the same as obsplot.R
-## base.obs.Rout: obs.R
-%.obs.Rout: obs.R %.sim.rds
+## Special "flat" params (constant concern)
+## This should logically use chains...
+flat.params.Rout: flat.R base.params.rda
+	$(pipeR)
+
+## Set starting points for fits
+impmakeR += start
+%.start.Rout: start.R %.params.rda
+	$(pipeR)
+
+## base.obs.Rout: obs.R base.params.R
+## flat.obs.Rout: obs.R
+%.obs.Rout: obs.R %.sim.rda %.params.rda
 	$(pipeR)
 
 ######################################################################
 
-## Fit simpler things first?
-
-flat.params.Rout: flat.R base.params.rda
+## Fit number positive
+## flat.posFit.Rout: posFit.R binFuns.R
+## base.posFit.Rout: posFit.R binFuns.R
+%.posFit.Rout: posFit.R sirBin.rda %.sim.rds %.start.rda
 	$(pipeR)
 
-## flat.obs.Rout: 
-## flat.fit.Rout: fit.R
-%.fit.Rout: fit.R binFuns.rda %.obs.rds
-	$(pipeR)
+## Fit observed prevalence NOT IMPLEMENTED
+## flat.prevFit.Rout: prevFit.R binFuns.R
+
+## Fit test results
+## flat.testFit.Rout: testFit.R binFuns.R
 
 ######################################################################
 
@@ -123,7 +135,9 @@ Sources += Makefile
 Ignore += makestuff
 msrepo = https://github.com/dushoff
 
-## ln -s ../makestuff . ## Do this first if you want a linked makestuff ##
+Makefile: | makestuff
+makestuff:
+	ln -s ../$@ . 
 
 -include makestuff/os.mk
 

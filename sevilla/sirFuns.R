@@ -39,7 +39,7 @@ concernFun <- function(S, I, N, w0, wI, alpha){
 hazFun <- function(b, pars){
 	with(pars, return(data.frame(
 		S = 1-exp(-b)
-		, I = 1-exp(-b-h)
+		, I = 1-exp(-b-hr)
 	)))
 }
 

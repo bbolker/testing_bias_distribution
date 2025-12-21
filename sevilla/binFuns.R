@@ -33,10 +33,11 @@ posLike <- function(beta, D, I0, N, h, obs, steps, deltat){
 		, params = (list(beta=beta, D=D, N=N, deltat = deltat))
 		, steps=steps
 	)
+	rho <- 1-exp(-h)
 	epi <- (epi
 		|> mutate(
 			, pred = rho*I
-			, ll = dpois(obs, pred, log=TRUE)
+			, ll = dpois(obs$pos, pred, log=TRUE)
 		)
 	)
 	# print(epi)

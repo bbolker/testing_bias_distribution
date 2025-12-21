@@ -10,15 +10,18 @@ deltat <- 1
 steps <- 100
 
 ## Test ratio
-h <- 5
+h <- 2
 
 ## awareness parameters
-w0 <- 0.1
-wI <- 1
-alpha <- 1
+w0 <- 0.
+wI <- 5
+alpha <- 3
 
 ## Backward compatibility; deprecated
 rho <- 0.3
 sig <- 0.05
+
+## dispersion for starting points
+cn <- 0.2
 
 saveEnvironment()
