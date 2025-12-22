@@ -129,6 +129,9 @@ orGrid.Rout: orGrid.R
 
 ######################################################################
 
+is.Rout: is.R
+	$(pipeR)
+
 ## Calculate best hazard for fixed hazard ratio?
 mathHazard.Rout: mathHazard.R
 	$(pipeR)

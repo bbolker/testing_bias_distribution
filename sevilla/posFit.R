@@ -18,5 +18,7 @@ mod <- mle2(posLike
 	, fixed = list(N=N)
 )
 
+warnings()
+
 summary(mod)
 rdsSave(mod)

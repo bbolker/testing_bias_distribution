@@ -4,8 +4,8 @@ seed <- 0376
 
 N <- 1000
 I0 <- 1
-beta <- 0.2
-D <- 10
+beta <- 0.5
+D <- 6
 deltat <- 1
 steps <- 100
 
@@ -13,7 +13,7 @@ steps <- 100
 h <- 2
 
 ## awareness parameters
-w0 <- 0.
+w0 <- 0.2
 wI <- 5
 alpha <- 3
 
