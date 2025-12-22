@@ -1,5 +1,6 @@
 *_cache/
 *_files/
+* makestuff/
 *~
 .Rhistory
 
@@ -10,4 +11,3 @@ Rplots.pdf
 *.Rlog
 *.Rout.args
 .macpan
-makestuff
