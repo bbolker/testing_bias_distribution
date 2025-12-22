@@ -1,3 +1,4 @@
+## Just to test the math behind calcBase. Notation is outdated
 library(bbmle)
 
 binLike <- function(h, n, i){
