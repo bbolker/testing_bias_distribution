@@ -21,7 +21,7 @@ sirBin.Rout: env.R sirFuns.rda binFuns.rda
 	$(pipeR)
 
 ## Special "flat" params (constant concern)
-## This should logically use chains...
+## This should be chained better
 flat.params.Rout: flat.R base.params.rda
 	$(pipeR)
 

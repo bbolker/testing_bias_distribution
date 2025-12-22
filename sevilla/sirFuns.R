@@ -32,10 +32,11 @@ simulate <- function(rateFun, states, params, steps) {
 
 concernFun <- function(S, I, N, w0, wI, alpha){
 	 x = I/N
-	 return(w0 + wI*x*exp(-alpha*(1-x)))
+	 z = 1-(S+I)/N
+	 return(w0 + wI*x*exp(-alpha*z))
 }
 
-## A risk fun for additive hazards
+## A riskFun for additive hazards
 hazFun <- function(b, pars){
 	with(pars, return(data.frame(
 		S = 1-exp(-b)

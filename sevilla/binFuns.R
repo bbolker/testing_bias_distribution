@@ -30,8 +30,7 @@ testLike <- function(beta, D, I0, N, h, obs, steps, deltat, hmult=10){
 		, params = (list(beta=beta, D=D, N=N, deltat = deltat))
 		, steps=steps
 	)
-	b <- calcBase(h, N, P, neg, pos, hmult)
-	## What????
+	b <- calcBase(h, N, epi$I, obs$neg, obs$pos, hmult)
 	epi <- (epi
 		|> mutate(
 			, ll = dpois(obs$pos, posPred, log=TRUE)
@@ -46,31 +45,33 @@ posLike <- function(beta, D, I0, N, h, obs, steps, deltat){
 		, params = (list(beta=beta, D=D, N=N, deltat = deltat))
 		, steps=steps
 	)
-	rho <- 1-exp(-h)
+	## My probability of being a positive test is the product of 
+	## prevalence and testing risk
 	epi <- (epi
 		|> mutate(
-			, pred = rho*I
-			, ll = dpois(obs$pos, pred, log=TRUE)
+			, tprob = I*(1-exp(-h))/N
+			, ll = dbinom(obs$pos, N, tprob, log=TRUE)
 		)
 	)
-	# print(epi)
+	## print(epi)
 	return(-sum(epi$ll))
 }
 
 ## Calculate the MLE floating baseline given relative hazard
-calcBase <- function(rel, N, P, neg, pos, hmult=10){
-	opt <- function(x, rel, N, P, neg, pos){
+## TODO: Where's the math for this?
+calcBaseHazard <- function(rel, N, I, neg, pos, hmult=10){
+	opt <- function(x, rel, V, I, neg, pos){
 		pN <- 1-exp(-x)
 		pP <- 1-exp(-x-rel)
 		return(
-			(neg/pN - (N-neg)/(1-pN))*(1-pN)
-			+ (pos/pP - (P-pos)/(1-pP))*(1-pP)
+			(neg/pN - (V-neg)/(1-pN))*(1-pN)
+			+ (pos/pP - (I-pos)/(1-pP))*(1-pP)
 		)
 	}
-	hN <- -log(1-neg/N)/hmult
-	hP <- -log(1-pos/P)*hmult
-	u <- uniroot(opt, c(hN, hP-rel), rel=rel, N=N, P=P, neg=neg, pos=pos)
-	invisible(1-exp(-u$root))
+	hN <- -log(1-neg/V)/hmult
+	hP <- -log(1-pos/I)*hmult
+	u <- uniroot(opt, c(hN, hP-rel), rel=rel, V=N-I, P=I, neg=neg, pos=pos)
+	return(u$root)
 }
 
 saveEnvironment()
