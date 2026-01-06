@@ -169,8 +169,7 @@ if(hat_S+hat_I>N){
 ### What if we don't know S???
 # it will only affect the scaling 
 ### How can we detect S???
-
-sp_list <-tibble::lst(beta=beta+0.4, gamma=gamma+0.1, N, T_B, T_Y=hat_T_Y, S=hat_S, I=hat_I)
+sp_list <-tibble::lst(beta=beta+0.4, gamma=gamma+0.1, N, T_B=T_B+0.02, T_Y=hat_T_Y, S=hat_S, I=hat_I)
 
 ### Change simulation sir model
 (mc_sir
