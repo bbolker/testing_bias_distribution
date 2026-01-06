@@ -30,7 +30,7 @@ testLike <- function(beta, D, I0, N, h, obs, steps, deltat, hmult=10){
 		, params = (list(beta=beta, D=D, N=N, deltat = deltat))
 		, steps=steps
 	)
-	b <- calcBase(h, N, epi$I, obs$neg, obs$pos, hmult)
+	b <- calcBaseHazard(h, N, epi$I, obs$neg, obs$pos, hmult)
 	epi <- (epi
 		|> mutate(
 			, ll = dpois(obs$pos, posPred, log=TRUE)

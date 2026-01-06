@@ -51,6 +51,9 @@ OR_Sim_SIR_MacPan.Rout: OR_Sim_SIR_MacPan.R
 OR_Sim.Rout: OR_Sim.R
 	$(pipeR)
 
+OR_Sim_SIR_S0.Rout: OR_Sim_SIR_S0.R
+	$(pipeR)
+
 ######################################################################
 
 Ignore += docs *.html
@@ -76,15 +79,11 @@ Sources += betaParams.md simple.md README.md
 
 ######################################################################
 
-## If people don't object to having make install makestuff, you can activate the 00.stamp line below and this stuff will work.
-## Or we could make more simple rules like those above
-
-## autopipeR = defined
-
 Sources += $(wildcard *.R)
 
 ## Not working yet 2024 Sep 19 (Thu)
 corrCheck.Rout: corrCheck.R
+	$(pipeR)
 
 Expected_Test_positivity_figure.Rout: Expected_Test_positivity_figure.R testing_funs.R
 
@@ -128,9 +127,6 @@ orGrid.Rout: orGrid.R
 	$(pipeR)
 
 ######################################################################
-
-is.Rout: is.R
-	$(pipeR)
 
 ## Calculate best hazard for fixed hazard ratio?
 mathHazard.Rout: mathHazard.R
