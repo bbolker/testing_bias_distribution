@@ -17,22 +17,28 @@ sirBin.Rout: env.R sirFuns.rda binFuns.rda
 
 ## Working on the concern scenario on an airplane 2025 Dec 19 (Fri)
 ## base.sim.Rout: sim.R base.params.R binFuns.R
+impmakeR += sim
 %.sim.Rout: sim.R %.params.rda sirBin.rda
 	$(pipeR)
 
-## Special "flat" params (constant concern)
-## This should be chained better
+## Flatten the parameters (constant concern)
+## This should be chained
 flat.params.Rout: flat.R base.params.rda
-	$(pipeR)
-
-## Set starting points for fits
-impmakeR += start
-%.start.Rout: start.R %.params.rda
 	$(pipeR)
 
 ## base.obs.Rout: obs.R base.params.R
 ## flat.obs.Rout: obs.R
 %.obs.Rout: obs.R %.sim.rda %.params.rda
+	$(pipeR)
+
+## Plots (not implemented, maybe not needed, see .obs)
+## base.simPlots.Rout: simPlots.R base.params.R
+%.simPlots.Rout: simPlots.R %.sim.rda
+	$(pipeR)
+
+## Set starting points for fits
+impmakeR += start
+%.start.Rout: start.R %.params.rda
 	$(pipeR)
 
 ######################################################################
