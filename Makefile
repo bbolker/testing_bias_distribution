@@ -76,15 +76,11 @@ Sources += betaParams.md simple.md README.md
 
 ######################################################################
 
-## If people don't object to having make install makestuff, you can activate the 00.stamp line below and this stuff will work.
-## Or we could make more simple rules like those above
-
-## autopipeR = defined
-
 Sources += $(wildcard *.R)
 
 ## Not working yet 2024 Sep 19 (Thu)
 corrCheck.Rout: corrCheck.R
+	$(pipeR)
 
 Expected_Test_positivity_figure.Rout: Expected_Test_positivity_figure.R testing_funs.R
 

@@ -1,3 +1,5 @@
+Trying to fit a floating baseline
+
 ## 2025 Dec 13 (Sat)
 
 Make some sort of simulator, and then move it to tmb world?
