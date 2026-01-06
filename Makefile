@@ -51,6 +51,9 @@ OR_Sim_SIR_MacPan.Rout: OR_Sim_SIR_MacPan.R
 OR_Sim.Rout: OR_Sim.R
 	$(pipeR)
 
+OR_Sim_SIR_S0.Rout: OR_Sim_SIR_S0.R
+	$(pipeR)
+
 ######################################################################
 
 Ignore += docs *.html
@@ -124,9 +127,6 @@ orGrid.Rout: orGrid.R
 	$(pipeR)
 
 ######################################################################
-
-is.Rout: is.R
-	$(pipeR)
 
 ## Calculate best hazard for fixed hazard ratio?
 mathHazard.Rout: mathHazard.R
