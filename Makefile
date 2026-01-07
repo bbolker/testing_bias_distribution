@@ -51,9 +51,6 @@ OR_Sim_SIR_MacPan.Rout: OR_Sim_SIR_MacPan.R
 OR_Sim.Rout: OR_Sim.R
 	$(pipeR)
 
-OR_Sim_SIR_S0.Rout: OR_Sim_SIR_S0.R
-	$(pipeR)
-
 ######################################################################
 
 Ignore += docs *.html
@@ -108,6 +105,8 @@ or.mac.tex: or.mac.out mactex.pl
 
 ######################################################################
 
+Sources += spainReport.md
+
 ## rvdss stuff moved to ariCanada
 
 ## Some implicit curves of positivity vs. test proportion
@@ -127,6 +126,9 @@ orGrid.Rout: orGrid.R
 	$(pipeR)
 
 ######################################################################
+
+is.Rout: is.R
+	$(pipeR)
 
 ## Calculate best hazard for fixed hazard ratio?
 mathHazard.Rout: mathHazard.R

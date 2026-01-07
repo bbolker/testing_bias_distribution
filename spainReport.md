@@ -8,8 +8,8 @@ The goal is to make a model a simulation model with something interesting happen
 * fail to fit well to observed incidence and/or positivity
 * fit well again by using both data streams.
 
-There is some code that simulates a level of concern driven by both incidence and fatigue. I don't feel strongly about it, but I'm pointing at it in case it might be useful. You should look at the first substantive section of [the subdirectory Makefile](sevilla/Makefile); it might be useful to look at the default sim](sevilla/
+There is some code that simulates a level of concern driven by both incidence and fatigue. I don't feel strongly about it, but I'm pointing at it in case it might be useful. You should look at the first substantive section of [the subdirectory Makefile](sevilla/Makefile); it might be useful to look at the default sim](sevilla/base.obs.Rout.pdf) which can also be compared with [a constant-baseline version](sevilla/flat.obs.Rout.pdf); let me know if you want me to push these targets to outputs/
 
-I also did some math about fitting binomial distributions in the hazard framework, which I suspect will be useful. 
+I also did some math about fitting binomial distributions in the hazard framework, which I suspect will be useful. It is implemented [here](sevilla/binFuns.R) as testLike (with a companion function that you will see). I aim to add the math here soon.
 
 I struggled to fit, and I'm hoping that it will be possible to shoehorn this stuff into the fitting framework that you guys have already made some painful progress on.
