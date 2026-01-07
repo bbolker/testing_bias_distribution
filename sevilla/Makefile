@@ -9,9 +9,11 @@ vim_session:
 	bash -cl "vmt"
 
 ######################################################################
+## Look here 2026 Jan 07 (Wed)
+
 ## Trying to rebuild here with a binomial pathway, and hazard ratios.
 ## At some point move the good stuff to a new directory (floating/?)
-
+## Or the main directory?
 sirBin.Rout: env.R sirFuns.rda binFuns.rda
 	$(pipeR)
 
