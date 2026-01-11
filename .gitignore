@@ -12,3 +12,5 @@ Rplots.pdf
 *.Rout.args
 *.rda
 .macpan
+
+makestuff
