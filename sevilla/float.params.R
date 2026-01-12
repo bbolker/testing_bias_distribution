@@ -9,11 +9,11 @@ D <- 6       #recovery duration
 deltat <- 1  # discrete sim step size
 # steps <- 100 # discrete sim total step
 
-tmin <- 30
-tmax <- 50  
+tmin <- 10
+tmax <- 30  
 
 ## Test ratio ?? Relative hazard?
-h <- 2
+h <- 0.5
 
 ## awareness parameters
 w0 <- 0.2

@@ -14,6 +14,7 @@ loadEnvironments()
 
 #source("mle2_tidy.R")
 #source("spec_trans_par.R")
+source("float.params.R")
 
 # Set Seeds
 set.seed(seed)
@@ -47,7 +48,7 @@ true_param <- tibble::lst(  log_h=log(h)
                           , log_alpha=log(alpha)
                           )
 
-tp_list <-tibble::lst(beta, gamma, N, T_B, T_Y
+tp_list <-tibble::lst(beta, gamma, N, h, w0, wI, alpha
               , I = I0
               , R = 0
 )
@@ -59,13 +60,17 @@ mc_sir <- mp_tmb_library("starter_models","sir", package = "macpan2")
   |> mp_tmb_update(
     default = tp_list
     )
-  |> mp_tmb_insert_backtrans(variables = c("beta","gamma","I"), mp_log)
-  |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_logit)
+  |> mp_tmb_insert_backtrans(variables = c("beta","gamma","I","h","w0", "wI", "alpha"), mp_log)
+  # |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_logit)
   |> mp_tmb_insert(
     phase = "during"
     , at = Inf
     , expressions = list(
-        pY ~ I/N                          ## Prevalence based on SIR
+        pY ~ I/N                           ## Prevalence based on SIR
+      , pSus ~ S/N                           ## Susceptible proportion  
+      , b ~ w0+wI*pY*exp(-alpha*(1-pSus)) ## Concern floating baseline hazard
+      , T_B ~ 1-exp(-b)
+      , T_Y ~ 1-exp(-b-h)
       , T_prop ~ (1-pY)*T_B+pY*T_Y        ## Expected test proportion
       , pos ~ pY*T_Y/T_prop               ## Expected test positivity
       , OT ~ rbinom(N,T_prop)
@@ -76,7 +81,7 @@ mc_sir <- mp_tmb_library("starter_models","sir", package = "macpan2")
 )->sir
 
 sir |> mp_expand()
-
+w0+wI*0.1*exp(-alpha*(1-0.1-0.5))
 # sir |> mp_default()
 
 (sir
@@ -113,7 +118,7 @@ model_curve<-(ggplot() + theme_bw()
   + labs(x="Time t", y="Case Count")
 )
 print(model_curve)
-ggsave("BasicSIR_ModelCurve.png",plot=model_curve, path = "./pix", width=1800,height=900,units="px")
+#ggsave("FloatSIR_ModelCurve.png",plot=model_curve, path = "../pix", width=1800,height=900,units="px")
 
 
 print(ggplot(dat)
@@ -133,7 +138,7 @@ hat_S <- S*(1-0.2)
 OT <- dat[which(dat$time==tmin & dat$matrix=="OT"),]$value
 OP <- dat[which(dat$time==tmin & dat$matrix=="OP"),]$value
 
-print(T_Y)
+#print(T_Y)
 hat_T_Y <- T_Y+0.2
 
 hat_T <- OT/N
