@@ -24,6 +24,7 @@ binPick <- function(N, p, pars){
 	return(rbinom(length(p), N, p))
 }
 
+## Calculate 
 testLike <- function(beta, D, I0, N, h, obs, steps, deltat, hmult=10){
 	epi <- simulate(sirRates 
 		, states = (list(t=0, S=N-I0, I=I0))
