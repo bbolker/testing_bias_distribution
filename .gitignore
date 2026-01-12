@@ -10,6 +10,8 @@ Rplots.pdf
 *.Rout
 *.Rlog
 *.Rout.args
+*.rda
 .macpan
 
+*.xml
 makestuff

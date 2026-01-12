@@ -1,52 +1,34 @@
 # Sys.setenv(LANG = "en")
-## remotes::install_github("bbolker/bbmle")
 
-## for now we need a patched version of macpan2
-## remotes::install_github("canmod/macpan2", ref = "dbinom2")
-## remotes::install_github("canmod/macpan2")
 
-### ??? p_simulator dependence of "DEoptim" 
-# install.packages("DEoptim")
+library(shellpipes)
 
 suppressPackageStartupMessages(library(dplyr))
-suppressPackageStartupMessages(library(macpan2))
-#suppressPackageStartupMessages(library(bbmle))
-library(tidyr)
-library(ggplot2); theme_set(theme_bw())
-#library(viridis)
-#library(broom)
-#library(broom.mixed)
-#library(DEoptim)
-#library(nloptr)
-## https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/#local-gradient-based-optimization
 
+suppressPackageStartupMessages(library(macpan2))
 options(macpan2_verbose = FALSE)
 
+library(tidyr)
+library(ggplot2); theme_set(theme_bw())
+loadEnvironments()
+
 #source("mle2_tidy.R")
-source("spec_trans_par.R")
+#source("spec_trans_par.R")
 
 # Set Seeds
-set.seed(13519)
+set.seed(seed)
 
 ## Initial true values:
-T_B <- 0.04               ## uninfected testing prob
-T_Y <- 0.5                ## infected testing prob
-B <- T_B/(1-T_B)          ## baseline odds of testing
-Phi <- (T_Y/(1-T_Y))/B    ## inf vs uninf testing odds ratio
+# T_B <- 0.04               ## uninfected testing prob
+# T_Y <- 0.5                ## infected testing prob
+# B <- T_B/(1-T_B)          ## baseline odds of testing
+# Phi <- (T_Y/(1-T_Y))/B    ## inf vs uninf testing odds ratio
 
-print(B)
-print(Phi)
+# print(B)
+# print(Phi)
 
-Y_0 <- 1e-4      ## initial prevalence
-N <- 1e6         ## pop size
-NY_0 <- N*Y_0    ## initial number infected
-
-# r <- log(2)/3    ## growth rate (doubling time = 3)
-beta <- 0.25
-gamma <- 0.1
-tmin <- 50
-tmax <- 80      ## max simulation time 
 #tmax <- 59     ## max simulation time 
+gamma <- deltat/D
 t <- c(tmin:tmax)
 pts <- length(t) ## number of time points
 
@@ -58,15 +40,15 @@ logit_backtrans <- function(x){
 }
 
 ## BMB: use self-naming list from tibble pkg
-true_param <- tibble::lst(  log_B=log(B)
-                          , log_Phi=log(Phi)
-                          , logY_0=log(Y_0)
-                          , logit_T_B=logit_trans(T_B)
-                          , logit_T_Y=logit_trans(T_Y)
+true_param <- tibble::lst(  log_h=log(h)
+                          , log_I0=log(I0)
+                          , log_W0=log(w0)
+                          , log_WI=log(wI)
+                          , log_alpha=log(alpha)
                           )
 
 tp_list <-tibble::lst(beta, gamma, N, T_B, T_Y
-              , I = NY_0
+              , I = I0
               , R = 0
 )
 
