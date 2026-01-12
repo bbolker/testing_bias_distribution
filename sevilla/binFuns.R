@@ -24,7 +24,9 @@ binPick <- function(N, p, pars){
 	return(rbinom(length(p), N, p))
 }
 
-## Calculate 
+## Calculate likelihood of parameters (beta, D, I0, h)
+## for a data frame (obs) of pos/neg tests
+## Don't use dpois for any of this, please!
 testLike <- function(beta, D, I0, N, h, obs, steps, deltat, hmult=10){
 	epi <- simulate(sirRates 
 		, states = (list(t=0, S=N-I0, I=I0))
@@ -59,7 +61,11 @@ posLike <- function(beta, D, I0, N, h, obs, steps, deltat){
 }
 
 ## Calculate the MLE floating baseline given relative hazard
-## TODO: Where's the math for this?
+## (i.e., return the base hazard that combines with provided rel to maximize the likelihood)
+## rel is relative hazard
+## N/I are population/incidence
+## neg/pos are test results
+## hmult provides a buffer for uniroot to bracket the solution
 calcBaseHazard <- function(rel, N, I, neg, pos, hmult=10){
 	opt <- function(x, rel, V, I, neg, pos){
 		pN <- 1-exp(-x)
