@@ -107,6 +107,8 @@ or.mac.tex: or.mac.out mactex.pl
 
 Sources += spainReport.md
 
+## spainMath.html: spainMath.md
+
 ## rvdss stuff moved to ariCanada
 
 ## Some implicit curves of positivity vs. test proportion
