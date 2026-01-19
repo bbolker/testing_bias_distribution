@@ -111,6 +111,7 @@ Sources += spainReport.md
 spainMath.tex: spainMath.md
 	$(pandocs)
 
+Sources += $(wildcard *.max)
 spainMath.maxima: spainMath.max
 
 spainMath.pdf: spainMath.tex
@@ -168,6 +169,7 @@ makestuff/%.stamp:
 
 -include makestuff/pipeR.mk
 -include makestuff/max.mk
+-include makestuff/texj.mk
 -include makestuff/pdfpages.mk
 
 -include makestuff/git.mk
