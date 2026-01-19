@@ -81,13 +81,13 @@ mc_sir <- mp_tmb_library("starter_models","sir", package = "macpan2")
 )->sir
 
 sir |> mp_expand()
-w0+wI*0.1*exp(-alpha*(1-0.1-0.5))
+# w0+wI*0.1*exp(-alpha*(1-0.1-0.5))
 # sir |> mp_default()
 
 (sir
   |> mp_simulator(
       time_steps = tmax
-    , outputs = c("pY","T_prop","pos","OT","OP","I","S")
+    , outputs = c("pY","T_prop","pos","OT","OP","I","S","T_B")
   ) 
   |> mp_trajectory()
   |> dplyr::select(-c(row, col))
@@ -108,7 +108,6 @@ dat<- (dat_all|> filter(time>=tmin)
   |> pivot_wider(names_from = matrix,values_from = value)
 ) -> dat_pall
 
-
 model_curve<-(ggplot() + theme_bw()
   + geom_line(data = dat_pall, aes(time,I,color="I(t)"))
   + geom_line(data = dat_pall, aes(time,OT,color="OT(t)"))
@@ -126,6 +125,26 @@ print(ggplot(dat)
  	+ geom_line()
  	+ scale_y_log10()
 )
+
+dat_pall[5,]
+
+Phi <- exp(-h)
+neg <- c(dat_pall$OT-dat_pall$OP)
+pos <- c(dat_pall$OP)
+
+B_lik <- 1/(2*N*Phi)*(((N-neg)*Phi+N-pos)-sqrt(((N-neg)*Phi+N-pos)^2-4*N*Phi*(N-pos-neg)))
+1-B_lik
+dat_pall$T_B
+
+TB_Curve<-(ggplot() + theme_bw()
+              + geom_line(data = dat_pall, aes(time,T_B,color="T_B"))
+              + geom_line(data = dat_pall, aes(time,1-B_lik,color="lik"))
+              #+ geom_line(data = dat_pall, aes(time,OP,color="OP(t)"))
+              #+ geom_point(data = dat_fit, aes(time,OT,color="OT(t)",shape="Fitted data"))
+              #+ geom_point(data = dat_fit, aes(time,OP,color="OP(t)",shape="Fitted data"))
+              + labs(x="Time t", y="Case Count")
+)
+print(TB_Curve)
 
 ### Calibrator in macpan
 ## initial values for simulation
