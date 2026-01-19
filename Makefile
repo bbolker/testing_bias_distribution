@@ -108,6 +108,13 @@ or.mac.tex: or.mac.out mactex.pl
 Sources += spainReport.md
 
 ## spainMath.html: spainMath.md
+spainMath.tex: spainMath.md
+	$(pandocs)
+
+spainMath.maxima: spainMath.max
+
+spainMath.pdf: spainMath.tex
+	pdflatex $<
 
 ## rvdss stuff moved to ariCanada
 
