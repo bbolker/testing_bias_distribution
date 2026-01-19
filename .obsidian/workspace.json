@@ -171,6 +171,8 @@
   },
   "active": "bfb61073ce9a9112",
   "lastOpenFiles": [
+    "Maple.mw",
+    "Float Baseline.mw",
     "floating.md",
     "mpFitting.md",
     "spainReport.md",
@@ -183,7 +185,6 @@
     "sevilla/flat.obs.Rlog",
     "sevilla/flat.obs.Rout.args",
     "sevilla/flat.sim.rda",
-    "sevilla/flat.sim.rdaTmp",
     "sevilla/flat.obs.Rout.pdf.md",
     "makestuff/wrapR.md",
     "makestuff/webpix.md",
