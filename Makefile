@@ -107,6 +107,7 @@ or.mac.tex: or.mac.out mactex.pl
 
 Sources += spainReport.md
 
+## Still having md-math problems 2026 Jan 19 (Mon)
 ## spainMath.html: spainMath.md
 spainMath.tex: spainMath.md
 	$(pandocs)
