@@ -6,5 +6,7 @@ n: fullratsimp(num(lp));
 
 nb: collectterms(expand(n), B);
 sol: solve(nb=0, B);
-sol[1];
 
+pars: [N=100, x=10, y=20, h=0.2];
+subst(pars, sol[1]);
+subst(pars, sol[2]);
