@@ -15,5 +15,3 @@ so we have $$\begin{split}
 \end{split}$$
 As a result, we have two potential $B$ solution that maximize the likelihood $$B=\frac{1}{2NH}\Big[(N-neg)H+N-pos \pm \sqrt{((N-neg)H+N-pos)^2-4N H (N-pos-neg)} \Big]$$
 Currently both solution seems to be positive (feasible) and be independent of $Y$!
-
-Try with some values.
