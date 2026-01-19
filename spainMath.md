@@ -35,4 +35,4 @@ $$ \ell_B = - \frac{x}{1-B} - H\frac{y}{1-HB} + (N-x-y)/B,$$
 
 where $x$; $y$ is the number of negative and positive tests observed.
 
-We have solved this equation in computer algebra. The numerator is quadratic, with the larger solution corresponding to a likelihood minimum (not relevant) and which is presumably $>1$ for sensible parameters.
+We have solved this equation in computer algebra. The numerator is quadratic, with the larger solution corresponding to a likelihood minimum (and is presumably $>1$ for sensible parameters).

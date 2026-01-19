@@ -108,11 +108,12 @@ or.mac.tex: or.mac.out mactex.pl
 Sources += spainReport.md
 
 ## spainMath.html: spainMath.md
-spainMath.tex: spainMath.md
-	$(pandocs)
 ## spainMath.pdf: spainMath.md
 spainMath.pdf: spainMath.tex
 	pdflatex $<
+Ignore += spainMath.tex
+spainMath.tex: spainMath.md
+	$(pandocs)
 
 Sources += $(wildcard *.max)
 spainMath.maxima: spainMath.max
