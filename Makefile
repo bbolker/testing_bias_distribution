@@ -110,12 +110,12 @@ Sources += spainReport.md
 ## spainMath.html: spainMath.md
 spainMath.tex: spainMath.md
 	$(pandocs)
+## spainMath.pdf: spainMath.md
+spainMath.pdf: spainMath.tex
+	pdflatex $<
 
 Sources += $(wildcard *.max)
 spainMath.maxima: spainMath.max
-
-spainMath.pdf: spainMath.tex
-	pdflatex $<
 
 ## rvdss stuff moved to ariCanada
 
