@@ -1,0 +1,10 @@
+lp: fullratsimp(
+	(N-x-y)/B - h*y/(1-h*B) - x/(1-B)
+);
+
+n: fullratsimp(num(lp));
+
+nb: collectterms(expand(n), B);
+sol: solve(nb=0, B);
+sol[1];
+
