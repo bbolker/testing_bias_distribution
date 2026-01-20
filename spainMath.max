@@ -1,16 +1,22 @@
 lp: fullratsimp(
 	(N-x-y)/B - h*y/(1-h*B) - x/(1-B)
-);
+)$
 
-n: fullratsimp(num(lp));
+n: fullratsimp(num(lp))$
 
+d: denom(lp)$
+
+write("Denominator is positive (≥ a positive number): ")$
+fullratsimp(subst(h=1-ε, d - B*(B-1)^2));
+
+write("Numerator is an upward-pointing quadratic, so first solution is the maximum (negative slope of parabola is the second derivative of likelihood)")$
 nb: collectterms(expand(n), B);
-sol: solve(nb=0, B);
+sol: solve(nb=0, B)$
 
-pars: [N=100, x=10, y=20, h=0.2];
-subst(pars, sol[1]);
+write("Numerator is still positive at B=0, so first solution is positive")$
+fullratsimp(subst([B=0], n));
 
-np: fullratsimp(diff(nb, B));
+write("Numerator is negative at B=1, so second solution is out of bounds (≥1)")$
+fullratsimp(subst([B=1], n));
 
-fullratsimp(subst([B=sol[1]], np));
-fullratsimp(subst([B=sol[2]], np));
+string(sol[1]);

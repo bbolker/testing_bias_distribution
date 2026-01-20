@@ -42,5 +42,5 @@ Verifying the $B_{-}$ formula with Macpan SIR Simulation:
 ![[FloatBcurve.png]]
 Blue curve is the real $p_n$ based on the awareness function. Red is the inferenced $p_n=1-B_{-}$ based on $B_{-}$ solution and observed $x, y$ value.
 
+See [this maxima script](spainMath.max) and [corresponding output](outputs/spainMath.maxima) for an argument that the lower solution is a global MLE.
 
-TODO: a formal Second derivative test?

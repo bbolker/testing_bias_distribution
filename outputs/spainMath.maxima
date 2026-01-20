@@ -1,0 +1,31 @@
+
+Maxima 5.46.0 https://maxima.sourceforge.io
+using Lisp GNU Common Lisp (GCL) GCL 2.6.14 git tag Version_2_6_15pre7
+Distributed under the GNU Public License. See the file COPYING.
+Dedicated to the memory of William Schelter.
+The function bug_report() provides bug reporting information.
+(%i1) batch("spainMath.max")
+
+read and interpret /home/dushoff/screens/research/betaTesting/spainMath.max
+(%i2) lp:fullratsimp((N-x-y)/B-(h*y)/(1-h*B)+(-x)/(1-B))
+(%i3) n:fullratsimp(num(lp))
+(%i4) d:denom(lp)
+(%i5) write("Denominator is positive (≥ a positive number): ")
+(%i6) fullratsimp(subst(h = 1-ε,d-B*(B-1)^2))
+                                   2    3
+(%o6)                            (B  - B ) ε
+(%i7) write("Numerator is an upward-pointing quadratic, so first solution is the maximum (negative slope of parabola is the second derivative of likelihood)")
+(%i8) nb:collectterms(expand(n),B)
+                                                   2
+(%o8)             B (y + h x - N h - N) - y - x + B  N h + N
+(%i9) sol:solve(nb = 0,B)
+(%i10) write("Numerator is still positive at B=0, so first solution is positive")
+(%i11) fullratsimp(subst([B = 0],n))
+(%o11)                           (- y) - x + N
+(%i12) write("Numerator is negative at B=1, so second solution is out of bounds (≥1)")
+(%i13) fullratsimp(subst([B = 1],n))
+(%o13)                             (h - 1) x
+(%i14) string(sol[1])
+(%o14) B = -(sqrt(y^2+(2*h*x+2*N*h-2*N)*y+h^2*x^2+(2*N*h-2*N*h^2)*x+N^2*h^2-2*\
+N^2*h+N^2)+y+h*x-N*h-N)/(2*N*h)
+(%o15)     /home/dushoff/screens/research/betaTesting/spainMath.max
