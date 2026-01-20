@@ -109,14 +109,15 @@ Sources += spainReport.md
 
 ## Still having md-math problems 2026 Jan 19 (Mon)
 ## spainMath.html: spainMath.md
+## spainMath.pdf: spainMath.md
+spainMath.pdf: spainMath.tex
+	pdflatex $<
+Ignore += spainMath.tex
 spainMath.tex: spainMath.md
 	$(pandocs)
 
 Sources += $(wildcard *.max)
 spainMath.maxima: spainMath.max
-
-spainMath.pdf: spainMath.tex
-	pdflatex $<
 
 ## rvdss stuff moved to ariCanada
 
