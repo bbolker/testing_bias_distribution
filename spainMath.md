@@ -27,12 +27,20 @@ $$ \ell = \sum_k t_k \log(1-\phi_kB) + (N-T) \log(B)$$
 
 and look for zeros of 
 
-$$ \ell_B = - \sum_k \phi_k \frac{t_k}{1-\phi_kB} + (N-T)/B$$
+$$ \frac{d\ell}{dB}=\ell'_B = - \sum_k \phi_k \frac{t_k}{1-\phi_kB} + (N-T)/B$$
 
 In terms of our original two groups, we could write this for example as:
 
-$$ \ell_B = - \frac{x}{1-B} - H\frac{y}{1-HB} + (N-x-y)/B,$$
+$$ \ell'_B = - \frac{x}{1-B} - H\frac{y}{1-HB} + \frac{N-x-y}{B}=0,$$
 
 where $x$; $y$ is the number of negative and positive tests observed.
+$$\Leftrightarrow  N H B^2 - ((N - x)H + N - y)B +(N - x - y) =0$$
+As a result, we have two potential $B$ solution that maximize the likelihood $$B=\frac{(N-x)H+N-y \pm \sqrt{((N-x)H+N-y)^2-4N H (N-x-y)} }{2NH}$$
+As $(N-x)H+N-y=NH+N-xH-y > NH$ and $H\in(0,1)$, there is a good chance that the $B_{+}$ solution will be larger than $1$.
 
-We have solved this equation in computer algebra. The numerator is quadratic, with the larger solution corresponding to a likelihood minimum (and is presumably $>1$ for sensible parameters).
+Verifying the $B_{-}$ formula with Macpan SIR Simulation:
+![[FloatBcurve.png]]
+Blue curve is the real $p_n$ based on the awareness function. Red is the inferenced $p_n=1-B_{-}$ based on $B_{-}$ solution and observed $x, y$ value.
+
+
+TODO: a formal Second derivative test?

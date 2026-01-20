@@ -137,8 +137,8 @@ B_lik <- 1/(2*N*Phi)*(((N-neg)*Phi+N-pos)-sqrt(((N-neg)*Phi+N-pos)^2-4*N*Phi*(N-
 dat_pall$T_B
 
 TB_Curve<-(ggplot() + theme_bw()
-              + geom_line(data = dat_pall, aes(time,T_B,color="T_B"))
-              + geom_line(data = dat_pall, aes(time,1-B_lik,color="lik"))
+              + geom_line(data = dat_pall, aes(time,T_B,color="p_n"))
+              + geom_line(data = dat_pall, aes(time,1-B_lik,color="likelihood B- Sol"))
               #+ geom_line(data = dat_pall, aes(time,OP,color="OP(t)"))
               #+ geom_point(data = dat_fit, aes(time,OT,color="OT(t)",shape="Fitted data"))
               #+ geom_point(data = dat_fit, aes(time,OP,color="OP(t)",shape="Fitted data"))
