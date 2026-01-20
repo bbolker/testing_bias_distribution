@@ -9,4 +9,8 @@ sol: solve(nb=0, B);
 
 pars: [N=100, x=10, y=20, h=0.2];
 subst(pars, sol[1]);
-subst(pars, sol[2]);
+
+np: fullratsimp(diff(nb, B));
+
+fullratsimp(subst([B=sol[1]], np));
+fullratsimp(subst([B=sol[2]], np));
