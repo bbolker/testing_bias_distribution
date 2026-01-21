@@ -107,11 +107,17 @@ or.mac.tex: or.mac.out mactex.pl
 
 Sources += spainReport.md
 
-## Still having md-math problems 2026 Jan 19 (Mon)
+## sudo npm install -g markdown-cli-renderer
 
-## spainMath.gfmview: spainMath.md
-%.gfmview: %.md
-	grip $< --
+## Still having md-math problems 2026 Jan 19 (Mon)
+spainMath.html: spainMath.md
+	pandoc $< -s --mathjax \
+	--css=https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css \
+	-o $@
+
+
+spainMath.gfmview: spainMath.md
+	grip $< 
 
 ## spainMath.pdf: spainMath.md
 spainMath.pdf: spainMath.tex
