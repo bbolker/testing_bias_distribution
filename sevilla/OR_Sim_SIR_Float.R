@@ -1,6 +1,5 @@
 # Sys.setenv(LANG = "en")
 
-
 library(shellpipes)
 
 suppressPackageStartupMessages(library(dplyr))
@@ -66,8 +65,8 @@ mc_sir <- mp_tmb_library("starter_models","sir", package = "macpan2")
     phase = "during"
     , at = Inf
     , expressions = list(
-        pY ~ I/N                           ## Prevalence based on SIR
-      , pSus ~ S/N                           ## Susceptible proportion  
+        pY ~ I/N                          ## Prevalence based on SIR
+      , pSus ~ S/N                        ## Susceptible proportion  
       , b ~ w0+wI*pY*exp(-alpha*(1-pSus)) ## Concern floating baseline hazard
       , T_B ~ 1-exp(-b)
       , T_Y ~ 1-exp(-b-h)
@@ -120,48 +119,60 @@ print(model_curve)
 #ggsave("FloatSIR_ModelCurve.png",plot=model_curve, path = "../pix", width=1800,height=900,units="px")
 
 
-print(ggplot(dat)
- 	+ aes(time, value, color=matrix)
- 	+ geom_line()
- 	+ scale_y_log10()
-)
+# print(ggplot(dat)
+#  	+ aes(time, value, color=matrix)
+#  	+ geom_line()
+#  	+ scale_y_log10()
+# )
 
-dat_pall[5,]
+#dat_pall[5,]
 
+## Compare true baseline T_B and theoretical likelihood 1-B_lik
 Phi <- exp(-h)
 neg <- c(dat_pall$OT-dat_pall$OP)
 pos <- c(dat_pall$OP)
 
 B_lik <- 1/(2*N*Phi)*(((N-neg)*Phi+N-pos)-sqrt(((N-neg)*Phi+N-pos)^2-4*N*Phi*(N-pos-neg)))
-1-B_lik
+#1-B_lik
 dat_pall$T_B
 
 TB_Curve<-(ggplot() + theme_bw()
-              + geom_line(data = dat_pall, aes(time,T_B,color="p_n"))
+              + geom_line(data = dat_pall, aes(time,T_B,color="T_B"))
               + geom_line(data = dat_pall, aes(time,1-B_lik,color="likelihood B- Sol"))
               #+ geom_line(data = dat_pall, aes(time,OP,color="OP(t)"))
               #+ geom_point(data = dat_fit, aes(time,OT,color="OT(t)",shape="Fitted data"))
               #+ geom_point(data = dat_fit, aes(time,OP,color="OP(t)",shape="Fitted data"))
-              + labs(x="Time t", y="Case Count")
+              + labs(x="Time t", y="Probability")
 )
 print(TB_Curve)
 
 ### Calibrator in macpan
 ## initial values for simulation
 
-### Assume we know St
+## deduce some starting value of fitting to improve performance
 S <- dat_all[which(dat_all$time==tmin-1 & dat_all$matrix=="S"),]$value
 hat_S <- S*(1-0.2)
 
 ### approximation of hat{I} inferred from first data point:
-OT <- dat[which(dat$time==tmin & dat$matrix=="OT"),]$value
-OP <- dat[which(dat$time==tmin & dat$matrix=="OP"),]$value
+OT_init <- dat[which(dat$time==tmin & dat$matrix=="OT"),]$value
+OP_init <- dat[which(dat$time==tmin & dat$matrix=="OP"),]$value
 
 #print(T_Y)
-hat_T_Y <- T_Y+0.2
+### start point of h in fitting
+hat_h <- h+0.2
+hat_Phi <- exp(-hat_h)
 
-hat_T <- OT/N
-hat_p <- OP/OT
+neg_init <- c(OT_init-OP_init)
+pos_init <- c(OP_init)
+
+hat_Blik <- 1/(2*N*hat_Phi)*(((N-neg_init)*hat_Phi+N-pos_init)
+                             -sqrt(((N-neg_init)*hat_Phi+N-pos_init)^2-4*N*hat_Phi*(N-pos_init-neg_init)))
+
+hat_T_B <- 1-hat_Blik
+hat_T_Y <- 1-hat_Blik*(hat_Phi)
+
+hat_T <- OT_init/N
+hat_p <- OP_init/OT_init
 hat_Y <- (hat_p*hat_T)/hat_T_Y
 
 hat_I <- hat_Y*N
@@ -175,7 +186,19 @@ if(hat_S+hat_I>N){
 ### What if we don't know S???
 # it will only affect the scaling 
 ### How can we detect S???
-sp_list <-tibble::lst(beta=beta+0.4, gamma=gamma+0.1, N, T_B=T_B+0.02, T_Y=hat_T_Y, S=hat_S, I=hat_I)
+
+dat
+
+# tp_list <-tibble::lst(beta, gamma, N, h, w0, wI, alpha
+#                       , I = I0
+#                       , R = 0
+# )
+sp_list <-tibble::lst(beta=beta+0.4, gamma=gamma+0.1
+                      , N
+                      , T_B=T_B+0.02
+                      , T_Y=hat_T_Y
+                      , S=hat_S
+                      , I=hat_I)
 
 ### Change simulation sir model
 (mc_sir

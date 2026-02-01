@@ -2,7 +2,7 @@ library(shellpipes)
 
 seed <- 0376
 
-N <- 1000    #population
+N <- 10000    #population
 I0 <- 1      #initial infection
 beta <- 0.5  #transmission rate
 D <- 6       #recovery duration
@@ -10,9 +10,9 @@ deltat <- 1  # discrete sim step size
 # steps <- 100 # discrete sim total step
 
 tmin <- 10
-tmax <- 30  
+tmax <- 20  
 
-## Test ratio ?? Relative hazard?
+## Relative hazard
 h <- 0.5
 
 ## awareness parameters
