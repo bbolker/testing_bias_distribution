@@ -71,9 +71,9 @@ mc_sir <- mp_tmb_library("starter_models","sir", package = "macpan2")
       , T_B ~ 1-exp(-b)
       , T_Y ~ 1-exp(-b-h)
       , T_prop ~ (1-pY)*T_B+pY*T_Y        ## Expected test proportion
-      , pos ~ pY*T_Y/T_prop               ## Expected test positivity
+      , T_pos ~ pY*T_Y/T_prop             ## Expected test positivity
       , OT ~ rbinom(N,T_prop)
-      , OP ~ rbinom(OT,pos)
+      , OP ~ rbinom(OT,T_pos)
     )
   )
   ## |> mp_tmb_delete(phase = "before", at = Inf, default = c("beta","gamma","I","T_B","T_Y"))
@@ -86,7 +86,7 @@ sir |> mp_expand()
 (sir
   |> mp_simulator(
       time_steps = tmax
-    , outputs = c("pY","T_prop","pos","OT","OP","I","S","T_B")
+    , outputs = c("pY","T_prop","T_pos","OT","OP","I","S","T_B")
   ) 
   |> mp_trajectory()
   |> dplyr::select(-c(row, col))
@@ -151,15 +151,21 @@ print(TB_Curve)
 
 ## deduce some starting value of fitting to improve performance
 S <- dat_all[which(dat_all$time==tmin-1 & dat_all$matrix=="S"),]$value
+I <- dat_all[which(dat_all$time==tmin-1 & dat_all$matrix=="I"),]$value
 hat_S <- S*(1-0.2)
 
 ### approximation of hat{I} inferred from first data point:
-OT_init <- dat[which(dat$time==tmin & dat$matrix=="OT"),]$value
-OP_init <- dat[which(dat$time==tmin & dat$matrix=="OP"),]$value
+OT_init <- dat_all[which(dat_all$time==tmin & dat_all$matrix=="OT"),]$value
+OP_init <- dat_all[which(dat_all$time==tmin & dat_all$matrix=="OP"),]$value
+
+##########
+### A time shifting here? between S_0, I_0, OP_1 and OT_1
+### not in current version
 
 #print(T_Y)
 ### start point of h in fitting
-hat_h <- h+0.2
+hat_h <- h
+# hat_h <- h+0.2
 hat_Phi <- exp(-hat_h)
 
 neg_init <- c(OT_init-OP_init)
@@ -187,40 +193,94 @@ if(hat_S+hat_I>N){
 # it will only affect the scaling 
 ### How can we detect S???
 
-dat
+#dat
 
 # tp_list <-tibble::lst(beta, gamma, N, h, w0, wI, alpha
 #                       , I = I0
 #                       , R = 0
 # )
-sp_list <-tibble::lst(beta=beta+0.4, gamma=gamma+0.1
+
+# sp_list <-tibble::lst(  beta=beta+0.4
+#                       , gamma=gamma+0.1
+#                       , N
+#                       , h=hat_h
+#                       , S=hat_S
+#                       , I=hat_I)
+
+### test mechanism with True Value
+sp_list <-tibble::lst(  beta=beta
+                      , gamma=gamma
                       , N
-                      , T_B=T_B+0.02
-                      , T_Y=hat_T_Y
-                      , S=hat_S
-                      , I=hat_I)
+                      , h=h
+                      , S=S
+                      , I=I)
+
 
 ### Change simulation sir model
+
+### To calculate Blik and T_B in simulator, we need data OT, OB as input
+### Treat OP, OT as time varying parameter in the simulator
+### Follwoing https://canmod.github.io/macpan2/articles/time_varying_parameters.html
+### ???? Is there a better way to do this in MacPan2?
+
+pos_changepoints = c(0,dat_fit$time-tmin+1)
+neg_changepoints = c(0,dat_fit$time-tmin+1)
+pos_values = c(0,dat_fit$OP)
+neg_values = c(0,dat_fit$OT-dat_fit$OP)
+
+### Quick test time-varying functions0
+# expr = list(  pos ~ time_var(pos_values, pos_changepoints)
+#             , neg ~ time_var(neg_values, neg_changepoints)
+#             )
+# 
+# simple_sims(
+#   iteration_exprs = expr
+#   , time_steps = 10
+#   # for integer vectors (usually indexing vectors) use `int_vecs`
+#   , int_vecs = list(  pos_changepoints = pos_changepoints
+#                     , neg_changepoints = neg_changepoints)
+#   , mats = list(  pos = pos
+#                 , pos_values = pos_values
+#                 , neg = neg
+#                 , neg_values = neg_values
+#                 )
+# ) |> filter(matrix ==  "pos")
+
+### sqrt is removed from engine_functions now, cran has the update
+### but not applied to website documents https://canmod.github.io/macpan2/reference/engine_functions.html
+
+#mp_expand(mc_sir)
 (mc_sir
   |> mp_tmb_update(
     default = sp_list
   )
-  |> mp_tmb_insert_backtrans(variables = c("beta","gamma","S","I"), mp_log)
-  |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_logit)
+  |> mp_tmb_insert_backtrans(variables = c("beta","gamma","h","S","I"), mp_log)
   |> mp_tmb_insert(
     phase = "during"
     , at = Inf
     , expressions = list(
-      pY ~ I/N                            ## Prevalence based on SIR
+        pY ~ I/N                          ## Prevalence based on SIR
+      , Phi ~ exp(-h)
+      , pos ~ time_var(pos_values, pos_changepoints)
+      , neg ~ time_var(neg_values, neg_changepoints)
+      , B_lik ~ 1/(2*N*Phi)*(((N-neg)*Phi+N-pos) - (((N-neg)*Phi+N-pos)^2-4*N*Phi*(N-pos-neg))^(1/2))
+      , T_B ~ 1 - B_lik
+      , T_Y ~ 1 - Phi*B_lik
       , T_prop ~ (1-pY)*T_B+pY*T_Y        ## Expected test proportion
-      , pos ~ pY*T_Y/T_prop               ## Expected test positivity
+      , T_pos ~ pY*T_Y/T_prop             ## Expected test positivity
       , OT ~ rbinom(N,T_prop)
-      , OP ~ rbinom(OT,pos)
+      , OP ~ rbinom(OT,T_pos)
     )
+    , default = list(  pos_values = pos_values
+                     , neg_values = neg_values
+    )
+    , integers = list(  pos_changepoints = pos_changepoints
+                      , neg_changepoints = neg_changepoints
+                      )
   )
   |> mp_tmb_update(
     phase = "before"
-    , at = 7
+    , at = 6
     , expressions = list(
       R ~ N - S - I
     )
@@ -228,39 +288,91 @@ sp_list <-tibble::lst(beta=beta+0.4, gamma=gamma+0.1
   ## |> mp_tmb_delete(phase = "before", at = Inf, default = c("beta","gamma","I","T_B","T_Y"))
 ) -> sir_sim
 
-# print(sir_sim) 
+# sir_sim |> mp_expand()
 
-fit_pars <- c("log_beta", "log_gamma", "log_S","log_I", "logit_T_B", "logit_T_Y")
+# print(sir_sim) 
+(sir_sim
+  |> mp_simulator(
+    time_steps = 21
+    , outputs = c("OT","OP","I","S","B_lik","pos","neg")
+  ) 
+  |> mp_trajectory()
+  |> dplyr::select(-c(row, col))
+  |> pivot_wider(names_from = matrix,values_from = value)
+) -> check_sim
+
+### Check simulator
+check_sim
+dat_pall[19:30,]
+#B_lik[10:20]
+
+dat
+
+check_sim$pos
+pos_values
+
+fit_pars <- c("log_beta", "log_gamma", "log_h" ,"log_S","log_I")
 calibrator <- mp_tmb_calibrator(
     sir_sim
   , data = dat
-  , traj = c("OT", "OP", "T_prop", "pos")
+  , traj = c("OT", "OP", "T_prop", "T_pos")
   , par = fit_pars,
   , default = list(N = N
                  , R = 0
+
     )
 )
 ## modify likelihood function (eventually we'll have mp_binom() so we can do this
 ## when defining the calibrator)
-calibrator$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum(dbinom(obs_OP, obs_OT, sim_pos)))
-
-#calibrator|>print()
-
-#mp_optimize(calibrator,optimizer = "optim", method = "BFGS")
-#mp_optimize(calibrator)
-
+calibrator$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum(dbinom(obs_OP, obs_OT, sim_T_pos)))
 
 fit<-mp_optimize(calibrator)
 names(fit$par)<-fit_pars
 print(fit)
 
-
-fit_bk<-c(exp(fit$par[1]),exp(fit$par[2]),N=N,logit_backtrans(fit$par[5]),logit_backtrans(fit$par[6]),exp(fit$par[3]),exp(fit$par[4]))
+fit_bk<-c(exp(fit$par[1]),exp(fit$par[2]),N=N,exp(fit$par[3]),exp(fit$par[4]),exp(fit$par[5]))
 
 names(fit_bk)<-names(sp_list)
 fit_bklist<-as.list(append(fit_bk,fit$par))
-
+fit_bklist
 print(fit_bk)
+sp_list
+
+
+(sir_sim
+  |> mp_tmb_update(
+    default = fit_bklist
+  )
+  |> mp_simulator(
+    time_steps = 30
+    , outputs = c("OT","OP","I","S","B_lik")
+  ) 
+  |> mp_trajectory()
+  |> dplyr::select(-c(row, col))
+  |> pivot_wider(names_from = matrix,values_from = value)
+) -> check_fit
+
+check_fit
+dat_pall[19:30,c(1:3,8,9)]
+
+(ggplot() + theme_bw()
++ geom_line(data = dat_pall, aes(time,I,color="I(t)"))
++ geom_line(data = dat_pall, aes(time,OT,color="OT(t)"))
++ geom_line(data = dat_pall, aes(time,OP,color="OP(t)"))
++ geom_point(data = check_fit, aes(time+tmin-1,I,color="I(t)",shape="Fitted data"))
++ geom_point(data = check_fit, aes(time+tmin-1,OT,color="OT(t)",shape="Fitted data"))
++ geom_point(data = check_fit, aes(time+tmin-1,OP,color="OP(t)",shape="Fitted data"))
++ labs(x="Time t", y="Case Count"))
+#### Not converge (over limit?) for small population (1e-5) and limited data (t=10-20)
+#### identifiability issue!!!!!!
+
+
+
+
+
+
+fit$par
+exp(fit$par[1])
 
 ## Look into initial values
 test_list <- sp_list
