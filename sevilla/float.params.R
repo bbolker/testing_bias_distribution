@@ -17,7 +17,8 @@ h <- 0.5
 
 ## awareness parameters
 w0 <- 0.2
-wI <- 5
+# wI <- 5
+wI <- 0
 alpha <- 3
 
 ## Backward compatibility; deprecated

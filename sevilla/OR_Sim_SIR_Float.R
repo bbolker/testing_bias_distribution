@@ -212,6 +212,7 @@ sp_list <-tibble::lst(  beta=beta
                       , gamma=gamma
                       , N
                       , h=h
+                      , w0=w0
                       , S=S
                       , I=I)
 
@@ -263,7 +264,8 @@ neg_values = c(0,dat_fit$OT-dat_fit$OP)
       , Phi ~ exp(-h)
       , pos ~ time_var(pos_values, pos_changepoints)
       , neg ~ time_var(neg_values, neg_changepoints)
-      , B_lik ~ 1/(2*N*Phi)*(((N-neg)*Phi+N-pos) - (((N-neg)*Phi+N-pos)^2-4*N*Phi*(N-pos-neg))^(1/2))
+      #, B_lik ~ 1/(2*N*Phi)*(((N-neg)*Phi+N-pos) - (((N-neg)*Phi+N-pos)^2-4*N*Phi*(N-pos-neg))^(1/2))
+      , B_lik ~ exp(-w0)
       , T_B ~ 1 - B_lik
       , T_Y ~ 1 - Phi*B_lik
       , T_prop ~ (1-pY)*T_B+pY*T_Y        ## Expected test proportion
@@ -324,7 +326,9 @@ calibrator <- mp_tmb_calibrator(
 )
 ## modify likelihood function (eventually we'll have mp_binom() so we can do this
 ## when defining the calibrator)
-calibrator$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) - sum(dbinom(obs_OP, obs_OT, sim_T_pos)))
+calibrator$simulator$replace$obj_fn(~ - sum(dbinom(obs_OT, N, sim_T_prop)) 
+                                      - sum(dbinom(obs_OP, obs_OT, sim_T_pos))
+                                    )
 
 fit<-mp_optimize(calibrator)
 names(fit$par)<-fit_pars
@@ -359,9 +363,9 @@ fit_curve <- (ggplot() + theme_bw()
 + geom_line(data = dat_pall, aes(time,I,color="I(t)"))
 + geom_line(data = dat_pall, aes(time,OT,color="OT(t)"))
 + geom_line(data = dat_pall, aes(time,OP,color="OP(t)"))
-+ geom_point(data = check_fit, aes(time+tmin-1,I,color="I(t)",shape="Fitted data"))
-+ geom_point(data = check_fit, aes(time+tmin-1,OT,color="OT(t)",shape="Fitted data"))
-+ geom_point(data = check_fit, aes(time+tmin-1,OP,color="OP(t)",shape="Fitted data"))
++ geom_point(data = check_fit, aes(time+tmin-1,I,color="I(t)",shape="Fitted Model"))
++ geom_point(data = check_fit, aes(time+tmin-1,OT,color="OT(t)",shape="Fitted Model"))
++ geom_point(data = check_fit, aes(time+tmin-1,OP,color="OP(t)",shape="Fitted Model"))
 + labs(x="Time t", y="Case Count"))
 print(fit_curve)
 #### Not converge (over iterate/function limit) for small population (1e-5) and limited data (t=10-20)
