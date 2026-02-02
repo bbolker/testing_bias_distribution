@@ -302,14 +302,14 @@ neg_values = c(0,dat_fit$OT-dat_fit$OP)
 ) -> check_sim
 
 ### Check simulator
-check_sim
-dat_pall[19:30,]
-#B_lik[10:20]
-
-dat
-
-check_sim$pos
-pos_values
+# check_sim
+# dat_pall[19:30,]
+# #B_lik[10:20]
+# 
+# dat
+# 
+# check_sim$pos
+# pos_values
 
 fit_pars <- c("log_beta", "log_gamma", "log_h" ,"log_S","log_I")
 calibrator <- mp_tmb_calibrator(
@@ -352,10 +352,10 @@ sp_list
   |> pivot_wider(names_from = matrix,values_from = value)
 ) -> check_fit
 
-check_fit
-dat_pall[19:30,c(1:3,8,9)]
+# check_fit
+# dat_pall[19:30,c(1:3,8,9)]
 
-(ggplot() + theme_bw()
+fit_curve <- (ggplot() + theme_bw()
 + geom_line(data = dat_pall, aes(time,I,color="I(t)"))
 + geom_line(data = dat_pall, aes(time,OT,color="OT(t)"))
 + geom_line(data = dat_pall, aes(time,OP,color="OP(t)"))
@@ -363,85 +363,86 @@ dat_pall[19:30,c(1:3,8,9)]
 + geom_point(data = check_fit, aes(time+tmin-1,OT,color="OT(t)",shape="Fitted data"))
 + geom_point(data = check_fit, aes(time+tmin-1,OP,color="OP(t)",shape="Fitted data"))
 + labs(x="Time t", y="Case Count"))
-#### Not converge (over limit?) for small population (1e-5) and limited data (t=10-20)
-#### identifiability issue!!!!!!
-
-
-
-
-
-
-fit$par
-exp(fit$par[1])
-
-## Look into initial values
-test_list <- sp_list
-
-
-(sir_sim
-  |> mp_tmb_update(phase = "during", default = test_list)
-  |> mp_tmb_insert_backtrans(variables = c("beta","gamma","S","I"), mp_log)
-  |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_logit)
-  |> mp_simulator(
-    time_steps = tmax-tmin+1
-    , outputs = c(  "OP"
-                  , "OT"
-                  , "pY"
-                  )
-  ) 
-  |> mp_trajectory()
-  |> dplyr::select(-c(row, col))
-  # |> filter(time>=tmin)
-) -> dat_sim
-
-
-# (sir_sim
-#   |> mp_tmb_update(phase = "during", default = fit_bklist)
-# )
-
-(sir_sim|> mp_tmb_update(phase = "during", default = fit_bklist)
-        |> mp_simulator(
-            time_steps = tmax-tmin+1
-            , outputs = c(  "OP"
-                          , "OT"
-                          , "pY"
-                          )
-             ) 
-)->sir_optim
-sim_vals <-(sir_optim|> mp_trajectory()
-              |> dplyr::select(-c(row, col))
-             # |> filter(time>=tmin)
-)
-mp_default(sir_optim)
-
-
-sir_optim
-fit_bklist
-sim_vals[1,]
-
-# (dat_sim
-#   |> pivot_wider(names_from = matrix,values_from = value)
-# ) |> print(n=pts)
-dat_tp<-filter(dat,matrix=="OP"|matrix=="OT"|matrix=="pY")
-
-dat_sim$time<-dat_sim$time+tmin-1
-sim_vals$time<-sim_vals$time+tmin-1
-
-dat_sim <- cbind(dat_sim,model=rep("sim_init",length(dat_sim[,1])))
-dat_tp <- cbind(dat_tp,model=rep("real",length(dat_tp[,1])))
-sim_vals <- cbind(sim_vals,model=rep("optim",length(sim_vals[,1])))
-
-dat_compare<-rbind(dat_sim,dat_tp,sim_vals)
-fit_curve <- (ggplot(dat_compare)
-      + aes(x=time, y=value, color=matrix, linetype = model)
-      + geom_line()
-      + geom_point(data=dat_tp,aes(shape="real"))
-      + scale_y_log10()
-      #+ scale_colour_manual(values = c("blue", "red", "black"))
-      + scale_linetype_manual(values = c(1,2,3))
-)
 print(fit_curve)
-ggsave("new_mech_curve.png",plot=fit_curve, path = "./pix", width=3200,height=1800,units="px")
+#### Not converge (over iterate/function limit) for small population (1e-5) and limited data (t=10-20)
+#### identifiability issue with large population and larger data set.
+
+
+
+
+
+
+# fit$par
+# exp(fit$par[1])
+# 
+# ## Look into initial values
+# test_list <- sp_list
+# 
+# 
+# (sir_sim
+#   |> mp_tmb_update(phase = "during", default = test_list)
+#   |> mp_tmb_insert_backtrans(variables = c("beta","gamma","S","I"), mp_log)
+#   |> mp_tmb_insert_backtrans(variables = c("T_B","T_Y"), mp_logit)
+#   |> mp_simulator(
+#     time_steps = tmax-tmin+1
+#     , outputs = c(  "OP"
+#                   , "OT"
+#                   , "pY"
+#                   )
+#   ) 
+#   |> mp_trajectory()
+#   |> dplyr::select(-c(row, col))
+#   # |> filter(time>=tmin)
+# ) -> dat_sim
+# 
+# 
+# # (sir_sim
+# #   |> mp_tmb_update(phase = "during", default = fit_bklist)
+# # )
+# 
+# (sir_sim|> mp_tmb_update(phase = "during", default = fit_bklist)
+#         |> mp_simulator(
+#             time_steps = tmax-tmin+1
+#             , outputs = c(  "OP"
+#                           , "OT"
+#                           , "pY"
+#                           )
+#              ) 
+# )->sir_optim
+# sim_vals <-(sir_optim|> mp_trajectory()
+#               |> dplyr::select(-c(row, col))
+#              # |> filter(time>=tmin)
+# )
+# mp_default(sir_optim)
+# 
+# 
+# sir_optim
+# fit_bklist
+# sim_vals[1,]
+# 
+# # (dat_sim
+# #   |> pivot_wider(names_from = matrix,values_from = value)
+# # ) |> print(n=pts)
+# dat_tp<-filter(dat,matrix=="OP"|matrix=="OT"|matrix=="pY")
+# 
+# dat_sim$time<-dat_sim$time+tmin-1
+# sim_vals$time<-sim_vals$time+tmin-1
+# 
+# dat_sim <- cbind(dat_sim,model=rep("sim_init",length(dat_sim[,1])))
+# dat_tp <- cbind(dat_tp,model=rep("real",length(dat_tp[,1])))
+# sim_vals <- cbind(sim_vals,model=rep("optim",length(sim_vals[,1])))
+# 
+# dat_compare<-rbind(dat_sim,dat_tp,sim_vals)
+# fit_curve <- (ggplot(dat_compare)
+#       + aes(x=time, y=value, color=matrix, linetype = model)
+#       + geom_line()
+#       + geom_point(data=dat_tp,aes(shape="real"))
+#       + scale_y_log10()
+#       #+ scale_colour_manual(values = c("blue", "red", "black"))
+#       + scale_linetype_manual(values = c(1,2,3))
+# )
+# print(fit_curve)
+# ggsave("new_mech_curve.png",plot=fit_curve, path = "./pix", width=3200,height=1800,units="px")
 
 ### Obs: difference between beta+0.25 and beta+0.30 is if the tipping point is 
 ### contained in the initial simulation
@@ -573,24 +574,24 @@ ggsave("new_mech_curve.png",plot=fit_curve, path = "./pix", width=3200,height=18
 # ??? mp_cal_time()
 # need to change documentation! 
 # ??? time argument of mp_tmb_calibrator
-
-fit_tp_traj <- mp_trajectory(calibrator)
-# ggplot(fit_tp_traj, aes(time, value, color=matrix)) +
-#     geom_line() +
-#     scale_y_log10() +
-#     geom_point(data = dat, aes(x = time),size=0.8)
-mp_tmb_coef(calibrator) 
-dat_tp[1,]$value*N
-sim_vals[1,]$value*N
-fit_bklist$I
-
-fit_tp_result <- (mp_tmb_coef(calibrator,conf.int = TRUE) 
-                  |> select(-c("term", "type","row","col","std.error"))
-                  |> cbind(true_value=c(beta=beta,gamma=gamma,S=S,I=dat_all[337,]$value,T_B=T_B,T_Y=T_Y)
-)
-                  )
-
-print(fit_tp_result)
+# 
+# fit_tp_traj <- mp_trajectory(calibrator)
+# # ggplot(fit_tp_traj, aes(time, value, color=matrix)) +
+# #     geom_line() +
+# #     scale_y_log10() +
+# #     geom_point(data = dat, aes(x = time),size=0.8)
+# mp_tmb_coef(calibrator) 
+# dat_tp[1,]$value*N
+# sim_vals[1,]$value*N
+# fit_bklist$I
+# 
+# fit_tp_result <- (mp_tmb_coef(calibrator,conf.int = TRUE) 
+#                   |> select(-c("term", "type","row","col","std.error"))
+#                   |> cbind(true_value=c(beta=beta,gamma=gamma,S=S,I=dat_all[337,]$value,T_B=T_B,T_Y=T_Y)
+# )
+#                   )
+# 
+# print(fit_tp_result)
 ## one way to present results ...
 # results <- tidy(fit2, conf.int = TRUE) |> full_join(data.frame(term = names(true_param), true.value = true_param),
 #               by = "term") |>
@@ -605,21 +606,21 @@ print(fit_tp_result)
 ## (results are too precise, and range among true values is too large,
 ## to be able to see the confidence intervals if we plot everything on
 ## the same scale, so divide into separately scaled facets)
-fit_compare <- ggplot(fit_tp_result, aes(y = mat)) +
-    geom_pointrange(aes(x = estimate, xmin = conf.low, xmax = conf.high)) +
-    geom_point(aes(x=true_value), colour = "red",size=2) +
-    labs(x=bquote("Value"), y=bquote("Parameters"))+
-    facet_wrap(~mat, ncol = 1, scale  = "free") +
-    scale_y_discrete(breaks=c("beta","gamma","I","S","T_B","T_Y"),labels=c(bquote(beta),bquote(gamma),bquote(I["init"]),bquote(S["init"]),bquote(T[B]),bquote(T[Y]))) +
-    theme(
-      strip.background = element_blank(),
-      strip.text.x = element_blank(),
-      axis.title.x = element_text(size = 18), # X-axis label font size
-      #axis.title.y = element_text(size = 18), # Y-axis title font size
-      axis.text.y = element_text(size = 16), # Y-axis label font size
-      )
-print(fit_compare)
-ggsave("new_mech_fit.png",plot=fit_compare, path = "./pix", width=1800,height=2100,units="px")
+# fit_compare <- ggplot(fit_tp_result, aes(y = mat)) +
+#     geom_pointrange(aes(x = estimate, xmin = conf.low, xmax = conf.high)) +
+#     geom_point(aes(x=true_value), colour = "red",size=2) +
+#     labs(x=bquote("Value"), y=bquote("Parameters"))+
+#     facet_wrap(~mat, ncol = 1, scale  = "free") +
+#     scale_y_discrete(breaks=c("beta","gamma","I","S","T_B","T_Y"),labels=c(bquote(beta),bquote(gamma),bquote(I["init"]),bquote(S["init"]),bquote(T[B]),bquote(T[Y]))) +
+#     theme(
+#       strip.background = element_blank(),
+#       strip.text.x = element_blank(),
+#       axis.title.x = element_text(size = 18), # X-axis label font size
+#       #axis.title.y = element_text(size = 18), # Y-axis title font size
+#       axis.text.y = element_text(size = 16), # Y-axis label font size
+#       )
+# print(fit_compare)
+# ggsave("new_mech_fit.png",plot=fit_compare, path = "./pix", width=1800,height=2100,units="px")
 
 ### does not work with beta+0.2
 ## false convergence (8)
