@@ -11,6 +11,7 @@ Rplots.pdf
 *.Rlog
 *.Rout.args
 *.rda
+*.rds
 .macpan
 
 *.xml

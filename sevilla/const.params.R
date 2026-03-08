@@ -7,7 +7,6 @@ I0 <- 1      #initial infection
 beta <- 0.5  #transmission rate
 D <- 6       #recovery duration
 deltat <- 1  # discrete sim step size
-# steps <- 100 # discrete sim total step
 
 tmin <- 20
 tmax <- 40  
@@ -17,7 +16,7 @@ h <- 0.5
 
 ## awareness parameters
 w0 <- 0.2
-wI <- 5 # time-varying baseline
+wI <- 0 #const baseline
 alpha <- 3
 
 ## Backward compatibility; deprecated

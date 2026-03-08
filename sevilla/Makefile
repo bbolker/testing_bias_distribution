@@ -9,6 +9,16 @@ vim_session:
 	bash -cl "vmt"
 
 ######################################################################
+## Modualized float-baseline fitting
+## Timeseries curves
+%.plot.Rout: plot.dataview.R %.data.rda
+	$(pipeR)
+
+## Generate observed data from parameters
+%.data.Rout: float.data.sim.R %.params.rda
+	$(pipeR)
+
+
 ## Look here 2026 Jan 07 (Wed)
 
 ## Trying to rebuild here with a binomial pathway, and hazard ratios.
