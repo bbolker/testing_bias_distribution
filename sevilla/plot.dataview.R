@@ -7,15 +7,6 @@ library(tidyr)
 library(ggplot2); theme_set(theme_bw())
 loadEnvironments()
 
-(dat
-  |> pivot_wider(names_from = matrix,values_from = value)
-) -> dat_fit
-
-(dat_all
-  |> pivot_wider(names_from = matrix,values_from = value)
-) -> dat_pall
-
-
 startGraphics()
 model_curve<-(ggplot() + theme_bw()
   + geom_line(data = dat_pall, aes(time,I,color="I(t)"))

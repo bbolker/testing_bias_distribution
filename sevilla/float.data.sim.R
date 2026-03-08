@@ -95,4 +95,13 @@ mc_sir <- mp_tmb_library("starter_models","sir", package = "macpan2")
 dat<- (dat_all|> filter(time>=tmin)
 )
 
+
+(dat
+  |> pivot_wider(names_from = matrix,values_from = value)
+) -> dat_fit
+
+(dat_all
+  |> pivot_wider(names_from = matrix,values_from = value)
+) -> dat_pall
+
 saveEnvironment()

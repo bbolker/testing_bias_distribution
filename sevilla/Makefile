@@ -9,8 +9,25 @@ vim_session:
 	bash -cl "vmt"
 
 ######################################################################
-## Modualized float-baseline fitting
-## Timeseries curves
+## Modualized float-baseline fitting 2026 Mar 08
+
+## Compare best fixed fitted curve with data
+%.check.Rout: check.fit.R %.fit.rda
+	$(pipeR)
+
+float.fixed.check.Rout: check.fit.R float.flex.fit.rda
+	$(pipeR)
+
+## Fixed fitting with non-varying B_lik, using true values as starting point of fitting
+## Note: Only applies to const baseline for investigate B_lik issue
+const.fixed.fit.Rout: fixed.macpan.fit.R const.data.rda
+	$(pipeR)
+
+## Flex fitting with varying B_lik, FIXME: using true values as starting point of fitting
+%.flex.fit.Rout: flex.macpan.fit.R %.data.rda
+	$(pipeR)
+
+## Timeseries curves of simulated data
 %.plot.Rout: plot.dataview.R %.data.rda
 	$(pipeR)
 
