@@ -35,6 +35,7 @@ const.fixed.fit.Rout: fixed.macpan.fit.R const.data.rda
 %.data.Rout: float.data.sim.R %.params.rda
 	$(pipeR)
 
+float_update: float.params.Rout float.data.Rout
 
 ## Look here 2026 Jan 07 (Wed)
 
