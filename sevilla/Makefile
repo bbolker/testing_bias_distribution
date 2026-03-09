@@ -13,27 +13,27 @@ vim_session:
 
 ## Compare best fixed fitted curve with data
 %.check.Rout: check.fit.R %.fit.rda
-	$(pipeR)
+	$(pipeRcall)
 
-float.fixed.check.Rout: check.fit.R float.flex.fit.rda
-	$(pipeR)
+float.flex.check.Rout: check.fit.R float.flex.fit.rda
+	$(pipeRcall)
 
 ## Fixed fitting with non-varying B_lik, using true values as starting point of fitting
 ## Note: Only applies to const baseline for investigate B_lik issue
 const.fixed.fit.Rout: fixed.macpan.fit.R const.data.rda
-	$(pipeR)
+	$(pipeRcall)
 
 ## Flex fitting with varying B_lik, FIXME: using true values as starting point of fitting
 %.flex.fit.Rout: flex.macpan.fit.R %.data.rda
-	$(pipeR)
+	$(pipeRcall)
 
-## Timeseries curves of simulated data
+## Time series curves of simulated data
 %.plot.Rout: plot.dataview.R %.data.rda
-	$(pipeR)
+	$(pipeRcall)
 
 ## Generate observed data from parameters
 %.data.Rout: float.data.sim.R %.params.rda
-	$(pipeR)
+	$(pipeRcall)
 
 
 ## Look here 2026 Jan 07 (Wed)

@@ -3,7 +3,6 @@
 library(shellpipes)
 rpcall("const.flex.check.Rout check.fit.R const.flex.fit.rda")
 rpcall("const.fixed.check.Rout check.fit.R const.fixed.fit.rda")
-rpcall("float.flex.check.Rout check.fit.R float.flex.fit.rda")
 
 suppressPackageStartupMessages(library(dplyr))
 

@@ -1,7 +1,8 @@
 # Sys.setenv(LANG = "en")
 
 library(shellpipes)
-
+rpcall("const.flex.fit.Rout flex.macpan.fit.R const.data.rda")
+rpcall("float.flex.fit.Rout flex.macpan.fit.R float.data.rda")
 suppressPackageStartupMessages(library(dplyr))
 
 suppressPackageStartupMessages(library(macpan2))
@@ -111,5 +112,13 @@ print(unlist(sp_list))
 print(fit$objective)
 
 print(fit)
+
+obj<-mp_tmb(calibrator)
+
+library(numDeriv)
+obj$fn(fit$par)
+
+x<-jacobian(obj$gr,fit$par)
+eigen(x)
 
 saveEnvironment()

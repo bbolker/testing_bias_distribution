@@ -2,7 +2,6 @@
 
 library(shellpipes)
 rpcall("const.flex.fit.Rout const.pipestar flex.macpan.fit.R const.data.rda")
-rpcall("const.fixed.fit.Rout fixed.macpan.fit.R const.data.rda")
 suppressPackageStartupMessages(library(dplyr))
 
 suppressPackageStartupMessages(library(macpan2))
