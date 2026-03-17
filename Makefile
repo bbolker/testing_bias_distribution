@@ -93,6 +93,13 @@ inc-testing_positivity-ratio.Rout: inc-testing_positivity-ratio.R
 
 ######################################################################
 
+## Robust binomial?
+
+drbinom.Rout: drbinom.R
+	$(pipeR)
+
+######################################################################
+
 ### Odds ratios
 
 Sources += or.md $(wildcard *.mac)
