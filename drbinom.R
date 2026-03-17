@@ -1,6 +1,7 @@
 
+## This could be made more efficient with a purpose-built vectorization function; maybe if we are worried about performance at some point
 drbinom0 <- function(x, size, prob, log = TRUE){
-	if (x<size) return(dbinom(x, size, prob, log))
+	if (x<=size) return(dbinom(x, size, prob, log))
 	return(dbinom(size, size, prob^(x/size), log))
 }
 
