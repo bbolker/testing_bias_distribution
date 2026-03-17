@@ -1,9 +1,10 @@
 
 ## This could be made more efficient with a purpose-built vectorization function; maybe if we are worried about performance at some point
-drbinom0 <- function(x, size, prob, log = TRUE){
+drbinom0 <- function(x, size, prob, log = TRUE, eps=1e-3){
+	if(is.null(eps)) eps <- prob
 	if (x<=size) return(dbinom(x, size, prob, log))
-	if (log) return(x*log(prob))
-	return(prob^x)
+	if (log) return(size*log(prob)+(x-size)*log(eps))
+	return(prob^size*eps^(x-size))
 }
 
 drbinom <- Vectorize(drbinom0, c("x", "size", "prob"))
