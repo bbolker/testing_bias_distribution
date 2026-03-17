@@ -1,8 +1,8 @@
 # Sys.setenv(LANG = "en")
 
 library(shellpipes)
-rpcall("float.flex.fit.Rout flex.macpan.fit.R float.data.rda")
 rpcall("const.flex.fit.Rout flex.macpan.fit.R const.data.rda")
+rpcall("float.flex.fit.Rout flex.macpan.fit.R float.data.rda")
 suppressPackageStartupMessages(library(dplyr))
 
 suppressPackageStartupMessages(library(macpan2))
