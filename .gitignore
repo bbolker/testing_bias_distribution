@@ -16,3 +16,4 @@ Rplots.pdf
 
 *.xml
 makestuff
+target.mk
