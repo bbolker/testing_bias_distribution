@@ -19,6 +19,7 @@ vim_session:
 ## const.fixed.check.Rout:
 
 ## Compare best fixed fitted curve with data
+## Labeling things better: do some points shapes and line types: flipping the dot and lines
 %.check.Rout: check.fit.R %.fit.rda
 	$(pipeRcall)
 
@@ -44,8 +45,8 @@ const.fixed.fit.Rout: fixed.macpan.fit.R const.data.rda
 ## Hack around a small chaining problem Mar 2026
 float_update: float.params.Rout float.data.Rout
 
+### note the fixed vs flex, float and const
 ######################################################################
-
 ## Look here 2026 Jan 07 (Wed)
 
 ## Trying to rebuild here with a binomial pathway, and hazard ratios.
