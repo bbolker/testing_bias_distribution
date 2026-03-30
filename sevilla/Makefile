@@ -13,12 +13,15 @@ vim_session:
 ## Modularized float-baseline fitting 2026 Mar 08
 ## Read from bottom of section
 
+## float.flex.check.Rout: 
+## const.flex.check.Rout:
+## float.fixed.check.Rout: 
+## const.fixed.check.Rout:
+
 ## Compare best fixed fitted curve with data
 %.check.Rout: check.fit.R %.fit.rda
 	$(pipeRcall)
 
-float.flex.check.Rout: check.fit.R float.flex.fit.rda
-	$(pipeRcall)
 
 ## Fixed fitting with non-varying B_lik, using true values as starting point of fitting
 ## Note: Only applies to const baseline for investigate B_lik issue
