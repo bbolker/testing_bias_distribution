@@ -11,6 +11,7 @@ vim_session:
 ######################################################################
 
 ## Modularized float-baseline fitting 2026 Mar 08
+## Read from bottom of section
 
 ## Compare best fixed fitted curve with data
 %.check.Rout: check.fit.R %.fit.rda
@@ -24,7 +25,8 @@ float.flex.check.Rout: check.fit.R float.flex.fit.rda
 const.fixed.fit.Rout: fixed.macpan.fit.R const.data.rda
 	$(pipeRcall)
 
-## Flex fitting with varying B_lik, FIXME: using true values as starting point of fitting
+## Flex fitting with varying B_lik
+## FIXME: Currently using true values as starting point of fitting
 %.flex.fit.Rout: flex.macpan.fit.R %.data.rda
 	$(pipeRcall)
 
@@ -36,6 +38,7 @@ const.fixed.fit.Rout: fixed.macpan.fit.R const.data.rda
 %.data.Rout: float.data.sim.R %.params.rda
 	$(pipeRcall)
 
+## Hack around a small chaining problem Mar 2026
 float_update: float.params.Rout float.data.Rout
 
 ######################################################################
