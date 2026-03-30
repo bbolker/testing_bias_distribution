@@ -9,7 +9,8 @@ vim_session:
 	bash -cl "vmt"
 
 ######################################################################
-## Modualized float-baseline fitting 2026 Mar 08
+
+## Modularized float-baseline fitting 2026 Mar 08
 
 ## Compare best fixed fitted curve with data
 %.check.Rout: check.fit.R %.fit.rda
@@ -36,6 +37,8 @@ const.fixed.fit.Rout: fixed.macpan.fit.R const.data.rda
 	$(pipeRcall)
 
 float_update: float.params.Rout float.data.Rout
+
+######################################################################
 
 ## Look here 2026 Jan 07 (Wed)
 
