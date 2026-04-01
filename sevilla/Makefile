@@ -9,44 +9,6 @@ vim_session:
 	bash -cl "vmt"
 
 ######################################################################
-
-## Modularized float-baseline fitting 2026 Mar 08
-## Read from bottom of section
-
-## float.flex.check.Rout: 
-## const.flex.check.Rout:
-## float.fixed.check.Rout: 
-## const.fixed.check.Rout:
-
-## Compare best fixed fitted curve with data
-## Labeling things better: do some points shapes and line types: flipping the dot and lines
-%.check.Rout: check.fit.R %.fit.rda
-	$(pipeRcall)
-
-
-## Fixed fitting with non-varying B_lik, using true values as starting point of fitting
-## Note: Only applies to const baseline for investigate B_lik issue
-const.fixed.fit.Rout: fixed.macpan.fit.R const.data.rda
-	$(pipeRcall)
-
-## Flex fitting with varying B_lik
-## FIXME: Currently using true values as starting point of fitting
-%.flex.fit.Rout: flex.macpan.fit.R %.data.rda
-	$(pipeRcall)
-
-## Time series curves of simulated data
-%.plot.Rout: plot.dataview.R %.data.rda
-	$(pipeRcall)
-
-## Generate observed data from parameters
-%.data.Rout: float.data.sim.R %.params.rda
-	$(pipeRcall)
-
-## Hack around a small chaining problem Mar 2026
-float_update: float.params.Rout float.data.Rout
-
-### note the fixed vs flex, float and const
-######################################################################
 ## Look here 2026 Jan 07 (Wed)
 
 ## Trying to rebuild here with a binomial pathway, and hazard ratios.

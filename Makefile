@@ -7,6 +7,55 @@ Ignore = target.mk
 -include makestuff/perl.def
 
 ######################################################################
+## Modularized float-baseline fitting 2026 Mar 08
+## Moved from /sevilla on 2026 Apr 01
+
+Sources += $(wildcard *.R)
+autopipeR = TRUE
+
+## Parameter setup
+## const.params: fixed baseline
+## float.params: time-varying baseline
+
+## Generate observed data from parameters
+## const.data.Rout: float.data.sim.R const.params.rda
+## float.data.Rout: float.data.sim.R float.params.rda
+%.data.Rout: float.data.sim.R %.params.rda
+	$(pipeRcall)
+
+## Hack around a small chaining problem Mar 2026
+float_update: float.params.Rout float.data.Rout
+
+## Time series curves of simulated data
+## const.plot.Rout: plot.dataview.R const.data.rda
+## float.plot.Rout: plot.dataview.R float.data.rda
+%.plot.Rout: plot.dataview.R %.data.rda
+	$(pipeRcall)
+
+## Fixed fitting with non-varying B_lik.
+## FIXME: It is now using true values as starting values for fitting, should test the performance on vary starting point
+## FIXME: Fit float baseline data with fixed mechanism generate NaNs. No priority as its performance is expected to be bad
+const.fixed.fit.Rout: fixed.macpan.fit.R const.data.rda
+	$(pipeRcall)
+
+## Flex fitting with varying B_lik
+## FIXME: It is now using true values as starting values for fitting, should test the performance on vary starting point
+%.flex.fit.Rout: flex.macpan.fit.R %.data.rda
+	$(pipeRcall)
+
+## Compare best fitted curve with data
+## Labeling things better: do some points shapes and line types: flipping the dot and lines
+%.check.Rout: check.fit.R %.fit.rda
+	$(pipeRcall)
+
+#### note the fixed vs flex, float and const
+## float.flex.check.Rout: Float baseline data, Flexible fitting mechanism
+## const.flex.check.Rout: Const baseline data, Flexible fitting mechanism
+## const.fixed.check.Rout: Constant baseline data, Fixed fitting mechanism
+
+######################################################################
+
+######################################################################
 
 ## meet 2025 Dec 11 (Thu)
 
@@ -16,6 +65,7 @@ sir_seasonal_test.Rout: sir_seasonal_test.R sirs_seasonal/tmb.R
 	$(pipeR)
 
 Sources += floating.md
+
 
 ## Try to simulate with macpan
 simTest.Rout: simTest.R

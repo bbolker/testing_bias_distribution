@@ -2,6 +2,7 @@
 
 library(shellpipes)
 rpcall("const.flex.fit.Rout const.pipestar flex.macpan.fit.R const.data.rda")
+rpcall("float.fixed.fit.Rout fixed.macpan.fit.R float.data.rda")
 rpcall("const.fixed.fit.Rout fixed.macpan.fit.R const.data.rda")
 suppressPackageStartupMessages(library(dplyr))
 
@@ -18,11 +19,11 @@ loadEnvironments()
 S <- dat_all[which(dat_all$time==tmin-1 & dat_all$matrix=="S"),]$value
 I <- dat_all[which(dat_all$time==tmin-1 & dat_all$matrix=="I"),]$value
 
-sp_list <-tibble::lst(  beta=beta+0.2
-                      , gamma=gamma+0.1
+sp_list <-tibble::lst(  beta=beta
+                      , gamma=gamma
                       , N
-                      , h=h+.2
-                      , w0=w0-0.1
+                      , h=h
+                      , w0=w0
                       , S=S
                       , I=I)
 

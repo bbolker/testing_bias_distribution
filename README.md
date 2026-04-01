@@ -9,8 +9,9 @@ Models to understand dynamics of test positivity under epidemic dynamics and bia
 
 Related projects. It's not super-clear we have any of sufficient interest, but JD is willing to share. We have a mathy publication with an earlier post-doc (Ali Gharouni, nice guy, now at PHO); Mike Li did some stuff during Covid which probably had some ideas but will be hard to figure out; JD advised some South African students who have a public repo, but it's not clear how far they got.
 
-## files
--   [`Notes_Nov10.Rmd`](Notes_Nov10.Rmd): @RichardSichengZhao 's summary notes for progress
+## Notes
+- [Notes.Rmd](Notes.Rmd): Summary notes for Top-down and Bottom-Up approaches, with primary approaches for fitting fixed baseline model
+- [[FittingNote.md]]: New notes for flexible fitting e
 -   [`corrCheck.R`](corrCheck.R): numerical calculations of correlation showing non-monotonicity
 -   [`Expected_Test_positivity_figure.R`](Expected_Test_positivity_figure.R): beta model's test positivity as a function of testing focus/dispersion $\phi$, testing proportion t, prevalence i
 -   [`simple.md`](simple.md): basic notes on multiplex testing and cross-effects of diseases on each others' positivity/number of positive tests
@@ -23,7 +24,7 @@ Related projects. It's not super-clear we have any of sufficient interest, but J
 -   [`Average_i-phi_idea.R`](Average_i-phi_idea.R): RZhao 's Unsuccessful experiments. Will try something else but please ignore this for now.
 -   [`HR_Test_positivity_figure`](HR_Test_positivity_figure): Hazard Ratio model's test positivity curves as a function of testing Risk offsets \Phi, testing proportion T, prevalence V
 
-* conceptNotes.md from JD in Sevilla
+* [conceptNotes.md](conceptNotes.md) from JD in Sevilla
 
 ### In Pix
 (TO DO)

@@ -1,8 +1,8 @@
 # Sys.setenv(LANG = "en")
 
 library(shellpipes)
-rpcall("const.plot.Rout plot.dataview.R const.data.rda")
 rpcall("float.plot.Rout plot.dataview.R float.data.rda")
+rpcall("const.plot.Rout plot.dataview.R const.data.rda")
 
 suppressPackageStartupMessages(library(dplyr))
 library(tidyr)

@@ -12,7 +12,9 @@ Rplots.pdf
 *.Rout.args
 *.rda
 *.rds
+*.oldfile
 .macpan
+/*.pdf
 
 *.xml
 makestuff
