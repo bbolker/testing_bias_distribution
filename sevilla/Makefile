@@ -6,7 +6,7 @@ current: target
 Ignore = target.mk
 
 vim_session:
-	bash -cl "vmt"
+	bash -ic "vmt"
 
 ######################################################################
 ## Look here 2026 Jan 07 (Wed)
