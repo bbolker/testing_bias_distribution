@@ -24,13 +24,19 @@ autopipeR = TRUE
 %.data.Rout: float.data.sim.R %.params.rda
 	$(pipeRcall)
 
+%.pois.data.Rout: pois.data.sim.R %.params.rda
+	$(pipeRcall)
+
 ## Hack around a small chaining problem Mar 2026
 float_update: float.params.Rout float.data.Rout
 
 ## Time series curves of simulated data
 ## const.plot.Rout: plot.dataview.R const.data.rda
 ## float.plot.Rout: plot.dataview.R float.data.rda
-%.plot.Rout: plot.dataview.R %.data.rda
+## %.plot.Rout: plot.dataview.R %.data.rda
+##  	$(pipeRcall)
+
+%.plot.Rout: pois.dataview.R %.data.rda
 	$(pipeRcall)
 
 ## Fixed fitting with non-varying B_lik.
@@ -39,6 +45,8 @@ float_update: float.params.Rout float.data.Rout
 const.fixed.fit.Rout: fixed.macpan.fit.R const.data.rda
 	$(pipeRcall)
 
+const.fixed.pois.fit.Rout: fixed.pois.fit.R const.pois.data.rda
+	$(pipeRcall)
 ## Flex fitting with varying B_lik
 ## FIXME: It is now using true values as starting values for fitting, should test the performance on vary starting point
 %.flex.fit.Rout: flex.macpan.fit.R %.data.rda
