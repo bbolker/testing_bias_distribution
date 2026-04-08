@@ -11,7 +11,7 @@ deltat <- 1  # discrete sim step size
 # steps <- 100 # discrete sim total step
 
 tmin <- 20
-tmax <- 40  
+tmax <- 50  
 
 ## Relative hazard
 h <- 0.5

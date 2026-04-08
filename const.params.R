@@ -9,7 +9,7 @@ D <- 6       #recovery duration
 deltat <- 1  # discrete sim step size
 
 tmin <- 20
-tmax <- 40  
+tmax <- 50  
 
 ## Relative hazard
 h <- 0.5

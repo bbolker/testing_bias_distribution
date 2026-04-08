@@ -3,8 +3,8 @@
 library(shellpipes)
 rpcall("float.plot.Rout plot.dataview.R float.data.rda")
 rpcall("const.plot.Rout plot.dataview.R const.data.rda")
-rpcall("float.pois.plot.Rout pois.dataview.R float.pois.data.rda")
 rpcall("const.pois.plot.Rout pois.dataview.R const.pois.data.rda")
+rpcall("float.pois.plot.Rout pois.dataview.R float.pois.data.rda")
 
 suppressPackageStartupMessages(library(dplyr))
 library(tidyr)

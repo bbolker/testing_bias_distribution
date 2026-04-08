@@ -36,6 +36,7 @@ float_update: float.params.Rout float.data.Rout
 ## %.plot.Rout: plot.dataview.R %.data.rda
 ##  	$(pipeRcall)
 
+## Poisson Version
 %.plot.Rout: pois.dataview.R %.data.rda
 	$(pipeRcall)
 
@@ -45,16 +46,25 @@ float_update: float.params.Rout float.data.Rout
 const.fixed.fit.Rout: fixed.macpan.fit.R const.data.rda
 	$(pipeRcall)
 
+## Poisson Version
 const.fixed.pois.fit.Rout: fixed.pois.fit.R const.pois.data.rda
 	$(pipeRcall)
+
 ## Flex fitting with varying B_lik
 ## FIXME: It is now using true values as starting values for fitting, should test the performance on vary starting point
 %.flex.fit.Rout: flex.macpan.fit.R %.data.rda
 	$(pipeRcall)
 
+## Poisson Version
+%.flex.pois.fit.Rout: flex.pois.fit.R %.pois.data.rda
+	$(pipeRcall)
+
 ## Compare best fitted curve with data
 ## Labeling things better: do some points shapes and line types: flipping the dot and lines
 %.check.Rout: check.fit.R %.fit.rda
+	$(pipeRcall)
+
+%.pois.check.Rout: check.pois.fit.R %.pois.fit.rda
 	$(pipeRcall)
 
 #### note the fixed vs flex, float and const
