@@ -21,9 +21,12 @@ autopipeR = TRUE
 ## Generate observed data from parameters
 ## const.data.Rout: float.data.sim.R const.params.rda
 ## float.data.Rout: float.data.sim.R float.params.rda
-%.data.Rout: float.data.sim.R %.params.rda
-	$(pipeRcall)
+## %.data.Rout: float.data.sim.R %.params.rda
+##	$(pipeRcall)
 
+## Poisson Version
+## const.pois.data.Rout: pois.data.sim.R const.params.rda
+## float.pois.data.Rout: pois.data.sim.R float.params.rda
 %.pois.data.Rout: pois.data.sim.R %.params.rda
 	$(pipeRcall)
 
@@ -37,14 +40,16 @@ float_update: float.params.Rout float.data.Rout
 ##  	$(pipeRcall)
 
 ## Poisson Version
+## const.pois.plot.Rout: plot.dataview.R const.data.rda
+## float.pois.plot.Rout: plot.dataview.R float.data.rda
 %.plot.Rout: pois.dataview.R %.data.rda
 	$(pipeRcall)
 
 ## Fixed fitting with non-varying B_lik.
 ## FIXME: It is now using true values as starting values for fitting, should test the performance on vary starting point
 ## FIXME: Fit float baseline data with fixed mechanism generate NaNs. No priority as its performance is expected to be bad
-const.fixed.fit.Rout: fixed.macpan.fit.R const.data.rda
-	$(pipeRcall)
+## const.fixed.fit.Rout: fixed.macpan.fit.R const.data.rda
+##	$(pipeRcall)
 
 ## Poisson Version
 const.fixed.pois.fit.Rout: fixed.pois.fit.R const.pois.data.rda
@@ -52,8 +57,8 @@ const.fixed.pois.fit.Rout: fixed.pois.fit.R const.pois.data.rda
 
 ## Flex fitting with varying B_lik
 ## FIXME: It is now using true values as starting values for fitting, should test the performance on vary starting point
-%.flex.fit.Rout: flex.macpan.fit.R %.data.rda
-	$(pipeRcall)
+## %.flex.fit.Rout: flex.macpan.fit.R %.data.rda
+##	$(pipeRcall)
 
 ## Poisson Version
 %.flex.pois.fit.Rout: flex.pois.fit.R %.pois.data.rda
@@ -61,16 +66,16 @@ const.fixed.pois.fit.Rout: fixed.pois.fit.R const.pois.data.rda
 
 ## Compare best fitted curve with data
 ## Labeling things better: do some points shapes and line types: flipping the dot and lines
-%.check.Rout: check.fit.R %.fit.rda
-	$(pipeRcall)
+## %.check.Rout: check.fit.R %.fit.rda
+##	$(pipeRcall)
 
 %.pois.check.Rout: check.pois.fit.R %.pois.fit.rda
 	$(pipeRcall)
 
 #### note the fixed vs flex, float and const
-## float.flex.check.Rout: Float baseline data, Flexible fitting mechanism
-## const.flex.check.Rout: Const baseline data, Flexible fitting mechanism
-## const.fixed.check.Rout: Constant baseline data, Fixed fitting mechanism
+## float.flex.pois.check.Rout: Float baseline data, Flexible fitting mechanism
+## const.flex.pois.check.Rout: Const baseline data, Flexible fitting mechanism
+## const.fixed.pois.check.Rout: Constant baseline data, Fixed fitting mechanism
 
 ######################################################################
 
