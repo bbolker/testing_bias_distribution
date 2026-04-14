@@ -56,11 +56,47 @@ Observed test positivity $OP \sim \text{Binom}(OT,pos)$
 Only $OP(t), OT(t)$ is observed as data
 
 #### For fitting
-The fitting simulation is the same as 
-
-
+Prevalence based on infectious dynamics $\hat{Y} = I/N$  
+Expected test proportion $\hat{T} = (1-\hat{Y})*\hat{T}_B+\hat{Y}*\hat{T}_Y$
+Expected test positivity $\hat{pos} = \hat{Y} \times \hat{T}_Y/\hat{T}$
+The fitting objective/likelihood function:
+$$\ell = - \sum_{t} (\text{dbinom}(OT(t), N, \hat{T(t)})) - \sum_t(\text{dbinom}(OP, OT, \hat{pos}))$$
 
 ### Float Baseline Fitting
-Current modularized macpan2 version 
-`parameter`
+Current modularized macpan2 version
+See `Makefile` Modularized float-baseline fitting 2026 Mar 08 section for more details of .R files and flow 
+
+Flexible baseline setting:
+$$b(t) = w_0+w_I \times I(t)/N \times e^{(-\alpha(1-S(t)/N))}$$
+with $B= e^{-b}$, $\Phi=e^{-h}$, $T_B=1-B$ and $T_Y=1-B\Phi$
 ### Binomial Version
+The simulation of data is basically the same idea with fixed baseline, but adding $b(t)$ to calculate $B$ and $T_B$.
+
+For the simulator of fitting procedure, compare to fixed baseline version the following part is added/modified for floating baseline $b$:
+- take observed $OP(t)$ and $OT(t)$ to calculate positive and negative case at time $t$ for calculating $B_{lik}$ and take all such result from data as fixed parameters.
+	`pos ~ time_var(pos_values, pos_changepoints)`
+	`neg ~ time_var(neg_values, neg_changepoints)`
+Then calculate $B_{lik}$ based on previous likelihood derivation:
+$B_{lik} = \frac{1}{2 N \Phi}\sqrt{((N-neg)\Phi+N-pos) - (((N-neg)\Phi+N-pos)^2-4N\Phi(N-pos-neg))}$
+then treat $T_B = 1 - B_{lik}, T_Y = 1 - \Phi B_{lik}$
+The rest is the same mechanism with fixed baseline approach.
+
+The fitting result:
+- `const.fixed.check.Rout.pdf` Constant baseline data with fixed baseline fitting, works well in general
+- `const.flex.check.Rout.pdf` Constant baseline data with flexible baseline fitting, not working well. The negative log-likelihood is lower than fixed version, but the scale of prevalence is off with the "real" case in data simulation.
+- `float.flex.check.Rout.pdf` Float baseline data with flexible baseline fitting, not working for the same off-scaling problem
+
+### Poisson Version
+#### JD's Comment: 
+We are currently modeling the outbreak deterministically, meaning that we don't have an integer number of cases. Given that, maybe we should try using Poisson instead of binomial likelihoods. 
+
+
+
+
+#### BB's Comment: 
+My concern, which might be unfounded, is that we need both test positivity (+ tests/total tests) and testing fraction (tests/pop size) to be small in order for this to work.
+
+
+RZ's conjecture would be the $B_{lik}$ is independent of prevalence $Y$ from the outbreak, given too much degree-of-freedom to the system. 
+
+Even with constant $\Phi$, a prevalence $Y$ curve with different scale could still have the same or even better observed number of cases as the true $Y$ curve, since $B$ is very flexible and not related to scale of $Y$ at any single point. So the fitting result keeps the shape of $Y$ but mess up the scale of $Y$
