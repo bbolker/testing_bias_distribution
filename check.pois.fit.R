@@ -1,9 +1,9 @@
 # Sys.setenv(LANG = "en")
 
 library(shellpipes)
+rpcall("float.flex.pois.check.Rout check.pois.fit.R float.flex.pois.fit.rda")
 rpcall("const.flex.pois.check.Rout check.pois.fit.R const.flex.pois.fit.rda")
 rpcall("const.fixed.pois.check.Rout check.pois.fit.R const.fixed.pois.fit.rda")
-rpcall("float.flex.pois.check.Rout check.pois.fit.R float.flex.pois.fit.rda")
 
 suppressPackageStartupMessages(library(dplyr))
 
@@ -39,7 +39,7 @@ fit_curve <- (ggplot() + theme_bw()
 + geom_line(data = check_fit, aes(time+tmin-1,ONeg,color="ONeg(t)", linetype ="Fitted Model"))
 + labs(x="Time t", y="Case Count")
 # + ylim(0,50000)
-+ labs(title = bquote("loglik="~.(loglik)))
++ labs(title = bquote("-loglik="~.(-loglik)))
 )
 print(fit_curve)
 #### Not converge (over iterate/function limit) for small population (1e-5) and limited data (t=10-20)

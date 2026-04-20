@@ -179,3 +179,6 @@ $$\ell_\text{pois}=-\sum_{t}dpois(OPos, \hat{OPos})-\sum_{t}dpois(ONeg, \hat{ONe
 - `float.flex.pois.check.Rout.pdf` Float baseline data with flexible baseline fitting, not working for the same off-scaling problem
 
 Unfortunately, the result is not changing qualitatively.
+
+### Next Steps?
+Try the stepwise, spline and smooth functional form flexible baseline.
