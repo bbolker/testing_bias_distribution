@@ -3,8 +3,8 @@
 library(shellpipes)
 rpcall("const.flex.fit.Rout flex.macpan.fit.R const.data.rda")
 rpcall("float.flex.fit.Rout flex.macpan.fit.R float.data.rda")
-rpcall("float.flex.pois.fit.Rout flex.pois.fit.R float.pois.data.rda")
 rpcall("const.flex.pois.fit.Rout flex.pois.fit.R const.pois.data.rda")
+rpcall("float.flex.pois.fit.Rout flex.pois.fit.R float.pois.data.rda")
 suppressPackageStartupMessages(library(dplyr))
 
 suppressPackageStartupMessages(library(macpan2))

@@ -1,9 +1,9 @@
 # Sys.setenv(LANG = "en")
 
 library(shellpipes)
-rpcall("float.flex.pois.check.Rout check.pois.fit.R float.flex.pois.fit.rda")
 rpcall("const.flex.pois.check.Rout check.pois.fit.R const.flex.pois.fit.rda")
 rpcall("const.fixed.pois.check.Rout check.pois.fit.R const.fixed.pois.fit.rda")
+rpcall("float.flex.pois.check.Rout check.pois.fit.R float.flex.pois.fit.rda")
 
 suppressPackageStartupMessages(library(dplyr))
 

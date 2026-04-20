@@ -1,6 +1,5 @@
 ## This is https://github.com/bbolker/testing_bias_distribution
 
-
 current: target
 -include target.mk
 Ignore = target.mk
@@ -15,10 +14,10 @@ Sources += $(wildcard *.R)
 autopipeR = TRUE
 
 ## Parameter setup
-## const.params: fixed baseline
-## float.params: time-varying baseline
+## const.params.R: fixed baseline
+## float.params.R: time-varying baseline
 
-## Generate observed data from parameters
+## Generate observed data from parameters BINOMIAL deprecated
 ## const.data.Rout: float.data.sim.R const.params.rda
 ## float.data.Rout: float.data.sim.R float.params.rda
 ## %.data.Rout: float.data.sim.R %.params.rda
