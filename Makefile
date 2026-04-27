@@ -76,6 +76,17 @@ const.fixed.pois.fit.Rout: fixed.pois.fit.R const.pois.data.rda
 ## const.flex.pois.check.Rout: Const baseline data, Flexible fitting mechanism
 ## const.fixed.pois.check.Rout: Constant baseline data, Fixed fitting mechanism
 
+
+#### Investigate the identifiability issue
+## Fixed the fitting parameter one at a time and see if we can get a better fitting for some subsets
+## B_lik rename to B_mle
+## Some wrapper function are in flex.pois.fit.R, keep finishing it.
+
+## Map argument for a large function contains all the procedures we have
+## Try augmenting the fitting procedure for all parameters
+## Create a prediction plot that contains curves for both starting values and the optimized values
+
+
 ######################################################################
 
 ######################################################################

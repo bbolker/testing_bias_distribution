@@ -83,16 +83,18 @@ neg_values = c(0,dat_fit$ONeg)
 ) -> sir_sim
 
 fit_pars <- c("log_beta", "log_gamma", "log_h" ,"log_S","log_I")
-calibrator <- mp_tmb_calibrator(
-  sir_sim
-  , data = dat
-  , traj = c("ONeg", "OPos", "T_B")
-  , par = fit_pars,
-  , default = list(N = N
-                   , R = 0
-                   
+
+par_calibrator <- function(fix_pars=character(0)){
+  current_pars <- setdiff(fit_pars,fix_pars)
+  calibrator <- mp_tmb_calibrator(
+    sir_sim
+    , data = dat
+    , traj = c("ONeg", "OPos", "T_B")
+    , par = current_pars
   )
-)
+}
+calibrator<-par_calibrator("log_beta")
+
 ## modify likelihood function (eventually we'll have mp_binom() so we can do this
 ## when defining the calibrator)
 calibrator$simulator$replace$obj_fn(~ - sum(dpois(obs_OPos, sim_OPos)) 
@@ -100,7 +102,7 @@ calibrator$simulator$replace$obj_fn(~ - sum(dpois(obs_OPos, sim_OPos))
 )
 
 fit<-mp_optimize(calibrator)
-names(fit$par)<-fit_pars
+# names(fit$par)<-fit_pars
 #print(fit)
 
 fit_bk<-c(exp(fit$par[1]),exp(fit$par[2]),N=N,exp(fit$par[3]),exp(fit$par[4]),exp(fit$par[5]))
@@ -122,5 +124,11 @@ obj$fn(fit$par)
 
 x<-jacobian(obj$gr,fit$par)
 eigen(x)
+egvec <- eigen(x)$vectors 
+rownames(egvec) <- fit_pars
+egvec[,5]
+
+log_sp<-log(unlist(sp_list)[-3])
+obj$fn(log_sp)
 
 saveEnvironment()
