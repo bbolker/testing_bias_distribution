@@ -9,6 +9,10 @@ Models to understand dynamics of test positivity under epidemic dynamics and bia
 
 Related projects. It's not super-clear we have any of sufficient interest, but JD is willing to share. We have a mathy publication with an earlier post-doc (Ali Gharouni, nice guy, now at PHO); Mike Li did some stuff during Covid which probably had some ideas but will be hard to figure out; JD advised some South African students who have a public repo, but it's not clear how far they got.
 
+## 3000m
+
+- [overview.md](overview.md)
+
 ## Notes
 - [Notes.Rmd](Notes.Rmd): Summary notes for Top-down and Bottom-Up approaches, with primary approaches for fitting fixed baseline model
 - [[FittingNote.md]]: New notes for flexible fitting e
