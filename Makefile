@@ -7,6 +7,11 @@ Ignore = target.mk
 -include makestuff/perl.def
 
 ######################################################################
+
+vim_session:
+	vmt README.md TODO.md
+
+######################################################################
 ## Modularized float-baseline fitting 2026 Mar 08
 ## Moved from /sevilla on 2026 Apr 01
 
