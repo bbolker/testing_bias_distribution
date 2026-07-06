@@ -9,9 +9,10 @@ Ignore = target.mk
 ######################################################################
 
 vim_session:
-	vmt README.md TODO.md
+	bash -ic "vmt README.md TODO.md
 
 ######################################################################
+
 ## Modularized float-baseline fitting 2026 Mar 08
 ## Moved from /sevilla on 2026 Apr 01
 
